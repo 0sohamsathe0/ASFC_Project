@@ -1,5 +1,6 @@
 import express from "express";
 import Player from "../models/player-model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const addPlayer = async (req, res) => {
   try {
@@ -11,11 +12,31 @@ const addPlayer = async (req, res) => {
       event,
       email,
       phone,
-      address,
+      addressLine1,
+      addressLine2,
+      pincode,
       institute,
-      photoURL,
-      aadharCardURL,
     } = req.body;
+
+    const address = {
+      addressLine1,
+      addressLine2,
+      pincode,
+    };
+
+    const photo = req.files?.photo ? req.files.photo[0].path : null;
+    const aadharCardPhoto = req.files?.aadharCardPhoto
+      ? req.files.aadharCardPhoto[0].path
+      : null;
+
+      console.log("Received data: ", photo, aadharCardPhoto)
+
+    if (!photo || !aadharCardPhoto) {
+      return res.status(400).json({
+        success: false,
+        message: "Photo and Aadhaar card images are required",
+      });
+    }
 
     // ✅ Basic validation
     if (
@@ -28,16 +49,14 @@ const addPlayer = async (req, res) => {
       !address ||
       !address.addressLine1 ||
       !address.pincode ||
-      !institute ||
-      !photoURL ||
-      !aadharCardURL
+      !institute
     ) {
       return res.status(400).json({
         success: false,
         message: "All required fields must be provided",
       });
     }
-
+    console.log("Basic validation passed")
     const existingPlayer = await Player.findOne({ aadharCard });
 
     if (existingPlayer) {
@@ -46,6 +65,12 @@ const addPlayer = async (req, res) => {
         message: "Player already registered with this Aadhaar",
       });
     }
+
+    //upload files to cloudinary and get URLs
+    const photoURL = await uploadOnCloudinary(photo);
+    const aadharCardURL = await uploadOnCloudinary(aadharCardPhoto);
+
+    console.log("Cloudinary URLs: ", photoURL, aadharCardURL)
 
     // ✅ Create new player
     const newPlayer = await Player.create({
@@ -77,7 +102,6 @@ const addPlayer = async (req, res) => {
   }
 };
 
-
 const getPlayers = async (req, res) => {
   try {
     // optional query filter
@@ -91,15 +115,13 @@ const getPlayers = async (req, res) => {
     }
 
     // fetch players
-    const players = await Player.find(filter)
-      .sort({ createdAt: -1 }); 
+    const players = await Player.find(filter).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       count: players.length,
       data: players,
     });
-
   } catch (error) {
     console.error(error);
 
@@ -110,4 +132,4 @@ const getPlayers = async (req, res) => {
   }
 };
 
-export { addPlayer , getPlayers };
+export { addPlayer, getPlayers };

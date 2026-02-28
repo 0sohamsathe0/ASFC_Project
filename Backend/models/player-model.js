@@ -28,6 +28,7 @@ const playerSchema = new mongoose.Schema(
     },
 
     event: {
+      required: true,
       type: String,
       enum: ["Epee", "Foil", "Sabre"],
     },
@@ -75,6 +76,8 @@ const playerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+    //for admin approval process
     requestStatus: {
       type: String,
       enum: ["Pending", "Approved", "Rejected"],
