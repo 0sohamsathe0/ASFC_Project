@@ -57,12 +57,10 @@ function RegistrationForm() {
       data.append("photo", photo);
       data.append("aadharCardPhoto", aadharCardPhoto);
 
-      {/*await axios.post("http://localhost:5000/players/addPlayer", data);*/}
-
+      const response = await axios.post("http://localhost:5050/player/add", data);
+      console.log("response", response);
+      
       alert("Player Registered Successfully ✅");
-      for (let pair of data.entries()) {
-      console.log(pair[0], pair[1]);
-    }
       console.log("Form Data:", data);
     } catch (err) {
       console.error(err);

@@ -1,4 +1,4 @@
-import express from "express";
+import jwt from "jsonwebtoken";
 import Player from "../models/player-model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
@@ -8,7 +8,7 @@ const addPlayer = async (req, res) => {
       fullName,
       gender,
       dob,
-      aadharCard,
+      aadharCardNumber,
       event,
       email,
       phone,
@@ -17,6 +17,8 @@ const addPlayer = async (req, res) => {
       pincode,
       institute,
     } = req.body;
+
+    const aadharCard = aadharCardNumber;
 
     const address = {
       addressLine1,
@@ -29,7 +31,8 @@ const addPlayer = async (req, res) => {
       ? req.files.aadharCardPhoto[0].path
       : null;
 
-      console.log("Received data: ", photo, aadharCardPhoto)
+    console.log("Received data: ", photo, aadharCardPhoto);
+    console.log("Received body: ", req.body);
 
     if (!photo || !aadharCardPhoto) {
       return res.status(400).json({
@@ -38,25 +41,27 @@ const addPlayer = async (req, res) => {
       });
     }
 
+    console.log("files are present");
+
     // ✅ Basic validation
     if (
       !fullName ||
       !gender ||
       !dob ||
       !aadharCard ||
+      !event ||
       !email ||
       !phone ||
       !address ||
-      !address.addressLine1 ||
-      !address.pincode ||
       !institute
     ) {
+      console.log("Validation failed: Missing required fields");
       return res.status(400).json({
         success: false,
         message: "All required fields must be provided",
       });
     }
-    console.log("Basic validation passed")
+    console.log("Basic validation passed");
     const existingPlayer = await Player.findOne({ aadharCard });
 
     if (existingPlayer) {
@@ -70,7 +75,7 @@ const addPlayer = async (req, res) => {
     const photoURL = await uploadOnCloudinary(photo);
     const aadharCardURL = await uploadOnCloudinary(aadharCardPhoto);
 
-    console.log("Cloudinary URLs: ", photoURL, aadharCardURL)
+    console.log("Cloudinary URLs: ", photoURL, aadharCardURL);
 
     // ✅ Create new player
     const newPlayer = await Player.create({
@@ -132,4 +137,72 @@ const getPlayers = async (req, res) => {
   }
 };
 
-export { addPlayer, getPlayers };
+const loginPlayer = async (req, res) => {
+  try {
+    const { aadharCard, dob } = req.body;
+
+    const player = await Player.findOne({ aadharCard });
+
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        message: "Player not found",
+      });
+    }
+
+    //doning this to ignore time part of date and compare only date
+    //also form send dob as string so converting it to date object and then to string again to compare with db value
+    const inputDob = new Date(dob).toISOString().split("T")[0];
+    const dbDob = player.dob.toISOString().split("T")[0];
+
+    if (inputDob !== dbDob) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    const token = jwt.sign({ id: player._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    // send cookie
+    res.cookie("playerToken", token, {
+      httpOnly: true,
+      secure: false, // true in production
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: player,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
+const getPlayerProfile = async (req, res) => {
+  const player = await Player.findById(req.playerId);
+
+  res.json({
+    success: true,
+    player,
+  });
+};
+
+const logoutPlayer = async (req, res) => {
+  res.clearCookie("playerToken");
+  res.json({
+    success: true,
+    message: "Logout successful",
+  });
+};
+
+export { addPlayer, getPlayers, loginPlayer, getPlayerProfile, logoutPlayer };
