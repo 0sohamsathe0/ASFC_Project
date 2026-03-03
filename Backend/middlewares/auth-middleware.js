@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 
 export const verifyPlayer = (req, res, next) => {
   const token = req.cookies.playerToken;
+  
 
   if (!token) {
     return res.status(401).json({
