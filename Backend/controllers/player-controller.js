@@ -27,12 +27,7 @@ const addPlayer = async (req, res) => {
     };
 
     const photo = req.files?.photo ? req.files.photo[0].path : null;
-    const aadharCardPhoto = req.files?.aadharCardPhoto
-      ? req.files.aadharCardPhoto[0].path
-      : null;
-
-    console.log("Received data: ", photo, aadharCardPhoto);
-    console.log("Received body: ", req.body);
+    const aadharCardPhoto = req.files?.aadharCardPhoto ? req.files.aadharCardPhoto[0].path : null;
 
     if (!photo || !aadharCardPhoto) {
       return res.status(400).json({
@@ -40,8 +35,6 @@ const addPlayer = async (req, res) => {
         message: "Photo and Aadhaar card images are required",
       });
     }
-
-    console.log("files are present");
 
     // ✅ Basic validation
     if (
@@ -61,7 +54,7 @@ const addPlayer = async (req, res) => {
         message: "All required fields must be provided",
       });
     }
-    console.log("Basic validation passed");
+
     const existingPlayer = await Player.findOne({ aadharCard });
 
     if (existingPlayer) {

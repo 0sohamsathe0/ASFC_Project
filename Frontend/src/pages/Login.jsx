@@ -9,9 +9,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Aadhar Card:", aadharCard);
     const inputDob = new Date(dob).toISOString().split("T")[0];
-    console.log("Date of Birth:", inputDob);
 
 
     try {
@@ -24,7 +22,6 @@ const Login = () => {
 
       // If backend returns player data
       if (response.data) {
-        console.log(response.data.data);
         alert("Login Successful");
 
         document.cookie = `_id=${response.data.data}; path=/; max-age=${7 * 24 * 60 * 60}`;
