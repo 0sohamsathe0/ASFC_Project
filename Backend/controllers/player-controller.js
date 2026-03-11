@@ -136,6 +136,7 @@ const loginPlayer = async (req, res) => {
 
     const player = await Player.findOne({ aadharCard });
 
+
     if (!player) {
       return res.status(404).json({
         success: false,
@@ -159,18 +160,10 @@ const loginPlayer = async (req, res) => {
       expiresIn: "1d",
     });
 
-    // send cookie
-    res.cookie("playerToken", token, {
-      httpOnly: true,
-      secure: false, // true in production
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-
     res.status(200).json({
       success: true,
       message: "Login successful",
-      data: player,
+      token,
     });
   } catch (error) {
     console.error(error);

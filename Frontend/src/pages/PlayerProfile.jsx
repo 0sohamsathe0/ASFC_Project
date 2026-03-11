@@ -9,6 +9,12 @@ const PlayerProfile = () => {
 
   const totalTournamentsPlayed = 12;
 
+  const HandleLogout = () => {
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    alert("Logged out successfully");
+    navigate("/login");
+  };
+
   const upcomingTournaments = [
     {
       id: 1,
@@ -46,11 +52,33 @@ const PlayerProfile = () => {
 
   useEffect(() => {
     async function fetchProfile() {
-      const response = await axios.get("http://localhost:5050/player/profile", {
-        withCredentials: true,
-      });
-      console.log("Profile response: ", response.data.player);
-      setPlayer(response.data.player);
+      try {
+        const cookies = document.cookie.split("; ");
+        var token = cookies.find((cookie) => cookie.startsWith("token="));
+        token = token ? token.split("=")[1] : null;
+        console.log(token);
+
+        if (!token) {
+          alert("No token found, please login first.");
+          navigate("/login");
+          return;
+        }
+
+        const response = await axios.get(
+          "http://localhost:5050/player/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        console.log("Profile Response:", response.data.player);
+
+        setPlayer(response.data.player);
+      } catch (err) {
+        console.log("Error fetching profile: ", err);
+        return;
+      }
     }
     fetchProfile();
   }, []);
@@ -113,7 +141,29 @@ const PlayerProfile = () => {
                   ))}
                 </ul>
               </div>
-              
+              <div className="flex content-center justify-center pt-10">
+                <button
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-8 rounded inline-flex items-center"
+                  onClick={HandleLogout}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#007aff"
+                    stroke-width="1"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                    <path d="M9 12h12l-3 -3" />
+                    <path d="M18 15l3 -3" />
+                  </svg>
+                  <span>Logut</span>
+                </button>{" "}
+              </div>
             </div>
 
             {/* RIGHT SIDE */}
@@ -175,8 +225,6 @@ const PlayerProfile = () => {
                   </button>
                 </div>
               </div>
-
-              
 
               {/* ================= MERIT CERTIFICATES ================= */}
               <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">

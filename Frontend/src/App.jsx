@@ -7,7 +7,7 @@ import PlayerProfile from './pages/PlayerProfile'
 import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
-import RegistrationForm from './components/RegistrationForm'
+import Register from './pages/Register'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -22,14 +22,10 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<PlayerProfile />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
 
     
-    <div className="bg-linear-to-bl from-blue-200 to-blue-600 h-full p-5">
-      <h1 className="text-3xl font-bold text-white text-center">ASFC MERN PROJECT</h1>
-      <RegistrationForm />
-    </div>
-
    </>
   )
 }

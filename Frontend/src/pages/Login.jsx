@@ -7,31 +7,25 @@ const Login = () => {
   const [dob, setDob] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Aadhar Card:", aadharCard);
     const inputDob = new Date(dob).toISOString().split("T")[0];
+    console.log("Date of Birth:", inputDob);
 
 
     try {
       const response = await axios.post("http://localhost:5050/player/login", {
         aadharCard,
         dob: inputDob,
-      },{
-        withCredentials: true,
       });
 
-      // If backend returns player data
-      if (response.data) {
-        alert("Login Successful");
+      console.log("Login Response:", response);
+      alert("Login successful");
+      document.cookie = `token=${response.data.token};`;
+      response.data.token
+      navigate("/profile");
 
-        document.cookie = `_id=${response.data.data}; path=/; max-age=${7 * 24 * 60 * 60}`;
-        
-        // Save player data in localStorage
-        //localStorage.setItem("player", JSON.stringify(response.data));
-
-        // Redirect to profile page
-       navigate("/profile");
-      }
     } catch (error) {
       alert("Invalid Credentials");
       console.log(error);
