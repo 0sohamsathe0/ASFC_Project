@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-export const verifyPlayer = (req, res, next) => {
+ const verifyPlayer = (req, res, next) => {
 
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1];
@@ -21,3 +21,29 @@ export const verifyPlayer = (req, res, next) => {
     });
   }
 };
+
+const verifyAdmin = (req, res, next) => {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({
+      message: "Unauthorized access you need to login first",
+    });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Forbidden access",
+      });
+    }  } catch {
+    return res.status(401).json({
+      message: "Invalid token",
+    });
+  }
+
+  next();
+}
+
+export{ verifyPlayer, verifyAdmin }

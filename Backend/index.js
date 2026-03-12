@@ -11,6 +11,7 @@ import { dirname } from "path";
 import bodyParser from "body-parser";
 
 import playerRouter from "./routes/player-router.js";
+import adminRouter from "./routes/admin-router.js";
 
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use(cookieParser());
 
 
 app.use("/player", playerRouter);
+app.use("/admin", adminRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
