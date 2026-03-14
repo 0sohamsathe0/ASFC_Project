@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link  } from "react-router-dom";
 import axios from "axios";
 
 const Login = () => {
@@ -7,12 +7,11 @@ const Login = () => {
   const [dob, setDob] = useState("");
   const navigate = useNavigate();
 
- const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Aadhar Card:", aadharCard);
     const inputDob = new Date(dob).toISOString().split("T")[0];
     console.log("Date of Birth:", inputDob);
-
 
     try {
       const response = await axios.post("http://localhost:5050/player/login", {
@@ -23,9 +22,8 @@ const Login = () => {
       console.log("Login Response:", response);
       alert("Login successful");
       document.cookie = `token=${response.data.token};`;
-      response.data.token
+      response.data.token;
       navigate("/profile");
-
     } catch (error) {
       alert("Invalid Credentials");
       console.log(error);
@@ -38,9 +36,7 @@ const Login = () => {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-lg w-96"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Player Login
-        </h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Player Login</h2>
 
         <input
           type="text"
@@ -65,7 +61,18 @@ const Login = () => {
         >
           Login
         </button>
+        <p className="text-center mt-4 text-sm text-gray-600">
+  Are you an admin?{" "}
+  <Link
+    to="/admin/login"
+    className="text-blue-600 font-semibold hover:underline"
+  >
+    Login as Admin
+  </Link>
+</p>
       </form>
+
+      
     </div>
   );
 };

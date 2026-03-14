@@ -8,6 +8,8 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Register from './pages/Register'
+import AdminLogin from './pages/admin/AdminLogin.jsx'
+import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -23,7 +25,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<PlayerProfile />} />
         <Route path="/register" element={<Register />} />
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        
+        <Route path="/admin/dashboard/*" element={<AdminDashboard />}/>
       </Routes>
+
 
     
    </>
