@@ -1,18 +1,12 @@
 import { Navigate } from "react-router-dom";
 
-const AdminRoute = () => {
+const AdminRoute = ({ children }) => {
 
-    const isAdmin = document.cookie.split(" ")
-    
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  if (user.role !== "admin") {
-    return <Navigate to="/" />;
-  }
-
-  return children;
+    const isAdmin = document.cookie.split(";").some(cookie => cookie.trim().startsWith("adminToken="));
+    if(!isAdmin) {
+        return <Navigate to="/admin/login" replace />;
+    }
+    return children;
 };
 
 export default AdminRoute;

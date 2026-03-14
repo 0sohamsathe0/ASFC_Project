@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,Outlet } from "react-router-dom";
 import Sidebar from "../../components/Admin/Sidebar.jsx";
 import Topbar from "../../components/Admin/Topbar.jsx";
 
@@ -32,7 +32,7 @@ const AdminDashboard = ({ children }) => {
         <Topbar />
 
         {/* Main Content */}
-        <div className="p-6 overflow-y-auto">{children}</div>
+        <div className="p-6 overflow-y-auto"><Outlet /></div>
       </div>
     </div>
   );
