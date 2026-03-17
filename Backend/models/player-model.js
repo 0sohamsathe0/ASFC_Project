@@ -83,6 +83,10 @@ const playerSchema = new mongoose.Schema(
       enum: ["Pending", "Approved", "Rejected"],
       default: "Pending",
     },
+    rejectionReson:{
+      type:String,
+      default:"None"
+    },
   },
   { timestamps: true },
 );

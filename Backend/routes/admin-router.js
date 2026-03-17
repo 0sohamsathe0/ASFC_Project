@@ -7,7 +7,7 @@ const adminRouter = Router();
 adminRouter.post("/login", loginAdmin);
 
 adminRouter.get("/getPendingPlayers",verifyAdmin,getPendingPlayers);
-adminRouter.post("/acceptPlayer/:playerId",verifyAdmin,acceptPlayer);
-adminRouter.post("/rejectPlayer/:playerId",verifyAdmin,rejectPlayer);
+adminRouter.patch("/acceptPlayer/:playerId",verifyAdmin,acceptPlayer);
+adminRouter.patch("/rejectPlayer",verifyAdmin,rejectPlayer);
 
 export default adminRouter;

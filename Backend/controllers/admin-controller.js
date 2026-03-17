@@ -61,8 +61,8 @@ const acceptPlayer = async (req, res) => {
 
 const rejectPlayer = async (req, res) => {
   try {
-    const { playerId } = req.params;
-    await Player.findByIdAndUpdate(playerId, { requestStatus: "Rejected" });
+    const { playerId,reason } = req.body;
+    await Player.findByIdAndUpdate(playerId, { requestStatus: "Rejected" , rejectionReson : reason});
     res.status(200).json({
       success: true,
       message: "Player rejected successfully",

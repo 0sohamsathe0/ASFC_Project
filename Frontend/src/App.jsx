@@ -13,6 +13,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
 import AddTournament from "./pages/admin/AddTournament.jsx";
 import PlayerRequestQueue from "./components/PlayerRequestQueue.jsx";
+import RejectPlayer from "./components/Admin/RejectPlayer.jsx";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -42,7 +43,9 @@ function App() {
           }
         >
           <Route path="add-tournament" element={<AddTournament />} />
-          <Route path="requests" element={<PlayerRequestQueue />} />
+          <Route path="requests" element={<PlayerRequestQueue />} >
+            <Route path="reject" element={<RejectPlayer />} />
+          </Route>
         </Route>
 
       </Routes>
