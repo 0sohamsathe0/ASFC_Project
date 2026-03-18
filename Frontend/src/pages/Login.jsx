@@ -23,7 +23,7 @@ const Login = () => {
       alert("Login successful");
       document.cookie = `token=${response.data.token};`;
       response.data.token;
-      navigate("/profile");
+      navigate("/player/profile");
     } catch (error) {
       alert("Invalid Credentials");
       console.log(error);

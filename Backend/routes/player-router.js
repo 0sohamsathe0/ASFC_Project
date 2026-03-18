@@ -1,9 +1,7 @@
-import express from "express";
 import { Router} from "express";    
 import { upload } from "../middlewares/multer-middleware.js";
 import { verifyPlayer } from "../middlewares/auth-middleware.js";
 import { addPlayer , getPlayers, loginPlayer,getPlayerProfile, logoutPlayer} from "../controllers/player-controller.js";
-import { get } from "mongoose";
 
 const playerRouter = Router();
 

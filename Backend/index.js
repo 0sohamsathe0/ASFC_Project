@@ -12,7 +12,11 @@ import bodyParser from "body-parser";
 
 import playerRouter from "./routes/player-router.js";
 import adminRouter from "./routes/admin-router.js";
+import tournamentRouter from "./routes/tournament-router.js"
 
+import dns from "dns";
+
+dns.setDefaultResultOrder("ipv4first");
 
 dotenv.config();
 const app = express();
@@ -25,20 +29,43 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cors({origin: "http://localhost:5173", credentials: true,}));
+app.use(cors({ origin: "http://localhost:5173", credentials: true, }));
 app.use(cookieParser());
 
 
 app.use("/player", playerRouter);
 app.use("/admin", adminRouter);
+app.use("/tournament", tournamentRouter)
 
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-mongoose.connect(process.env.mongodb_connection_string).then(() => {
-  app.listen(process.env.PORT, () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
-  });
-  console.log("Connected!");
+
+const startServer = async () => {
+  try {
+    await mongoose.connect(process.env.mongodb_connection_string);
+
+    console.log("✅ MongoDB Connected");
+
+    app.listen(process.env.PORT, () => {
+      console.log(`🚀 Server running on port ${process.env.PORT}`);
+    });
+
+  } catch (err) {
+    console.log("❌ DB Connection Failed");
+    console.log(err.message);
+
+    console.log("🔁 Retrying in 3 seconds...");
+    setTimeout(startServer, 3000);
+  }
+};
+
+startServer();
+
+
+process.on('SIGINT', async () => {
+  console.log("🛑 Shutting down server...");
+  await mongoose.connection.close();
+  process.exit(0);
 });
