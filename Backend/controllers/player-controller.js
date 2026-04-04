@@ -110,7 +110,28 @@ const getPlayers = async (req, res) => {
 
     if (status) {
       filter.requestStatus = status;
+    } else {
+      const players = await Player.find().lean();
+
+      const grouped = {
+        Accepted: [],
+        Rejected: [],
+        Pending: []
+      };
+
+      players.forEach(player => {
+        if (grouped[player.requestStatus]) {
+          grouped[player.requestStatus].push(player);
+        }
+      });
+      let count = (grouped["Accepted"].length) + (grouped["Rejected"].length) + (grouped["Pending"].length)
+      return res.status(200).json({
+        success: true,
+        count,
+        data: grouped,
+      });
     }
+
 
     // fetch players
     const players = await Player.find(filter).sort({ createdAt: -1 });

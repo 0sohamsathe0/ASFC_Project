@@ -91,6 +91,13 @@ const addTournament = async (req, res) => {
     }
 }
 
+const createEntry = async (req,res)=>{
+    const {tournamentId , playerId} = req.body
+    if(!tournamentId||!playerId){
+        
+    }
+}
+
 export {
-    getAllTournaments, addTournament
+    getAllTournaments, addTournament,createEntry
 }

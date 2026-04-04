@@ -11,9 +11,18 @@ import Register from "./pages/Register";
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
-import AddTournament from "./pages/admin/AddTournament.jsx";
-import PlayerRequestQueue from "./components/PlayerRequestQueue.jsx";
-import RejectPlayer from "./components/Admin/RejectPlayer.jsx";
+
+import AddTournament from "./components/Tournament/AddTournament.jsx";
+import PlayerRequestQueue from "./components/Player/PlayerRequestQueue.jsx";
+import RejectPlayer from "./components/Admin/RejectPlayer.jsx"
+import AnalyticsDashboard from "./components/Admin/AnalyticsDashboard.jsx";
+import PlayersBoard  from "./components/Player/PlayerBoard.jsx";
+import AllTournaments from "./components/Tournament/AllTournaments.jsx";
+import TournamentEntry from "./components/Tournament/TournamentEntry.jsx";
+import IndividualResult from "./components/Result/IndividualResult.jsx";
+import TeamResult from "./components/Result/TeamResult.jsx";
+import MeritCertificates from "./components/Certificate/MeritCertificates.jsx";
+import ParticipationCertificates from "./components/Certificate/ParticipationCertificates.jsx";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -42,10 +51,32 @@ function App() {
             </AdminRoute>
           }
         >
-          <Route path="add-tournament" element={<AddTournament />} />
-          <Route path="requests" element={<PlayerRequestQueue />} >
+          <Route path="" element={<AnalyticsDashboard/>}/>
+
+          //player routes inside admin dashboard
+          <Route path="players" element={<PlayersBoard />}/>
+          <Route path="requests" element={<PlayerRequestQueue />}>
             <Route path="reject" element={<RejectPlayer />} />
           </Route>
+
+          //tournaments routes inside admin dashboard
+          <Route path="tournaments" element={<AllTournaments/>}/>
+          <Route path="add-tournament" element={<AddTournament />} />
+            
+          
+
+          //tournament entries route inside admin dashboard
+          <Route path="entries" element={<TournamentEntry/>}/>
+
+          //Results routes inside admin dashboard
+          <Route path="individual-results" element={<IndividualResult/>}/>
+          <Route path="team-results" element={<TeamResult/>}/>
+
+          //certificates routes inside admin dashboard
+          <Route path="merit-certificates" element={<MeritCertificates/>}/>
+          <Route path="participation-certificates" element={<ParticipationCertificates/>}/>
+
+          
         </Route>
 
       </Routes>
