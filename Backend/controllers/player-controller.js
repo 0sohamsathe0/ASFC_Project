@@ -212,4 +212,62 @@ const logoutPlayer = async (req, res) => {
   });
 };
 
-export { addPlayer, getPlayers, loginPlayer, getPlayerProfile, logoutPlayer };
+
+const updatePlayer = async (req,res) => {
+   try {
+    console.log("Incoming body:", req.body);
+    console.log("Updating ID:", req.params.pid);
+
+    const updates = {};
+    const data = req.body;
+
+    // 🔹 Flatten nested object
+    for (let key in data) {
+      if (
+        typeof data[key] === "object" &&
+        data[key] !== null &&
+        !Array.isArray(data[key])
+      ) {
+        for (let subKey in data[key]) {
+          updates[`${key}.${subKey}`] = data[key][subKey];
+        }
+      } else {
+        updates[key] = data[key];
+      }
+    }
+
+    console.log("Flattened updates:", updates);
+
+    // ❗ Prevent empty update
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields to update",
+      });
+    }
+
+    const updatedPlayer = await Player.findByIdAndUpdate(
+      req.params.pid,
+      { $set: updates },
+      { returnDocument: "after", runValidators: true }
+    );
+
+    if (!updatedPlayer) {
+      return res.status(404).json({
+        success: false,
+        message: "Player not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updatedPlayer,
+    });
+
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export { addPlayer, getPlayers, loginPlayer, getPlayerProfile, logoutPlayer,updatePlayer };

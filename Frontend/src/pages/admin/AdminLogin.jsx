@@ -81,7 +81,7 @@ const AdminLogin = () => {
         <p className="text-center text-sm mt-4 text-gray-600">
           Not an admin?{" "}
           <a
-            href="/login"
+            href="/player/login"
             className="text-blue-600 font-semibold hover:underline"
           >
             Player Login
