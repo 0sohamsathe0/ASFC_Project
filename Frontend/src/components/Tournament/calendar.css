@@ -1,0 +1,23 @@
+.react-calendar__tile {
+  padding: 10px 6px !important;
+}
+
+/* Range Start */
+.range-start {
+  background: #2563eb !important;
+  color: white !important;
+  border-radius: 6px 0 0 6px !important;
+}
+
+/* Range Middle */
+.range-middle {
+  background: #93c5fd !important;
+  color: black !important;
+}
+
+/* Range End */
+.range-end {
+  background: #2563eb !important;
+  color: white !important;
+  border-radius: 0 6px 6px 0 !important;
+}

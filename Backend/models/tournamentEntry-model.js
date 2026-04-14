@@ -13,6 +13,13 @@ const tournamentEntrySchema = new mongoose.Schema(
       ref: "Tournament",
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["Selected", "Submitted"],
+      default: "Selected",
+    },
 }, { timestamps: true }
 );
-export default mongoose.model("TournamentEntry", tournamentEntrySchema);
+
+const TournamentEntry = mongoose.model("TournamentEntry", tournamentEntrySchema);
+export default TournamentEntry
