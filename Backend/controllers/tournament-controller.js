@@ -101,8 +101,6 @@ const addTournament = async (req, res) => {
 }
 
 const createEntries = async (req, res) => {
-   
-    {/*
   try {
     const { tournamentId, playerIds } = req.body;
 
@@ -115,8 +113,8 @@ const createEntries = async (req, res) => {
 
     // 🔹 Fetch players
     const players = await Player.find({
-  _id: { $in: playerIds }
-}).select("gender event");
+      _id: { $in: playerIds },
+    }).select("gender event");
 
     if (players.length !== playerIds.length) {
       return res.status(400).json({
@@ -125,13 +123,43 @@ const createEntries = async (req, res) => {
       });
     }
 
-    // 🔹 Existing entries
+    // 🔹 Fetch existing entries
     const existingEntries = await TournamentEntry.find({
       tournamentId,
-    }).populate("playerId");
+    }).populate("playerId", "gender event");
 
-    // 🔹 Combine existing + new players
-    const combined = [...existingEntries.map(e => e.playerId), ...players];
+    console.log("players fetched , tournament fetched",existingEntries,players)
+
+    // 🔥 STEP 1: Remove already existing players
+    const existingPlayerIds = existingEntries.map((e) =>
+      e.playerId._id.toString()
+    );
+    console.log("existing player map is done");
+    
+    const newPlayerIds = playerIds.filter(
+      (id) => !existingPlayerIds.includes(id)
+    );
+    console.log("removing existing is done");
+    
+
+    console.log(newPlayerIds)
+    if (newPlayerIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "All selected players are already registered",
+      });
+    }
+    console.log("Reached herrrrre")
+    // 🔹 Get only NEW players data
+    const newPlayers = players.filter((p) =>
+      newPlayerIds.includes(p._id.toString())
+    );
+
+    // 🔹 Combine existing + new players for validation
+    const combined = [
+      ...existingEntries.map((e) => e.playerId),
+      ...newPlayers,
+    ];
 
     // 🔹 Count helpers
     const countBy = (gender, event) =>
@@ -142,7 +170,7 @@ const createEntries = async (req, res) => {
     const countGender = (gender) =>
       combined.filter((p) => p.gender === gender).length;
 
-    // 🔹 VALIDATION (only max limits)
+    // 🔥 VALIDATION
     if (countGender("Male") > 12) {
       return res.status(400).json({
         success: false,
@@ -156,6 +184,8 @@ const createEntries = async (req, res) => {
         message: "Max 12 girls allowed",
       });
     }
+
+    console.log("gender validation okkk")
 
     const weapons = ["Foil", "Epee", "Sabre"];
 
@@ -175,18 +205,24 @@ const createEntries = async (req, res) => {
       }
     }
 
-    // 🔹 Prepare entries
-    const entries = playerIds.map((id) => ({
+    console.log("Event wise validation is okkk")
+
+    // 🔹 Prepare entries ONLY for new players
+    const entries = newPlayerIds.map((id) => ({
       playerId: id,
       tournamentId,
     }));
 
-    // 🔹 Insert (skip duplicates safely)
-    await TournamentEntry.insertMany(entries, { ordered: false });
+    console.log("my entries object : ",entries)
+
+    // 🔹 Insert safely
+    await TournamentEntry.insertMany(entries);
 
     res.status(201).json({
       success: true,
       message: "Entries created successfully",
+      addedCount: entries.length,
+      skippedCount: playerIds.length - entries.length,
     });
 
   } catch (error) {
@@ -197,7 +233,6 @@ const createEntries = async (req, res) => {
       message: "Server Error",
     });
   }
-     */}
 };
 
 const updateTournament = async (req, res) => {
@@ -250,6 +285,37 @@ const updateTournament = async (req, res) => {
   }
 };
 
+
+const getTournamentEntries = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    console.log(tid);
+    
+    if (!tid) {
+      return res.status(400).json({
+        success: false,
+        message: "Tournament ID is required",
+      });
+    }
+
+    const entries = await TournamentEntry.find({ tournamentId: tid  })
+      .populate("playerId", "fullName gender event");
+
+    res.status(200).json({
+      success: true,
+      data: entries,
+    });
+
+  } catch (error) {
+    console.error("Get Entries Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
 export {
-    getAllTournaments, addTournament, createEntries,updateTournament
+    getAllTournaments, addTournament, createEntries,updateTournament,getTournamentEntries
 }

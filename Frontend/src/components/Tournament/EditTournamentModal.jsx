@@ -80,7 +80,7 @@ const EditTournamentModal = ({ tournament, onClose, refresh }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-slate-800 p-6 rounded-xl w-[400px] text-white">
+      <div className="bg-slate-800 p-6 rounded-xl w-100 text-white">
         <h2 className="text-xl mb-4">Edit Tournament</h2>
 
         <form onSubmit={handleSubmit} className="space-y-3">
