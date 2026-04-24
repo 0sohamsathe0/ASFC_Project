@@ -1,9 +1,10 @@
 import React from 'react'
-
+import AddIndividualResult from './AddIndividualResult'
 function IndividualResult() {
   return (
     <div>
-      individual result component
+      
+      <AddIndividualResult/>
     </div>
   )
 }

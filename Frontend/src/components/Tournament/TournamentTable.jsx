@@ -26,6 +26,7 @@ const TournamentTable = ({ title, data = [], onEdit }) => {
             <tr className="border-b border-gray-600 text-gray-300">
               <th className="p-2 text-left">Name</th>
               <th className="p-2 text-left">Location</th>
+              <th className="p-2 text-left">Age Category</th>
               <th className="p-2 text-left">Start Date</th>
               <th className="p-2 text-left">End Date</th>
               <th className="p-2 text-left">Action</th>
@@ -40,6 +41,7 @@ const TournamentTable = ({ title, data = [], onEdit }) => {
               >
                 <td className="p-2">{tournament.title}</td>
                 <td className="p-2">{tournament.locationState}</td>
+                <td className="p-2 text-center">U{tournament.ageCategory}</td>
                 <td className="p-2">
                   {new Date(tournament.startingDate).toLocaleDateString()}
                 </td>

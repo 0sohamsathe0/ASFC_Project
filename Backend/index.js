@@ -13,6 +13,7 @@ import bodyParser from "body-parser";
 import playerRouter from "./routes/player-router.js";
 import adminRouter from "./routes/admin-router.js";
 import tournamentRouter from "./routes/tournament-router.js"
+import resultRouter from "./routes/result-router.js";
 
 import dns from "dns";
 
@@ -36,6 +37,7 @@ app.use(cookieParser());
 app.use("/player", playerRouter);
 app.use("/admin", adminRouter);
 app.use("/tournament", tournamentRouter)
+app.use("/result", resultRouter)
 
 app.get("/", (req, res) => {
   res.send("Hello World");
