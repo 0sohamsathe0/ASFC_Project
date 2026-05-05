@@ -1,9 +1,10 @@
 import React from 'react'
+import AddTeamResult from './AddTeamResult'
 
 function TeamResult() {
   return (
     <div>
-      team result component
+      <AddTeamResult/>
     </div>
   )
 }

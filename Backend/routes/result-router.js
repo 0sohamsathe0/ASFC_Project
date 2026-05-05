@@ -6,7 +6,7 @@ const resultRouter = Router()
 
 resultRouter.get("/individual/:tournamentId",getIndividualResult)
 resultRouter.post('/individual',verifyAdmin,addIndividualResult)
-resultRouter.get('/team',verifyAdmin,getTeamResult)
+resultRouter.get('/team/:tournamentId',verifyAdmin,getTeamResult)
 resultRouter.post('/team',verifyAdmin,addTeamResult)
 
 export default resultRouter
