@@ -80,7 +80,7 @@ const playerSchema = new mongoose.Schema(
     //for admin approval process
     requestStatus: {
       type: String,
-      enum: ["Pending", "Approved", "Rejected"],
+      enum: ["Pending", "Accepted", "Rejected"],
       default: "Pending",
     },
     rejectionReason:{

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import RejectPlayer from "../Admin/RejectPlayer.jsx";
+import getAdminToken from "../../utils/getAdminToken.js";
 
 function PlayerRequestQueue() {
   const navigate = useNavigate();
@@ -13,20 +14,12 @@ function PlayerRequestQueue() {
 
   const handleApprove = (playerId) => async () => {
   try {
-    const adminToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("adminToken="))
-      ?.split("=")[1];
-
-    console.log("Admin Token:", adminToken);
-    console.log("Approving player with ID:", playerId);
-
     const res = await axios.patch(
       `http://localhost:5050/admin/acceptPlayer/${playerId}`,
       {},
       {
         headers: {
-          authorization: `Bearer ${adminToken}`,
+          authorization: `Bearer ${getAdminToken()}`,
         },
       }
     );
@@ -42,14 +35,9 @@ function PlayerRequestQueue() {
 
   const handleReject = async () => {
     try {
-      const adminToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("adminToken="))
-      ?.split("=")[1];
-
       const responce =await axios.patch("http://localhost:5050/admin/rejectPlayer",{playerId:selectedPlayer._id , reason:rejectReason},{
          headers: {
-          authorization: `Bearer ${adminToken}`,
+          authorization: `Bearer ${getAdminToken()}`,
         },
       })
 
@@ -67,18 +55,11 @@ function PlayerRequestQueue() {
 
   const fetchRequests = async () => {
     try {
-      const adminToken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("adminToken="))
-        ?.split("=")[1];
-
-      console.log(adminToken);
-
       const res = await axios.get(
         "http://localhost:5050/admin/getPendingPlayers",
         {
           headers: {
-            authorization: `Bearer ${adminToken}`,
+            authorization: `Bearer ${getAdminToken()}`,
           },
         },
       );

@@ -3,6 +3,7 @@ import axios from "axios";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./calendar.css";
+import getAdminToken from "../../utils/getAdminToken.js";
 
 const AddTournament = () => {
   const [date, setDate] = useState(new Date());
@@ -23,16 +24,11 @@ const AddTournament = () => {
   useEffect(() => {
     const fetchUpcomingTournaments = async () => {
       try {
-        const adminToken = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("adminToken="))
-          ?.split("=")[1];
-
         const res = await axios.get(
           "http://localhost:5050/tournament?type=upcoming",
           {
             headers: {
-              authorization: `Bearer ${adminToken}`,
+              authorization: `Bearer ${getAdminToken()}`,
             },
           }
         );
@@ -70,14 +66,9 @@ const AddTournament = () => {
         ageCategory: categoryToAgeMap[formData.ageCategory],
       };
 
-      const adminToken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("adminToken="))
-        ?.split("=")[1];
-
       await axios.post("http://localhost:5050/tournament", finalData, {
         headers: {
-          authorization: `Bearer ${adminToken}`,
+          authorization: `Bearer ${getAdminToken()}`,
         },
       });
 

@@ -2,15 +2,12 @@ import React from "react";
 import { useNavigate ,Outlet } from "react-router-dom";
 import Sidebar from "../../components/Admin/Sidebar.jsx";
 import Topbar from "../../components/Admin/Topbar.jsx";
+import getAdminToken from "../../utils/getAdminToken.js";
 
 const AdminDashboard = ({ children }) => {
   const navigate = useNavigate();
   const checkAdminAuth = () => {
-    const adminToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("adminToken="))
-      ?.split("=")[1];
-    console.log(adminToken);
+    const adminToken = getAdminToken() 
     if (!adminToken) {
       alert("Please login as admin to access the dashboard");
       navigate("/admin/login");

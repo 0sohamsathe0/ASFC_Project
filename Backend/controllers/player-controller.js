@@ -8,7 +8,7 @@ const addPlayer = async (req, res) => {
       fullName,
       gender,
       dob,
-      aadharCardNumber,
+      aadharCard,
       event,
       email,
       phone,
@@ -17,8 +17,6 @@ const addPlayer = async (req, res) => {
       pincode,
       institute,
     } = req.body;
-
-    const aadharCard = aadharCardNumber;
 
     const address = {
       addressLine1,

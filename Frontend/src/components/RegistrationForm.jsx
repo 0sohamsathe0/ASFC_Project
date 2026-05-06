@@ -187,16 +187,16 @@ function RegistrationForm() {
 
                 <label
                   className="block mb-3 mt-3 x text-sm font-medium text-gray-700"
-                  htmlFor="aadharCardNumber"
+                  htmlFor="aadharCard"
                 >
                   Aadhar Card Number :
                 </label>
                 <TextField
                   label="Aadhar Card Number"
-                  name="aadharCardNumber"
+                  name="aadharCard"
                   fullWidth
                   required
-                  value={formData.aadharCardNumber}
+                  value={formData.aadharCard}
                   onChange={handleChange}
                 />
 

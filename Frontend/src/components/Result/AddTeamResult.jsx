@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import getAdminToken from '../../utils/getAdminToken.js'
 
 const AddTeamResult = () => {
   const [tournaments, setTournaments] = useState([]);
@@ -22,18 +23,13 @@ const AddTeamResult = () => {
     Sabre: "text-red-400",
   };
 
-  const adminToken = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("adminToken="))
-    ?.split("=")[1];
-
   useEffect(() => {
     fetchTournaments();
   }, []);
 
   const fetchTournaments = async () => {
     const res = await axios.get(`${BASE_URL}/tournament`, {
-      headers: { authorization: `Bearer ${adminToken}` },
+      headers: { authorization: `Bearer ${getAdminToken()}` },
     });
     setTournaments(res.data.data);
   };
@@ -45,7 +41,7 @@ const AddTeamResult = () => {
 
     const entryRes = await axios.get(
       `${BASE_URL}/tournament/entry/${tid}`,
-      { headers: { authorization: `Bearer ${adminToken}` } }
+      { headers: { authorization: `Bearer ${getAdminToken()}` } }
     );
 
     const playersData = entryRes.data.data.map((entry) => ({
@@ -60,7 +56,7 @@ const AddTeamResult = () => {
 
     const resultRes = await axios.get(
       `${BASE_URL}/result/team/${tid}`,
-      { headers: { authorization: `Bearer ${adminToken}` } }
+      { headers: { authorization: `Bearer ${getAdminToken()}` } }
     );
 
     const formatted = {};
@@ -139,7 +135,7 @@ const AddTeamResult = () => {
           })),
         },
         {
-          headers: { authorization: `Bearer ${adminToken}` },
+          headers: { authorization: `Bearer ${getAdminToken()}` },
         }
       );
 
@@ -202,7 +198,7 @@ const AddTeamResult = () => {
                         onClick={() =>
                           !isLocked && togglePlayer(key, p)
                         }
-                        className={`text-[11px] px-2 py-[2px] rounded cursor-pointer
+                        className={`text-[11px] px-2 py-0.5 rounded cursor-pointer
                           ${
                             isSelected
                               ? "bg-yellow-400 text-black"

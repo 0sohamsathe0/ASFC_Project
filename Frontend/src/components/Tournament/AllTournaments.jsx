@@ -2,13 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import TournamentTable from "./TournamentTable";
 import EditTournamentModal from "./EditTournamentModal";
+import getAdminToken from "../../utils/getAdminToken.js"
 
 const AllTournaments = () => {
-  const adminToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("adminToken="))
-      ?.split("=")[1];
-
   const [tournaments, setTournaments] = useState({
     upcoming: [],
     ongoing: [],
@@ -20,7 +16,7 @@ const AllTournaments = () => {
   const fetchTournaments = async () => {
   const res = await axios.get("http://localhost:5050/tournament",{
         headers: {
-          authorization: `Bearer ${adminToken}`,
+          authorization: `Bearer ${getAdminToken()}`,
         },
       });
 

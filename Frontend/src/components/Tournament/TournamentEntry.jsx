@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import getAdminToken from '../../utils/getAdminToken.js'
 
 function TournamentEntry() {
   const [tournaments, setTournaments] = useState([]);
@@ -9,16 +10,12 @@ function TournamentEntry() {
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [existingPlayerIds, setExistingPlayerIds] = useState([]);
 
-  const adminToken = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("adminToken="))
-    ?.split("=")[1];
 
   // 🔹 Fetch tournaments
   const fetchTournaments = async () => {
     const result = await axios.get("http://localhost:5050/tournament", {
       headers: {
-        authorization: `Bearer ${adminToken}`,
+        authorization: `Bearer ${getAdminToken()}`,
       },
     });
     setTournaments(result.data.data);
@@ -30,7 +27,7 @@ function TournamentEntry() {
       "http://localhost:5050/player/getAllPlayers?status=Accepted",
       {
         headers: {
-          authorization: `Bearer ${adminToken}`,
+          authorization: `Bearer ${getAdminToken()}`,
         },
       }
     );
@@ -44,7 +41,7 @@ function TournamentEntry() {
         `http://localhost:5050/tournament/entry/${tournamentId}`,
         {
           headers: {
-            authorization: `Bearer ${adminToken}`,
+            authorization: `Bearer ${getAdminToken()}`,
           },
         }
       );
@@ -130,7 +127,7 @@ function TournamentEntry() {
         payload,
         {
           headers: {
-            authorization: `Bearer ${adminToken}`,
+            authorization: `Bearer ${getAdminToken()}`,
           },
         }
       );

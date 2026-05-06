@@ -1,13 +1,7 @@
 import { useState, useMemo } from "react";
 import axios from "axios";
-
+import getAdminToken from "../../utils/getAdminToken.js"
 const EditTournamentModal = ({ tournament, onClose, refresh }) => {
-  // 🔹 Get token
-  const adminToken = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("adminToken="))
-    ?.split("=")[1];
-
   // 🔹 Original Data (for comparison)
   const originalData = useMemo(
     () => ({
@@ -66,7 +60,7 @@ const EditTournamentModal = ({ tournament, onClose, refresh }) => {
         updatedData,
         {
           headers: {
-            authorization: `Bearer ${adminToken}`,
+            authorization: `Bearer ${getAdminToken()}`,
           },
         }
       );
