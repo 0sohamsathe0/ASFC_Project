@@ -28,7 +28,7 @@ const AddTeamResult = () => {
   }, []);
 
   const fetchTournaments = async () => {
-    const res = await axios.get(`${BASE_URL}/tournament`, {
+    const res = await axios.get(`http://localhost:5050/tournament?type=completed`, {
       headers: { authorization: `Bearer ${getAdminToken()}` },
     });
     setTournaments(res.data.data);

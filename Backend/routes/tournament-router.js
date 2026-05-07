@@ -3,7 +3,7 @@ import { verifyAdmin } from '../middlewares/auth-middleware.js';
 import { getAllTournaments,addTournament,createEntries, updateTournament,getTournamentEntries } from '../controllers/tournament-controller.js';
 const router = express.Router()
 
-//tournament?type=["upcoming","ongoing","history"]
+//tournament?type=["upcoming","ongoing","completed"]
 router.get('/',verifyAdmin,getAllTournaments)
 router.post('/',verifyAdmin,addTournament)
 router.put('/:id',verifyAdmin,updateTournament)

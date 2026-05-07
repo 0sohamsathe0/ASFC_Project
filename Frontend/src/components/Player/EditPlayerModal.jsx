@@ -105,7 +105,6 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
         `http://localhost:5050/player/${player._id}`,
         updatedFields
       );
-      console.log(responce)
       alert("player updated successfully",responce);
       refresh();
       onClose();

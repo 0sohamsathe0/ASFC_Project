@@ -20,7 +20,7 @@ const getAllTournaments = async (req, res) => {
             filter.endDate = { $gte: today };
         }
 
-        else if (type === "history") {
+        else if (type === "completed") {
             filter.endDate = { $lt: today };
         }
 
@@ -50,15 +50,7 @@ const addTournament = async (req, res) => {
             ageCategory
         } = req.body;
 
-        console.log(title,
-            startingDate,
-            endDate,
-            locationState,
-            locationCity,
-            level,
-            ageCategory)
-
-        if (!title || !startingDate || !endDate || !locationCity || !locationCity || !level || !ageCategory) {
+        if (!title || !startingDate || !endDate || !locationCity || !level || !ageCategory) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
@@ -71,7 +63,7 @@ const addTournament = async (req, res) => {
         if (existingTournament) {
             return res.status(409).json({
                 success: false,
-                message: "Tournament already already exist create tournamement with diffrent title",
+                message: "Tournament already exist create tournament with diffrent title",
             });
         }
 
@@ -128,28 +120,23 @@ const createEntries = async (req, res) => {
       tournamentId,
     }).populate("playerId", "gender event");
 
-    console.log("players fetched , tournament fetched",existingEntries,players)
 
     // 🔥 STEP 1: Remove already existing players
     const existingPlayerIds = existingEntries.map((e) =>
       e.playerId._id.toString()
     );
-    console.log("existing player map is done");
     
     const newPlayerIds = playerIds.filter(
       (id) => !existingPlayerIds.includes(id)
     );
-    console.log("removing existing is done");
     
 
-    console.log(newPlayerIds)
     if (newPlayerIds.length === 0) {
       return res.status(400).json({
         success: false,
         message: "All selected players are already registered",
       });
     }
-    console.log("Reached herrrrre")
     // 🔹 Get only NEW players data
     const newPlayers = players.filter((p) =>
       newPlayerIds.includes(p._id.toString())
@@ -185,7 +172,6 @@ const createEntries = async (req, res) => {
       });
     }
 
-    console.log("gender validation okkk")
 
     const weapons = ["Foil", "Epee", "Sabre"];
 
@@ -205,7 +191,6 @@ const createEntries = async (req, res) => {
       }
     }
 
-    console.log("Event wise validation is okkk")
 
     // 🔹 Prepare entries ONLY for new players
     const entries = newPlayerIds.map((id) => ({
@@ -213,7 +198,6 @@ const createEntries = async (req, res) => {
       tournamentId,
     }));
 
-    console.log("my entries object : ",entries)
 
     // 🔹 Insert safely
     await TournamentEntry.insertMany(entries);
@@ -236,11 +220,6 @@ const createEntries = async (req, res) => {
 };
 
 const updateTournament = async (req, res) => {
-   const { id } = req.params;
-
-    const updateData = { ...req.body };
-    console.log(id,updateData);
-     
   try {
     const { id } = req.params;
 
@@ -289,7 +268,6 @@ const updateTournament = async (req, res) => {
 const getTournamentEntries = async (req, res) => {
   try {
     const { tid } = req.params;
-    console.log(tid);
     
     if (!tid) {
       return res.status(400).json({

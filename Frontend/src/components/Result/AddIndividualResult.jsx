@@ -24,7 +24,7 @@ const AddIndividualResult = () => {
   }, []);
 
   const fetchTournaments = async () => {
-    const res = await axios.get("http://localhost:5050/tournament", {
+    const res = await axios.get("http://localhost:5050/tournament?type=completed", {
       headers: { authorization: `Bearer ${getAdminToken()}` },
     });
     setTournaments(res.data.data);

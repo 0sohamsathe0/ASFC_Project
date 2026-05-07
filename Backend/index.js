@@ -48,14 +48,14 @@ const startServer = async () => {
   try {
     await mongoose.connect(process.env.mongodb_connection_string);
 
-    console.log("✅ MongoDB Connected");
+    console.log("MongoDB Connected");
 
     app.listen(process.env.PORT, () => {
-      console.log(`🚀 Server running on port ${process.env.PORT}`);
+      console.log(`Server running on port ${process.env.PORT}`);
     });
 
   } catch (err) {
-    console.log("❌ DB Connection Failed");
+    console.log("DB Connection Failed");
     console.log(err.message);
 
     console.log("🔁 Retrying in 3 seconds...");

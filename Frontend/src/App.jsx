@@ -16,7 +16,7 @@ import AddTournament from "./components/Tournament/AddTournament.jsx";
 import PlayerRequestQueue from "./components/Player/PlayerRequestQueue.jsx";
 import RejectPlayer from "./components/Admin/RejectPlayer.jsx"
 import AnalyticsDashboard from "./components/Admin/AnalyticsDashboard.jsx";
-import PlayersBoard  from "./components/Player/PlayerBoard.jsx";
+import PlayersBoard from "./components/Player/PlayerBoard.jsx";
 import AllTournaments from "./components/Tournament/AllTournaments.jsx";
 import TournamentEntry from "./components/Tournament/TournamentEntry.jsx";
 import IndividualResult from "./components/Result/IndividualResult.jsx";
@@ -51,32 +51,31 @@ function App() {
             </AdminRoute>
           }
         >
-          <Route path="" element={<AnalyticsDashboard/>}/>
+          <Route path="" element={<AnalyticsDashboard />} />
 
-          //player routes inside admin dashboard
-          <Route path="players" element={<PlayersBoard />}/>
+          <Route path="players" element={<PlayersBoard />} />
           <Route path="requests" element={<PlayerRequestQueue />}>
             <Route path="reject" element={<RejectPlayer />} />
           </Route>
 
           //tournaments routes inside admin dashboard
-          <Route path="tournaments" element={<AllTournaments/>}/>
+          <Route path="tournaments" element={<AllTournaments />} />
           <Route path="add-tournament" element={<AddTournament />} />
-            
-          
+
+
 
           //tournament entries route inside admin dashboard
-          <Route path="entries" element={<TournamentEntry/>}/>
+          <Route path="entries" element={<TournamentEntry />} />
 
           //Results routes inside admin dashboard
-          <Route path="individual-results" element={<IndividualResult/>}/>
-          <Route path="team-results" element={<TeamResult/>}/>
+          <Route path="individual-results" element={<IndividualResult />} />
+          <Route path="team-results" element={<TeamResult />} />
 
           //certificates routes inside admin dashboard
-          <Route path="merit-certificates" element={<MeritCertificates/>}/>
-          <Route path="participation-certificates" element={<ParticipationCertificates/>}/>
+          <Route path="merit-certificates" element={<MeritCertificates />} />
+          <Route path="participation-certificates" element={<ParticipationCertificates />} />
 
-          
+
         </Route>
 
       </Routes>

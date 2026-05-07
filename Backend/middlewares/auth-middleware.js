@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
- const verifyPlayer = (req, res, next) => {
+const verifyPlayer = (req, res, next) => {
 
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1];
@@ -37,13 +37,14 @@ const verifyAdmin = (req, res, next) => {
       return res.status(403).json({
         message: "Forbidden access",
       });
-    }  } catch {
+      next();
+    }
+  } catch {
     return res.status(401).json({
       message: "Invalid token",
     });
   }
-
-  next();
+  next()
 }
 
-export{ verifyPlayer, verifyAdmin }
+export { verifyPlayer, verifyAdmin }

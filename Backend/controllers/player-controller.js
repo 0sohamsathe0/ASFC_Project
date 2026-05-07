@@ -46,7 +46,6 @@ const addPlayer = async (req, res) => {
       !address ||
       !institute
     ) {
-      console.log("Validation failed: Missing required fields");
       return res.status(400).json({
         success: false,
         message: "All required fields must be provided",
@@ -66,9 +65,8 @@ const addPlayer = async (req, res) => {
     const photoURL = await uploadOnCloudinary(photo);
     const aadharCardURL = await uploadOnCloudinary(aadharCardPhoto);
 
-    console.log("Cloudinary URLs: ", photoURL, aadharCardURL);
 
-    // ✅ Create new player
+    //Create new player
     const newPlayer = await Player.create({
       fullName,
       gender,
@@ -194,16 +192,23 @@ const loginPlayer = async (req, res) => {
 };
 
 const getPlayerProfile = async (req, res) => {
-  const player = await Player.findById(req.playerId);
-
-  res.json({
-    success: true,
-    player,
-  });
+  try {
+    const player = await Player.findById(req.playerId);
+    res.json({
+      success: true,
+      player,
+    });
+  }
+  catch (err) {
+    res.json({
+      success: false,
+      Error: err,
+    });
+  }
 };
 
 const logoutPlayer = async (req, res) => {
-  res.clearCookie("playerToken");
+  res.clearCookie("token");
   res.json({
     success: true,
     message: "Logout successful",
@@ -211,11 +216,8 @@ const logoutPlayer = async (req, res) => {
 };
 
 
-const updatePlayer = async (req,res) => {
-   try {
-    console.log("Incoming body:", req.body);
-    console.log("Updating ID:", req.params.pid);
-
+const updatePlayer = async (req, res) => {
+  try {
     const updates = {};
     const data = req.body;
 
@@ -234,9 +236,7 @@ const updatePlayer = async (req,res) => {
       }
     }
 
-    console.log("Flattened updates:", updates);
-
-    // ❗ Prevent empty update
+    //Prevent empty update
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({
         success: false,
@@ -268,4 +268,4 @@ const updatePlayer = async (req,res) => {
   }
 }
 
-export { addPlayer, getPlayers, loginPlayer, getPlayerProfile, logoutPlayer,updatePlayer };
+export { addPlayer, getPlayers, loginPlayer, getPlayerProfile, logoutPlayer, updatePlayer };

@@ -58,10 +58,8 @@ function RegistrationForm() {
       data.append("aadharCardPhoto", aadharCardPhoto);
 
       const response = await axios.post("http://localhost:5050/player/add", data);
-      console.log("response", response);
       
       alert("Player Registered Successfully ✅");
-      console.log("Form Data:", data);
     } catch (err) {
       console.error(err);
       alert("Registration Failed");

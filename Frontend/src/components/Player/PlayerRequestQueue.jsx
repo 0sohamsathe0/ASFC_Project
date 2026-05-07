@@ -24,10 +24,7 @@ function PlayerRequestQueue() {
       }
     );
 
-    console.log("Response:", res.data);
-
     fetchRequests(); // refresh list
-
   } catch (err) {
     console.error(err);
   }
@@ -39,11 +36,7 @@ function PlayerRequestQueue() {
          headers: {
           authorization: `Bearer ${getAdminToken()}`,
         },
-      })
-
-      console.log(responce);
-      
-
+      })   
       setShowModal(false);
       setRejectReason("");
 
@@ -65,7 +58,6 @@ function PlayerRequestQueue() {
       );
 
       setPlayers(res.data.data);
-      console.log(res.data.data);
     } catch (err) {
       console.error(err);
     }

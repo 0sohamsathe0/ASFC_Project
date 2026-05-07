@@ -13,7 +13,7 @@ function TournamentEntry() {
 
   // 🔹 Fetch tournaments
   const fetchTournaments = async () => {
-    const result = await axios.get("http://localhost:5050/tournament", {
+    const result = await axios.get("http://localhost:5050/tournament?type=upcoming", {
       headers: {
         authorization: `Bearer ${getAdminToken()}`,
       },

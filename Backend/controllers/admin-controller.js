@@ -3,8 +3,6 @@ import jwt from "jsonwebtoken";
 
 const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
-  console.log(username, password);
-  console.log(process.env.ADMIN_USERNAME, process.env.ADMIN_PASSWORD);
 
   if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
     const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1h" });

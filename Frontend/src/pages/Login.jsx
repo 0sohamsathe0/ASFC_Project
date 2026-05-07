@@ -9,17 +9,13 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Aadhar Card:", aadharCard);
     const inputDob = new Date(dob).toISOString().split("T")[0];
-    console.log("Date of Birth:", inputDob);
 
     try {
       const response = await axios.post("http://localhost:5050/player/login", {
         aadharCard,
         dob: inputDob,
       });
-
-      console.log("Login Response:", response);
       alert("Login successful");
       document.cookie = `token=${response.data.token};`;
       response.data.token;

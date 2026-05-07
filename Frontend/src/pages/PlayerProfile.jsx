@@ -56,7 +56,6 @@ const PlayerProfile = () => {
         const cookies = document.cookie.split("; ");
         var token = cookies.find((cookie) => cookie.startsWith("token="));
         token = token ? token.split("=")[1] : null;
-        console.log(token);
 
         if (!token) {
           alert("No token found, please login first.");
@@ -72,7 +71,6 @@ const PlayerProfile = () => {
             },
           },
         );
-        console.log("Profile Response:", response.data.player);
 
         setPlayer(response.data.player);
       } catch (err) {
@@ -161,7 +159,7 @@ const PlayerProfile = () => {
                     <path d="M9 12h12l-3 -3" />
                     <path d="M18 15l3 -3" />
                   </svg>
-                  <span>Logut</span>
+                  <span>Logout</span>
                 </button>{" "}
               </div>
             </div>
@@ -196,10 +194,6 @@ const PlayerProfile = () => {
                     <p>
                       <span className="font-semibold">Institute:</span>{" "}
                       {player?.institute}
-                    </p>
-                    <p>
-                      <span className="font-semibold">Aadhar:</span>{" "}
-                      {player?.aadharCard}
                     </p>
                   </div>
                 </div>
