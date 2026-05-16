@@ -9,6 +9,6 @@ adminRouter.post("/login", loginAdmin);
 adminRouter.get("/getPendingPlayers",verifyAdmin,getPendingPlayers);
 adminRouter.patch("/acceptPlayer/:playerId",verifyAdmin,acceptPlayer);
 adminRouter.patch("/rejectPlayer",verifyAdmin,rejectPlayer);
-adminRouter.patch("/makePending",makeEveryonePending)
+adminRouter.patch("/makePending",verifyAdmin,makeEveryonePending)
 
 export default adminRouter;

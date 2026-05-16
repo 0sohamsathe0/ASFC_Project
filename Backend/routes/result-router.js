@@ -5,8 +5,8 @@ import { verifyAdmin } from "../middlewares/auth-middleware.js";
 const resultRouter = Router()
 
 resultRouter.get("/individual/:tournamentId",getIndividualResult)
-resultRouter.post('/individual',verifyAdmin,addIndividualResult)
-resultRouter.get('/team/:tournamentId',verifyAdmin,getTeamResult)
-resultRouter.post('/team',verifyAdmin,addTeamResult)
+resultRouter.post('/individual',addIndividualResult)
+resultRouter.get('/team/:tournamentId',getTeamResult)
+resultRouter.post('/team',addTeamResult)
 
 export default resultRouter

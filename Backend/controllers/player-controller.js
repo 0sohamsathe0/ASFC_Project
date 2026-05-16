@@ -173,7 +173,7 @@ const loginPlayer = async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: player._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: player._id, role: "player" }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
 

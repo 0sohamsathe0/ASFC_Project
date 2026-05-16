@@ -9,7 +9,7 @@ router.post('/',verifyAdmin,addTournament)
 router.put('/:id',verifyAdmin,updateTournament)
 
 //all tournament Entry realted routes
-router.post('/createEntry',createEntries)
-router.get('/entry/:tid',getTournamentEntries)
+router.post('/createEntry',verifyAdmin,createEntries)
+router.get('/entry/:tid',verifyAdmin,getTournamentEntries)
 
 export default router

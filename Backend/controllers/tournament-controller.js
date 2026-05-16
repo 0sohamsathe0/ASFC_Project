@@ -3,93 +3,86 @@ import Tournament from "../models/tournament-model.js"
 import Player from "../models/player-model.js"
 
 const getAllTournaments = async (req, res) => {
-    try {
-
-        const { type } = req.query;
-
-        const today = new Date();
-
-        let filter = {};
-
-        if (type === "upcoming") {
-            filter.startingDate = { $gt: today };
-        }
-
-        else if (type === "ongoing") {
-            filter.startingDate = { $lte: today };
-            filter.endDate = { $gte: today };
-        }
-
-        else if (type === "completed") {
-            filter.endDate = { $lt: today };
-        }
-
-        const tournaments = await Tournament.find(filter).sort({
-            startingDate: 1
-        });
-
-        res.status(200).json({"success":true,data:tournaments});
-
-    } catch (error) {
-        res.status(500).json({
-            message: "Error fetching tournaments",
-            error
-        });
+  try {
+    const { type } = req.query;
+    const today = new Date();
+    let filter = {};
+    if (type === "upcoming") {
+      filter.startingDate = { $gt: today };
     }
+    else if (type === "ongoing") {
+      filter.startingDate = { $lte: today };
+      filter.endDate = { $gte: today };
+    }
+    else if (type === "completed") {
+      filter.endDate = { $lt: today };
+    }
+
+    const tournaments = await Tournament.find(filter).sort({
+      startingDate: 1
+    });
+    res.status(200).json({ "success": true, data: tournaments });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching tournaments",
+      error
+    });
+  }
 }
 
 const addTournament = async (req, res) => {
-    try {
-        const {
-            title,
-            startingDate,
-            endDate,
-            locationState,
-            locationCity,
-            level,
-            ageCategory
-        } = req.body;
+  try {
+    const {
+      title,
+      startingDate,
+      endDate,
+      locationState,
+      locationCity,
+      level,
+      ageCategory
+    } = req.body;
 
-        if (!title || !startingDate || !endDate || !locationCity || !level || !ageCategory) {
-            return res.status(400).json({
-                success: false,
-                message: "All fields are required"
-            })
-        }
-
-        const existingTournament = await Tournament.findOne({ title })
-
-
-        if (existingTournament) {
-            return res.status(409).json({
-                success: false,
-                message: "Tournament already exist create tournament with diffrent title",
-            });
-        }
-
-        const tournament = await Tournament.create({
-            title,
-            startingDate,
-            endDate,
-            locationState,
-            locationCity,
-            level,
-            ageCategory
-        });
-
-        res.status(201).json({
-            success: true,
-            message: "Tournament created successfully",
-            tournament
-        });
-
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Server Error while creating tournament",
-            error: error.message
-        });
+    if (!title || !startingDate || !endDate || !locationCity || !level || !ageCategory) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required"
+      })
     }
+
+    const existingTournament = await Tournament.findOne({ title })
+
+
+    if (existingTournament) {
+      return res.status(409).json({
+        success: false,
+        message: "Tournament already exist create tournament with diffrent title",
+      });
+    }
+
+    const tournament = await Tournament.create({
+      title,
+      startingDate,
+      endDate,
+      locationState,
+      locationCity,
+      level,
+      ageCategory
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Tournament created successfully",
+      tournament
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error while creating tournament",
+      error: error.message
+    });
+  }
 }
 
 const createEntries = async (req, res) => {
@@ -125,11 +118,11 @@ const createEntries = async (req, res) => {
     const existingPlayerIds = existingEntries.map((e) =>
       e.playerId._id.toString()
     );
-    
+
     const newPlayerIds = playerIds.filter(
       (id) => !existingPlayerIds.includes(id)
     );
-    
+
 
     if (newPlayerIds.length === 0) {
       return res.status(400).json({
@@ -268,7 +261,7 @@ const updateTournament = async (req, res) => {
 const getTournamentEntries = async (req, res) => {
   try {
     const { tid } = req.params;
-    
+
     if (!tid) {
       return res.status(400).json({
         success: false,
@@ -276,7 +269,7 @@ const getTournamentEntries = async (req, res) => {
       });
     }
 
-    const entries = await TournamentEntry.find({ tournamentId: tid  })
+    const entries = await TournamentEntry.find({ tournamentId: tid })
       .populate("playerId", "fullName gender event");
 
     res.status(200).json({
@@ -295,5 +288,5 @@ const getTournamentEntries = async (req, res) => {
 };
 
 export {
-    getAllTournaments, addTournament, createEntries,updateTournament,getTournamentEntries
+  getAllTournaments, addTournament, createEntries, updateTournament, getTournamentEntries
 }

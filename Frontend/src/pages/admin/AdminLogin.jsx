@@ -33,9 +33,9 @@ const AdminLogin = () => {
 // to do-------
 // store token in cookie/localStorage
 
-      document.cookie = `adminToken=${token};`;
+      document.cookie = `token=${token};`;
       alert("Admin Login Successful");
-
+      console.log("at login cookie is stored : ",token)
       navigate("/admin/dashboard");
 
     } catch (error) {

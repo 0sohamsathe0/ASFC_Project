@@ -5,7 +5,7 @@ const Topbar = () => {
   const handleLogout = () => {
     // Clear the admin token cookie
     document.cookie =
-      "adminToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     alert("Admin logged out successfully");
     navigate("/admin/login");
   };

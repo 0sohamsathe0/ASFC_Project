@@ -7,8 +7,8 @@ import getAdminToken from "../../utils/getAdminToken.js";
 const AdminDashboard = ({ children }) => {
   const navigate = useNavigate();
   const checkAdminAuth = () => {
-    const adminToken = getAdminToken() 
-    if (!adminToken) {
+    const isAdmin = getAdminToken() 
+    if (!isAdmin) {
       alert("Please login as admin to access the dashboard");
       navigate("/admin/login");
       return null;

@@ -37,14 +37,13 @@ const verifyAdmin = (req, res, next) => {
       return res.status(403).json({
         message: "Forbidden access",
       });
-      next();
     }
+    next()
   } catch {
     return res.status(401).json({
       message: "Invalid token",
     });
   }
-  next()
 }
 
 export { verifyPlayer, verifyAdmin }

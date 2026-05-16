@@ -1,7 +1,12 @@
-const getAdminToken = () =>
-  document.cookie
+const getAdminToken = () =>{
+  const token  = document.cookie
     .split("; ")
-    .find((row) => row.startsWith("adminToken="))
+    .find((row) => row.startsWith("token="))
     ?.split("=")[1];
+
+    console.log(token);
+    return token
+}
+  
 
 export default getAdminToken;
