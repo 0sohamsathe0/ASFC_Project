@@ -1,305 +1,565 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Paper,
-  Typography,
-  Grid,
   TextField,
   MenuItem,
   Button,
-  Box,
+  Grid,
+  CircularProgress,
+  LinearProgress,
 } from "@mui/material";
 
 import axios from "axios";
-
+import { useForm } from "react-hook-form";
+import Alert from "@mui/material/Alert";
+import Collapse from "@mui/material/Collapse";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { playerSchema } from "../validations/playerSchema.js";
 import "@fontsource/roboto/400.css";
 
 function RegistrationForm() {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    gender: "",
-    dob: "",
-    event: "",
-    aadharCard:"",
-    email: "",
-    phone: "",
-    institute: "",
-    addressLine1: "",
-    addressLine2: "",
-    pincode: "",
-  });
 
   const [photo, setPhoto] = useState(null);
   const [aadharCardPhoto, setAadharCardPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(playerSchema),
 
-  // submit form
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    defaultValues: {
+      fullName: "",
+      gender: "",
+      dob: "",
+      event: "",
+      aadharCard: "",
+      email: "",
+      phone: "",
+      institute: "",
+      addressLine1: "",
+      addressLine2: "",
+      pincode: "",
+    },
+  });
 
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  const onSubmit = async (formData) => {
     try {
       setLoading(true);
+      setServerError("");
+      setSuccessMessage("");
+      setUploadProgress(0);
+      const MAX_FILE_SIZE = 5 * 1024 * 1024;
+      if (!photo) {
+        setServerError("Upload player photo");
+        return;
+      }
+      if (!aadharCardPhoto) {
+        setServerError("Upload Aadhaar card");
+        return;
+      }
+      if (photo.size > MAX_FILE_SIZE) {
+        setServerError("Photo must be below 5MB");
+        return;
+      }
+      if (aadharCardPhoto.size > MAX_FILE_SIZE) {
+        setServerError("Aadhaar file must be below 5MB");
+        return;
+      }
 
       const data = new FormData();
 
       Object.keys(formData).forEach((key) => {
         data.append(key, formData[key]);
       });
-
       data.append("photo", photo);
-      data.append("aadharCardPhoto", aadharCardPhoto);
+      data.append(
+        "aadharCardPhoto",
+        aadharCardPhoto
+      );
 
-      const response = await axios.post("http://localhost:5050/player/add", data);
-      
-      alert("Player Registered Successfully ✅");
-    } catch (err) {
-      console.error(err);
-      alert("Registration Failed");
-    } finally {
+      const response = await axios.post(
+        "http://localhost:5050/player/add",
+        data,
+        {
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percent);
+          }
+        }
+      );
+      setSuccessMessage(response.data.message);
+      reset();
+      setPhoto(null);
+      setAadharCardPhoto(null);
+    }
+    catch (error) {
+      console.log(error);
+      if (error.response) {
+        const status = error.response.status;
+
+        const message = error.response.data.message;
+        if (status === 409) {
+          setError(
+            "aadharCard",
+            {
+              type: "server",
+              message
+            }
+          );
+        }
+        else {
+          setServerError(message);
+        }
+      }
+      else if (error.code === "ERR_NETWORK") {
+        setServerError("No internet connection");
+      }
+      else {
+        setServerError("Something went wrong");
+      }
+
+    }
+    finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
   return (
     <>
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        <Paper elevation={4} sx={{ p: 4 }}>
+      <Container
+        maxWidth="xl"
+        sx={{ mt: 4, mb: 4 }}
+      >
+        <Paper
+          elevation={4}
+          sx={{ p: 4 }}
+        >
           <h3 className="text-3xl font-bold text-center">
-            Fencers Registration Form
+            Fencers Registration
+            Form
           </h3>
+
           <div className="bg-white flex justify-center p-3 rounded-lg">
-            <div className="w-1/4 bg-gray-900 h-screen "></div>
+
+            <div className="w-1/4 bg-gray-900 h-screen"></div>
+
             <form
-              action="/"
-              onSubmit={handleSubmit}
-              className="w-3/4  h-full p-5"
+              onSubmit={handleSubmit(
+                onSubmit
+              )}
+              className="w-3/4 h-full p-5"
             >
-              <Paper elevation={4} sx={{ p: 4 }}>
+              {/* PERSONAL */}
+
+              <Paper
+                elevation={4}
+                sx={{ p: 4 }}
+              >
                 <h1 className="text-xl font-semibold text-center text-amber-200">
                   Personal Details
                 </h1>
+
                 <br />
-                <label
-                  className="block mb-3 text-sm font-medium text-gray-700"
-                  htmlFor="fullName"
-                >
-                  Name (as should be on certificate)
-                </label>
+
                 <TextField
                   label="Enter Full Name"
-                  name="fullName"
                   fullWidth
-                  required
-                  value={formData.fullName}
-                  onChange={handleChange}
+                  {...register(
+                    "fullName"
+                  )}
+                  error={
+                    !!errors.fullName
+                  }
+                  helperText={
+                    errors.fullName
+                      ?.message
+                  }
                 />
 
-                <div className="flex gap-5 mt-5 ">
-                  <label
-                    className="block mb-3 mt-3 x text-sm font-medium text-gray-700"
-                    htmlFor="gender"
-                  >
-                    Gender :
-                  </label>
+                <div className="flex gap-5 mt-5">
+
                   <TextField
                     className="w-1/4"
                     select
-                    label="gender"
-                    name="gender"
-                    required
+                    label="Gender"
                     size="small"
-                    value={formData.gender}
-                    onChange={handleChange}
+                    {...register(
+                      "gender"
+                    )}
+                    error={
+                      !!errors.gender
+                    }
+                    helperText={
+                      errors.gender
+                        ?.message
+                    }
                   >
-                    <MenuItem value="Male">Male</MenuItem>
-                    <MenuItem value="Female">Female</MenuItem>
+                    <MenuItem value="Male">
+                      Male
+                    </MenuItem>
+
+                    <MenuItem value="Female">
+                      Female
+                    </MenuItem>
+
                   </TextField>
 
-                  <label htmlFor="dob">Date of Birth</label>
                   <TextField
                     className="w-1/4"
                     type="date"
-                    name="dob"
                     size="small"
-                    label="Date of Birth"
-                    InputLabelProps={{ shrink: true }}
-                    required
-                    value={formData.dob}
-                    onChange={handleChange}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    {...register(
+                      "dob"
+                    )}
+                    error={
+                      !!errors.dob
+                    }
+                    helperText={
+                      errors.dob
+                        ?.message
+                    }
                   />
                 </div>
-                <label
-                  htmlFor="event"
-                  className="block mb-3 mt-3 x text-sm font-medium text-gray-700"
-                >
-                  Event :{" "}
-                </label>
+
+                <br />
+
                 <TextField
                   select
                   label="Event"
-                  name="event"
                   fullWidth
-                  value={formData.event}
-                  onChange={handleChange}
+                  {...register(
+                    "event"
+                  )}
+                  error={
+                    !!errors.event
+                  }
+                  helperText={
+                    errors.event
+                      ?.message
+                  }
                 >
-                  <MenuItem value="Epee">Epee</MenuItem>
-                  <MenuItem value="Foil">Foil</MenuItem>
-                  <MenuItem value="Sabre">Sabre</MenuItem>
+                  <MenuItem value="Epee">
+                    Epee
+                  </MenuItem>
+
+                  <MenuItem value="Foil">
+                    Foil
+                  </MenuItem>
+
+                  <MenuItem value="Sabre">
+                    Sabre
+                  </MenuItem>
                 </TextField>
-                <label
-                  className="block mb-3 mt-3 x text-sm font-medium text-gray-700"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
+
+                <br /><br />
+
                 <TextField
                   label="Email"
-                  name="email"
                   fullWidth
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
+                  {...register(
+                    "email"
+                  )}
+                  error={
+                    !!errors.email
+                  }
+                  helperText={
+                    errors.email
+                      ?.message
+                  }
                 />
-                <label
-                  className="block mb-3 mt-3 x text-sm font-medium text-gray-700"
-                  htmlFor="phone"
-                >
-                  Phone
-                </label>
+
+                <br /><br />
+
                 <TextField
                   label="Phone"
-                  name="phone"
                   fullWidth
-                  required
-                  value={formData.phone}
-                  onChange={handleChange}
+                  {...register(
+                    "phone"
+                  )}
+                  error={
+                    !!errors.phone
+                  }
+                  helperText={
+                    errors.phone
+                      ?.message
+                  }
                 />
 
-                <label
-                  className="block mb-3 mt-3 x text-sm font-medium text-gray-700"
-                  htmlFor="aadharCard"
-                >
-                  Aadhar Card Number :
-                </label>
+                <br /><br />
+
                 <TextField
-                  label="Aadhar Card Number"
-                  name="aadharCard"
+                  label="Aadhar Card"
                   fullWidth
-                  required
-                  value={formData.aadharCard}
-                  onChange={handleChange}
+                  {...register(
+                    "aadharCard"
+                  )}
+                  error={
+                    !!errors.aadharCard
+                  }
+                  helperText={
+                    errors.aadharCard
+                      ?.message
+                  }
                 />
 
-                <label
-                  className="block mb-3 mt-3 x text-sm font-medium text-gray-700"
-                  htmlFor="institute"
-                >
-                  Institute / School / College Name :
-                </label>
+                <br /><br />
+
                 <TextField
-                  label="Institute / School / College"
-                  name="institute"
+                  label="Institute"
                   fullWidth
-                  required
-                  value={formData.institute}
-                  onChange={handleChange}
+                  {...register(
+                    "institute"
+                  )}
+                  error={
+                    !!errors.institute
+                  }
+                  helperText={
+                    errors.institute
+                      ?.message
+                  }
                 />
               </Paper>
 
               <br />
-              <br />
-              <Paper elevation={4} sx={{ p: 4 }}>
-                  <h1 className="text-xl font-semibold text-center text-amber-200">
+
+              {/* ADDRESS */}
+
+              <Paper
+                elevation={4}
+                sx={{ p: 4 }}
+              >
+                <h1 className="text-xl font-semibold text-center text-amber-200">
                   Address Details
                 </h1>
+
                 <br />
-                <Grid item xs={12}>
-                  <label htmlFor="addressLine1" className="block mb-3 mt-3 x text-sm font-medium text-gray-700">Address Line 1</label>
+
                 <TextField
                   label="Address Line 1"
-                  name="addressLine1"
                   fullWidth
-                  required
-                  value={formData.addressLine1}
-                  onChange={handleChange}
+                  {...register(
+                    "addressLine1"
+                  )}
+                  error={
+                    !!errors.addressLine1
+                  }
+                  helperText={
+                    errors.addressLine1
+                      ?.message
+                  }
                 />
-              </Grid>
 
-              <Grid item xs={12} md={8}>
-                <label htmlFor="addressLine2" className="block mb-3 mt-3 x text-sm font-medium text-gray-700">Address Line 2</label>
+                <br /><br />
+
                 <TextField
                   label="Address Line 2"
-                  name="addressLine2"
                   fullWidth
-                  value={formData.addressLine2}
-                  onChange={handleChange}
+                  {...register(
+                    "addressLine2"
+                  )}
                 />
-              </Grid>
 
-              <Grid item xs={12} md={4}>
-                <label htmlFor="pincode" className="block mb-3 mt-3 x text-sm font-medium text-gray-700">Pincode</label>
+                <br /><br />
+
                 <TextField
                   label="Pincode"
-                  name="pincode"
                   fullWidth
-                  required
-                  value={formData.pincode}
-                  onChange={handleChange}
+                  {...register(
+                    "pincode"
+                  )}
+                  error={
+                    !!errors.pincode
+                  }
+                  helperText={
+                    errors.pincode
+                      ?.message
+                  }
                 />
-              </Grid>
               </Paper>
 
-              <Paper elevation={4} sx={{ p: 4, mt: 5 }}> 
+              <br />
+
+              {/* UPLOAD */}
+
+              <Paper
+                elevation={4}
+                sx={{ p: 4 }}
+              >
                 <h1 className="text-xl font-semibold text-center text-amber-200">
                   Upload Documents
                 </h1>
 
-              <Grid item xs={12} md={6}>
-                <label htmlFor="photo">Upload Player Photo : </label>
-                <Button variant="contained" component="label" >
-                  Upload photo
-                  <input
-                  name="photo"
-                    type="file"
-                    hidden
-                    onChange={(e) => setPhoto(e.target.files[0])}
-                  />
-                </Button>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <label htmlFor="aadharCardPhoto">Upload Aadhaar Card : </label>
-                <Button variant="contained" component="label">
-                  Upload Aadhaar
-                  <input
-                  name="aadharCardPhoto"
-                    type="file"
-                    hidden
-                    onChange={(e) => setAadharCardPhoto(e.target.files[0])}
-                  />
-                </Button>
-              </Grid>
-              </Paper>
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  size="large"
-                  fullWidth
-                  disabled={loading}
+                <Grid
+                  container
+                  spacing={2}
                 >
-                  {loading ? "Registering..." : "Register Player"}
-                </Button>
-              </Grid>
+                  <Grid
+                    item
+                    xs={6}
+                  >
+                    <Button
+                      variant="contained"
+                      component="label"
+                    >
+                      Upload Photo
 
+                      <input
+                        hidden
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) =>
+                          setPhoto(
+                            e.target
+                              .files[0]
+                          )
+                        }
+                      />
+                    </Button>
+
+                    {photo && (
+                      <p className="mt-2">
+                        {
+                          photo.name
+                        }
+                      </p>
+                    )}
+                  </Grid>
+
+                  <Grid
+                    item
+                    xs={6}
+                  >
+                    <Button
+                      variant="contained"
+                      component="label"
+                    >
+                      Upload Aadhaar
+
+                      <input
+                        hidden
+                        type="file"
+                        onChange={(e) =>
+                          setAadharCardPhoto(
+                            e.target
+                              .files[0]
+                          )
+                        }
+                      />
+                    </Button>
+
+                    {aadharCardPhoto && (
+                      <p className="mt-2">
+                        {
+                          aadharCardPhoto.name
+                        }
+                      </p>
+                    )}
+                  </Grid>
+                </Grid>
+
+                {loading &&
+                  uploadProgress >
+                  0 && (
+                    <>
+                      <p className="mt-4">
+                        Uploading:
+                        {" "}
+                        {
+                          uploadProgress
+                        }
+                        %
+                      </p>
+
+                      <LinearProgress
+                        variant="determinate"
+                        value={
+                          uploadProgress
+                        }
+                      />
+                    </>
+                  )}
+              </Paper>
+
+              <Collapse in={!!serverError}>
+                {serverError && (
+                  <Alert
+                    severity="error"
+                    sx={{
+                      mt: 3,
+                      borderRadius: "10px"
+                    }}
+                  >
+                    {serverError}
+                  </Alert>
+                )}
+              </Collapse>
+
+              <Collapse in={!!successMessage}>
+                {successMessage && (
+                  <Alert
+                    severity="success"
+                    sx={{
+                      mt: 3,
+                      fontSize: "16px",
+                      borderRadius: "10px"
+                    }}
+                  >
+                    {successMessage}
+                  </Alert>
+                )}
+              </Collapse>
+
+              <br />
+
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                disabled={
+                  loading
+                }
+              >
+                {loading ? (
+                  <>
+                    <CircularProgress
+                      size={20}
+                      sx={{
+                        color:
+                          "white",
+                        mr: 1,
+                      }}
+                    />
+
+                    Registering...
+                  </>
+                ) : (
+                  "Register Player"
+                )}
+              </Button>
             </form>
           </div>
         </Paper>

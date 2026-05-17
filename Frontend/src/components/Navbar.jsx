@@ -65,7 +65,7 @@ const Navbar = () => {
           </NavLink>
 
           <NavLink
-            to="/register"
+            to="/player/register"
             className="bg-yellow-400 text-black px-5 py-2 rounded-md font-semibold hover:bg-yellow-300 transition"
           >
             Register
