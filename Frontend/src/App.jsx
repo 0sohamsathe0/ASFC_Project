@@ -11,6 +11,7 @@ import Register from "./pages/Register";
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
+import EditPlayerProfile from "./components/Player/EditPlayerProfile .jsx";
 
 import AddTournament from "./components/Tournament/AddTournament.jsx";
 import PlayerRequestQueue from "./components/Player/PlayerRequestQueue.jsx";
@@ -40,6 +41,7 @@ function App() {
         <Route path="/player/login" element={<Login />} />
         <Route path="/player/profile" element={<PlayerProfile />} />
         <Route path="/player/register" element={<Register />} />
+        <Route path="/player/edit/:playerId" element={<EditPlayerProfile />} />
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
 

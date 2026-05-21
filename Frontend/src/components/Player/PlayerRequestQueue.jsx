@@ -24,9 +24,20 @@ function PlayerRequestQueue() {
       }
     );
 
-    fetchRequests(); // refresh list
+    if (!res.data.emailSent) {
+      alert(
+        "Player approved successfully, but email delivery failed."
+      );
+    }
+
+    fetchRequests();
+
   } catch (err) {
     console.error(err);
+
+    alert(
+      err.response?.data?.message || "Something went wrong"
+    );
   }
 };
 

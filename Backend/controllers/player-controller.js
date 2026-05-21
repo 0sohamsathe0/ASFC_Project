@@ -218,11 +218,15 @@ const logoutPlayer = async (req, res) => {
 
 const updatePlayer = async (req, res) => {
   try {
-    const updates = {};
+    const playerId = req.params.pid;
     const data = req.body;
+    const updates = {};
+    const restrictedFields = ["_id", "password"];
 
-    // 🔹 Flatten nested object
+
     for (let key in data) {
+      if (restrictedFields.includes(key)) continue;
+
       if (
         typeof data[key] === "object" &&
         data[key] !== null &&
@@ -236,7 +240,7 @@ const updatePlayer = async (req, res) => {
       }
     }
 
-    //Prevent empty update
+    // Prevent empty update
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({
         success: false,
@@ -244,10 +248,14 @@ const updatePlayer = async (req, res) => {
       });
     }
 
+    console.log(updates)
     const updatedPlayer = await Player.findByIdAndUpdate(
-      req.params.pid,
+      playerId,
       { $set: updates },
-      { returnDocument: "after", runValidators: true }
+      {
+        returnDocument: "after",
+        runValidators: true,
+      }
     );
 
     if (!updatedPlayer) {
@@ -257,15 +265,72 @@ const updatePlayer = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
+      message: "Player updated successfully",
       data: updatedPlayer,
     });
 
+    {/*
+    // Fields that should not be updated directly
+    const restrictedFields = ["_id", "password"];
+
+    // Flatten nested objects
+    for (let key in data) {
+      if (restrictedFields.includes(key)) continue;
+
+      if (
+        typeof data[key] === "object" &&
+        data[key] !== null &&
+        !Array.isArray(data[key])
+      ) {
+        for (let subKey in data[key]) {
+          updates[`${key}.${subKey}`] = data[key][subKey];
+        }
+      } else {
+        updates[key] = data[key];
+      }
+    }
+
+    // Prevent empty update
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields to update",
+      });
+    }
+
+    const updatedPlayer = await Player.findByIdAndUpdate(
+      playerId,
+      { $set: updates },
+      {
+        new: true, // returns updated document
+        runValidators: true,
+      }
+    );
+
+    if (!updatedPlayer) {
+      return res.status(404).json({
+        success: false,
+        message: "Player not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Player updated successfully",
+      data: updatedPlayer,
+    });
+*/}
   } catch (error) {
     console.error("Update error:", error);
-    res.status(500).json({ message: error.message });
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
-}
+
+};
 
 export { addPlayer, getPlayers, loginPlayer, getPlayerProfile, logoutPlayer, updatePlayer };

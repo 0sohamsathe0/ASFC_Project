@@ -85,8 +85,9 @@ const playerSchema = new mongoose.Schema(
     },
     rejectionReason:{
       type:String,
-      default:"None"
+      default:""
     },
+    isEditable:{ type:Boolean, default:false },
   },
   { timestamps: true },
 );
