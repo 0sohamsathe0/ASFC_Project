@@ -1,5 +1,8 @@
 import { useState } from "react";
 import "./App.css";
+import "@fontsource/merriweather/700.css";
+import "@fontsource/merriweather/900.css";
+import "@fontsource/playfair-display/700.css";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";

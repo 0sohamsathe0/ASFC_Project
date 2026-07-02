@@ -2,9 +2,17 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+import MeritCertificates from "../components/Certificate/MeritCertificates.jsx";
+import ResultsSection from "../components/Player/ResultsSection.jsx";
+
 const PlayerProfile = () => {
   const [player, setPlayer] = useState(null);
   const [showAadhar, setShowAadhar] = useState(false);
+  const [individualResults, setIndividualResults] = useState([]);
+  const [teamResults, setTeamResults] = useState([]);
+
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
+  const [showCertificate, setShowCertificate] = useState(false);
 
   const navigate = useNavigate();
 
@@ -23,31 +31,6 @@ const PlayerProfile = () => {
     },
   ];
 
-  const meritCertificates = [
-    {
-      id: 1,
-      tournament: "Inter-School Championship 2025",
-      link: "#",
-    },
-    {
-      id: 2,
-      tournament: "District Gold Medal Event",
-      link: "#",
-    },
-  ];
-
-  const participationCertificates = [
-    {
-      id: 1,
-      tournament: "State Level Fencing Cup 2025",
-      link: "#",
-    },
-    {
-      id: 2,
-      tournament: "National Open Championship",
-      link: "#",
-    },
-  ];
 
   const HandleLogout = () => {
     document.cookie =
@@ -82,8 +65,20 @@ const PlayerProfile = () => {
             },
           }
         );
-
         setPlayer(response.data.player);
+
+        const [individualRes, teamRes] = await Promise.all([
+          axios.get(
+            `http://localhost:5050/result/player/individual/${response.data.player._id}`
+          ),
+          axios.get(
+            `http://localhost:5050/result/player/team/${response.data.player._id}`
+          ),
+        ]);
+
+        setIndividualResults(individualRes.data.data);
+        setTeamResults(teamRes.data.data);
+
       } catch (err) {
         console.log("Profile Error:", err);
       }
@@ -339,129 +334,25 @@ const PlayerProfile = () => {
               {
                 player.requestStatus !== "Rejected" ? (
                   <>
-                    {/* ================= MERIT CERTIFICATES ================= */}
+                    <ResultsSection
+                      title="Individual Results"
+                      description="View and download certificates earned in individual events."
+                      results={individualResults}
+                      color="purple"
+                      icon="🏅"
+                      setSelectedCertificate={setSelectedCertificate}
+                      setShowCertificate={setShowCertificate}
+                    />
 
-                    <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
-
-                      <div className="flex justify-between items-center mb-8">
-
-                        <div>
-                          <h2 className="text-2xl font-bold text-gray-800">
-                            Merit Certificates
-                          </h2>
-
-                          <p className="text-sm text-gray-500 mt-1">
-                            Certificates awarded based on performance & rankings
-                          </p>
-                        </div>
-
-                        <div className="bg-purple-100 text-purple-700 px-4 py-1.5 rounded-full text-sm font-semibold">
-                          {meritCertificates.length} Records
-                        </div>
-
-                      </div>
-
-                      <div className="overflow-x-auto rounded-xl border border-gray-200">
-
-                        <table className="w-full text-left">
-
-                          <thead className="bg-gradient-to-r from-purple-600 to-purple-500 text-white">
-                            <tr>
-                              <th className="px-6 py-4">Tournament Title</th>
-                              <th className="px-6 py-4">Certificate</th>
-                            </tr>
-                          </thead>
-
-                          <tbody className="divide-y divide-gray-100">
-
-                            {meritCertificates.map((cert) => (
-                              <tr key={cert.id} className="hover:bg-purple-50">
-                                <td className="px-6 py-5">
-                                  {cert.tournament}
-                                </td>
-
-                                <td className="px-6 py-5">
-                                  <a
-                                    href={cert.link}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="bg-purple-600 text-white px-4 py-2 rounded-lg"
-                                  >
-                                    View Certificate
-                                  </a>
-                                </td>
-                              </tr>
-                            ))}
-
-                          </tbody>
-
-                        </table>
-
-                      </div>
-
-                    </div>
-
-
-                    {/* ================= PARTICIPATION CERTIFICATES ================= */}
-                    <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 mt-10">
-                      {/* Section Header */}
-                      <div className="flex justify-between items-center mb-8">
-                        <div>
-                          <h2 className="text-2xl font-bold text-gray-800">
-                            Participation Certificates
-                          </h2>
-                          <p className="text-sm text-gray-500 mt-1">
-                            Certificates received for tournament participation
-                          </p>
-                        </div>
-
-                        <div className="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-semibold">
-                          {participationCertificates.length} Records
-                        </div>
-                      </div>
-
-                      {/* Table Container */}
-                      <div className="overflow-x-auto rounded-xl border border-gray-200">
-                        <table className="w-full text-left">
-                          {/* Table Head */}
-                          <thead className="bg-gradient-to-r from-blue-600 to-blue-500 text-white sticky top-0 z-10">
-                            <tr>
-                              <th className="px-6 py-4 text-sm uppercase tracking-wider font-semibold">
-                                Tournament Title
-                              </th>
-                              <th className="px-6 py-4 text-sm uppercase tracking-wider font-semibold">
-                                Certificate
-                              </th>
-                            </tr>
-                          </thead>
-
-                          {/* Table Body */}
-                          <tbody className="divide-y divide-gray-100 bg-white">
-                            {participationCertificates.map((cert) => (
-                              <tr
-                                key={cert.id}
-                                className="hover:bg-blue-50 transition duration-300 ease-in-out"
-                              >
-                                <td className="px-6 py-5 text-gray-800 font-medium text-sm">
-                                  {cert.tournament}
-                                </td>
-
-                                <td className="px-6 py-5">
-                                  <a
-                                    href={cert.link}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-300"
-                                  >
-                                    View Certificate
-                                  </a>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                    <ResultsSection
+                      title="Team Results"
+                      description="View and download certificates earned in team events."
+                      results={teamResults}
+                      color="blue"
+                      icon="👥"
+                      setSelectedCertificate={setSelectedCertificate}
+                      setShowCertificate={setShowCertificate}
+                    />
                   </>
                 ) : (
                   <div className="bg-white p-8 rounded-2xl shadow-lg border border-red-100 text-center">
@@ -496,6 +387,23 @@ const PlayerProfile = () => {
           </div>
         </div>
 
+
+        {showCertificate && (
+          <div
+            onClick={() => setShowCertificate(false)}
+            className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-6"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-6 w-full max-w-7xl max-h-[95vh] overflow-auto shadow-2xl"
+            >
+              <MeritCertificates
+                certificateData={selectedCertificate}
+                onClose={() => setShowCertificate(false)}
+              />
+            </div>
+          </div>
+        )}
         {/* Aadhaar Modal */}
 
         {showAadhar && (
