@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { useNavigate,Link  } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [aadharCard, setAadharCard] = useState("");
   const [dob, setDob] = useState("");
   const navigate = useNavigate();
+
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,6 +19,12 @@ const Login = () => {
         aadharCard,
         dob: inputDob,
       });
+
+
+      login(response.data.user);
+
+
+
       alert("Login successful");
       document.cookie = `token=${response.data.token};`;
       response.data.token;
@@ -58,17 +67,17 @@ const Login = () => {
           Login
         </button>
         <p className="text-center mt-4 text-sm text-gray-600">
-  Are you an admin?{" "}
-  <Link
-    to="/admin/login"
-    className="text-blue-600 font-semibold hover:underline"
-  >
-    Login as Admin
-  </Link>
-</p>
+          Are you an admin?{" "}
+          <Link
+            to="/admin/login"
+            className="text-blue-600 font-semibold hover:underline"
+          >
+            Login as Admin
+          </Link>
+        </p>
       </form>
 
-      
+
     </div>
   );
 };

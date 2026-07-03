@@ -1,8 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminLogin = () => {
+
+  const { login } = useAuth();
 
   const navigate = useNavigate();
 
@@ -29,13 +32,15 @@ const AdminLogin = () => {
         { withCredentials: true }
       );
 
+      login(res.data.user);
+
       const token = res.data.token;
-// to do-------
-// store token in cookie/localStorage
+      // to do-------
+      // store token in cookie/localStorage
 
       document.cookie = `token=${token};`;
       alert("Admin Login Successful");
-      console.log("at login cookie is stored : ",token)
+
       navigate("/admin/dashboard");
 
     } catch (error) {

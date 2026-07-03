@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import React, { useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 const Topbar = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const handleLogout = () => {
     // Clear the admin token cookie
-    document.cookie =
-      "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+       logout();
+
     alert("Admin logged out successfully");
     navigate("/admin/login");
   };

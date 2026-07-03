@@ -27,10 +27,14 @@ import IndividualResult from "./components/Result/IndividualResult.jsx";
 import TeamResult from "./components/Result/TeamResult.jsx";
 import MeritCertificates from "./components/Certificate/MeritCertificates.jsx";
 import ParticipationCertificates from "./components/Certificate/ParticipationCertificates.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
+
 
 function App() {
   const [count, setCount] = useState(0);
+  const { user } = useAuth();
 
+console.log("App User:", user);
   return (
     <>
       <Navbar />

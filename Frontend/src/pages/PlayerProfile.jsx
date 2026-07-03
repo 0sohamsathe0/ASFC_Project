@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 import MeritCertificates from "../components/Certificate/MeritCertificates.jsx";
 import ResultsSection from "../components/Player/ResultsSection.jsx";
@@ -15,6 +16,8 @@ const PlayerProfile = () => {
   const [showCertificate, setShowCertificate] = useState(false);
 
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
 
   const totalTournamentsPlayed = 12;
 
@@ -33,8 +36,7 @@ const PlayerProfile = () => {
 
 
   const HandleLogout = () => {
-    document.cookie =
-      "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        logout();
 
     alert("Logged out successfully");
     navigate("/player/login");

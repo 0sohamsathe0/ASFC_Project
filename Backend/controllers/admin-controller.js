@@ -11,6 +11,7 @@ const loginAdmin = async (req, res) => {
       success: true,
       message: "Admin logged in successfully",
       token: token,
+      user:{role:"admin"}
     });
   } else {
     res.status(401).json({
