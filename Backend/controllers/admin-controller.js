@@ -6,7 +6,7 @@ const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
 
   if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
-    const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id:"admin",role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1h" });
     res.status(200).json({
       success: true,
       message: "Admin logged in successfully",

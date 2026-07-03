@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { getIndividualResult, addIndividualResult, getTeamResult, addTeamResult,getPlayerIndividualResults,getPlayerTeamResults } from "../controllers/result-controller.js";
-import { verifyAdmin } from "../middlewares/auth-middleware.js";
 
 const resultRouter = Router()
 

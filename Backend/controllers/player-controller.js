@@ -193,7 +193,7 @@ const loginPlayer = async (req, res) => {
 
 const getPlayerProfile = async (req, res) => {
   try {
-    const player = await Player.findById(req.playerId);
+    const player = await Player.findById(req.user.id);
     res.json({
       success: true,
       player,
@@ -202,7 +202,7 @@ const getPlayerProfile = async (req, res) => {
   catch (err) {
     res.json({
       success: false,
-      Error: err,
+      Error: err.message,
     });
   }
 };

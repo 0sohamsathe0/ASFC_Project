@@ -95,27 +95,6 @@ const Sidebar = () => {
           </div>
         )}
 
-        {/* CERTIFICATES */}
-        <button
-          onClick={() => setOpenCertificates(!openCertificates)}
-          className="p-3 rounded hover:bg-slate-700 flex justify-between items-center"
-        >
-          Certificates
-          <span>{openCertificates ? "▲" : "▼"}</span>
-        </button>
-
-        {openCertificates && (
-          <div className="flex flex-col ml-4 space-y-2 text-sm">
-            <NavLink to="/admin/dashboard/merit-certificates" className={linkStyle}>
-              Merit Certificates
-            </NavLink>
-
-            <NavLink to="/admin/dashboard/participation-certificates" className={linkStyle}>
-              Participation Certificates
-            </NavLink>
-          </div>
-        )}
-
       </nav>
     </div>
   );

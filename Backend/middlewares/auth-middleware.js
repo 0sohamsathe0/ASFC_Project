@@ -1,49 +1,29 @@
 import jwt from "jsonwebtoken";
 
-const verifyPlayer = (req, res, next) => {
-
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1];
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({
-      message: "Unauthorized access you need to login first",
+      success: false,
+      message: "Unauthorized access. Please login first.",
     });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.playerId = decoded.id;
+
+    // Make the decoded token available throughout the request
+    req.user = decoded;
+
     next();
-  } catch {
+  } catch (err) {
     return res.status(401).json({
-      message: "Invalid token",
+      success: false,
+      message: "Invalid or expired token.",
     });
   }
 };
 
-const verifyAdmin = (req, res, next) => {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized access you need to login first",
-    });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    if (decoded.role !== "admin") {
-      return res.status(403).json({
-        message: "Forbidden access",
-      });
-    }
-    next()
-  } catch {
-    return res.status(401).json({
-      message: "Invalid token",
-    });
-  }
-}
-
-export { verifyPlayer, verifyAdmin }
+export default verifyJWT;
