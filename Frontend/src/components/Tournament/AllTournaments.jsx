@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import TournamentTable from "./TournamentTable";
 import EditTournamentModal from "./EditTournamentModal";
-import getAdminToken from "../../utils/getAdminToken.js"
 
 const AllTournaments = () => {
   const [tournaments, setTournaments] = useState({
@@ -15,9 +14,7 @@ const AllTournaments = () => {
   
   const fetchTournaments = async () => {
   const res = await axios.get("http://localhost:5050/tournament",{
-        headers: {
-          authorization: `Bearer ${getAdminToken()}`,
-        },
+        withCredentials: true,
       });
 
   const data = res.data.data;

@@ -177,11 +177,19 @@ const loginPlayer = async (req, res) => {
       expiresIn: "1d",
     });
 
-    res.status(200).json({
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
       success: true,
-      message: "Login successful",
-      token,
-      user:{role: "player"}
+      message: "Player Login Successful",
+      user: {
+        role: "player",
+      },
     });
   } catch (error) {
     console.error(error);
@@ -194,6 +202,7 @@ const loginPlayer = async (req, res) => {
 
 const getPlayerProfile = async (req, res) => {
   try {
+    console.log(req.user)
     const player = await Player.findById(req.user.id);
     res.json({
       success: true,
@@ -209,8 +218,13 @@ const getPlayerProfile = async (req, res) => {
 };
 
 const logoutPlayer = async (req, res) => {
-  res.clearCookie("token");
-  res.json({
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+
+  return res.status(200).json({
     success: true,
     message: "Logout successful",
   });

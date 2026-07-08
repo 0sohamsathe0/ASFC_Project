@@ -32,20 +32,10 @@ const EditPlayerProfile = () => {
 
   const fetchPlayer = async () => {
   try {
-    const cookies = document.cookie.split("; ");
-
-    let token = cookies.find((cookie) =>
-      cookie.startsWith("token=")
-    );
-
-    token = token ? token.split("=")[1] : null;
-
     const response = await axios.get(
       "http://localhost:5050/player/profile",
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+         withCredentials: true,
       }
     );
 
@@ -106,15 +96,6 @@ const EditPlayerProfile = () => {
 
   try {
     setLoading(true);
-
-    const cookies = document.cookie.split("; ");
-
-    let token = cookies.find((cookie) =>
-      cookie.startsWith("token=")
-    );
-
-    token = token ? token.split("=")[1] : null;
-
     const payload = {};
 
     // Compare all fields
@@ -166,9 +147,7 @@ const EditPlayerProfile = () => {
       `http://localhost:5050/player/${playerId}`,
       payload,
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+         withCredentials: true,
       }
     );
 

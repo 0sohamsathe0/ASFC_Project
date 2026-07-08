@@ -2,22 +2,31 @@ import React from "react";
 import { useNavigate ,Outlet } from "react-router-dom";
 import Sidebar from "../../components/Admin/Sidebar.jsx";
 import Topbar from "../../components/Admin/Topbar.jsx";
-import getAdminToken from "../../utils/getAdminToken.js";
 
 const AdminDashboard = ({ children }) => {
   const navigate = useNavigate();
-  const checkAdminAuth = () => {
-    const isAdmin = getAdminToken() 
-    if (!isAdmin) {
-      alert("Please login as admin to access the dashboard");
-      navigate("/admin/login");
-      return null;
-    }
-  };
   React.useEffect(() => {
-    checkAdminAuth();
+    verifyAdmin();
   }, []);
 
+const verifyAdmin = async () => {
+    try {
+        await axios.get(
+            "http://localhost:5050/admin/verify",
+            {
+                withCredentials: true,
+            }
+        );
+      }
+      catch(err){
+         if (
+            err.response?.status === 401 ||
+            err.response?.status === 403
+        ) {
+            navigate("/admin/login");
+        }
+      }
+    }
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}

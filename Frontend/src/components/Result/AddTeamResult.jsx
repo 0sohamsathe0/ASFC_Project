@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import getAdminToken from '../../utils/getAdminToken.js'
 
 const AddTeamResult = () => {
   const [tournaments, setTournaments] = useState([]);
@@ -29,7 +28,7 @@ const AddTeamResult = () => {
 
   const fetchTournaments = async () => {
     const res = await axios.get(`http://localhost:5050/tournament?type=completed`, {
-      headers: { authorization: `Bearer ${getAdminToken()}` },
+     withCredentials: true,
     });
     setTournaments(res.data.data);
   };
@@ -41,7 +40,7 @@ const AddTeamResult = () => {
 
     const entryRes = await axios.get(
       `${BASE_URL}/tournament/entry/${tid}`,
-      { headers: { authorization: `Bearer ${getAdminToken()}` } }
+      { withCredentials: true, }
     );
 
     const playersData = entryRes.data.data.map((entry) => ({
@@ -56,7 +55,7 @@ const AddTeamResult = () => {
 
     const resultRes = await axios.get(
       `${BASE_URL}/result/team/${tid}`,
-      { headers: { authorization: `Bearer ${getAdminToken()}` } }
+      { withCredentials: true, }
     );
 
     const formatted = {};
@@ -135,7 +134,7 @@ const AddTeamResult = () => {
           })),
         },
         {
-          headers: { authorization: `Bearer ${getAdminToken()}` },
+          withCredentials: true,
         }
       );
 

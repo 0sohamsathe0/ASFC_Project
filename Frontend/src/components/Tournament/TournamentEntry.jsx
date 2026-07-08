@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import getAdminToken from '../../utils/getAdminToken.js'
 
 function TournamentEntry() {
   const [tournaments, setTournaments] = useState([]);
@@ -14,9 +13,7 @@ function TournamentEntry() {
   // 🔹 Fetch tournaments
   const fetchTournaments = async () => {
     const result = await axios.get("http://localhost:5050/tournament?type=upcoming", {
-      headers: {
-        authorization: `Bearer ${getAdminToken()}`,
-      },
+       withCredentials: true,
     });
     setTournaments(result.data.data);
   };
@@ -26,9 +23,7 @@ function TournamentEntry() {
     const result = await axios.get(
       "http://localhost:5050/player/getAllPlayers?status=Accepted",
       {
-        headers: {
-          authorization: `Bearer ${getAdminToken()}`,
-        },
+        withCredentials: true,
       }
     );
     setPlayers(result.data.data);
@@ -40,9 +35,7 @@ function TournamentEntry() {
       const res = await axios.get(
         `http://localhost:5050/tournament/entry/${tournamentId}`,
         {
-          headers: {
-            authorization: `Bearer ${getAdminToken()}`,
-          },
+           withCredentials: true,
         }
       );
 
@@ -126,9 +119,7 @@ function TournamentEntry() {
         "http://localhost:5050/tournament/createEntry",
         payload,
         {
-          headers: {
-            authorization: `Bearer ${getAdminToken()}`,
-          },
+          withCredentials: true,
         }
       );
 

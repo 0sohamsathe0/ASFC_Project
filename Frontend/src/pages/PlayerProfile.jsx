@@ -35,36 +35,24 @@ const PlayerProfile = () => {
   ];
 
 
-  const HandleLogout = () => {
-        logout();
-
-    alert("Logged out successfully");
-    navigate("/player/login");
+  const HandleLogout = async () => {
+    try {
+      await logout();
+      alert("Logged out successfully");
+      navigate("/player/login");
+    } catch (error) {
+      alert("Logout failed");
+      console.error(error);
+    }
   };
 
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const cookies = document.cookie.split("; ");
-
-        let token = cookies.find((cookie) =>
-          cookie.startsWith("token=")
-        );
-
-        token = token ? token.split("=")[1] : null;
-
-        if (!token) {
-          alert("Please login first");
-          navigate("/player/login");
-          return;
-        }
-
         const response = await axios.get(
           "http://localhost:5050/player/profile",
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            withCredentials: true,
           }
         );
         setPlayer(response.data.player);
@@ -83,6 +71,9 @@ const PlayerProfile = () => {
 
       } catch (err) {
         console.log("Profile Error:", err);
+        if (err.response?.status === 401) {
+          navigate("/player/login");
+        }
       }
     }
 

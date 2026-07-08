@@ -25,7 +25,6 @@ const AdminLogin = () => {
     e.preventDefault();
 
     try {
-
       const res = await axios.post(
         "http://localhost:5050/admin/login",
         formData,
@@ -33,12 +32,6 @@ const AdminLogin = () => {
       );
 
       login(res.data.user);
-
-      const token = res.data.token;
-      // to do-------
-      // store token in cookie/localStorage
-
-      document.cookie = `token=${token};`;
       alert("Admin Login Successful");
 
       navigate("/admin/dashboard");
@@ -49,7 +42,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-[calc(100vh-110px)] bg-gray-100">
 
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
 

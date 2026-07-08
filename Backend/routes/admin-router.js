@@ -1,11 +1,12 @@
 import { Router} from "express";    
-import { getPendingPlayers,acceptPlayer,rejectPlayer,loginAdmin,makeEveryonePending } from "../controllers/admin-controller.js";
+import { getPendingPlayers,acceptPlayer,rejectPlayer,loginAdmin,verifyAdmin,makeEveryonePending } from "../controllers/admin-controller.js";
 import verifyJWT from "../middlewares/auth-middleware.js";
 import authorizeRoles from "../middlewares/authorizeRoles.js";
 
 const adminRouter = Router();
 
 adminRouter.post("/login", loginAdmin);
+adminRouter.get("/verify",verifyJWT,authorizeRoles("admin"),verifyAdmin)
 
 adminRouter.get("/getPendingPlayers",verifyJWT,authorizeRoles('admin'),getPendingPlayers);
 adminRouter.patch("/acceptPlayer/:playerId",verifyJWT,authorizeRoles('admin'),acceptPlayer);

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import RejectPlayer from "../Admin/RejectPlayer.jsx";
-import getAdminToken from "../../utils/getAdminToken.js";
 
 function PlayerRequestQueue() {
   const navigate = useNavigate();
@@ -13,41 +12,39 @@ function PlayerRequestQueue() {
   const [showModal, setShowModal] = useState(false);
 
   const handleApprove = (playerId) => async () => {
-  try {
-    const res = await axios.patch(
-      `http://localhost:5050/admin/acceptPlayer/${playerId}`,
-      {},
-      {
-        headers: {
-          authorization: `Bearer ${getAdminToken()}`,
-        },
-      }
-    );
+    try {
+      const res = await axios.patch(
+        `http://localhost:5050/admin/acceptPlayer/${playerId}`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
 
-    if (!res.data.emailSent) {
+      if (!res.data.emailSent) {
+        alert(
+          "Player approved successfully, but email delivery failed."
+        );
+      }
+
+      fetchRequests();
+
+    } catch (err) {
+      console.error(err);
+
       alert(
-        "Player approved successfully, but email delivery failed."
+        err.response?.data?.message || "Something went wrong"
       );
     }
-
-    fetchRequests();
-
-  } catch (err) {
-    console.error(err);
-
-    alert(
-      err.response?.data?.message || "Something went wrong"
-    );
-  }
-};
+  };
 
   const handleReject = async () => {
     try {
-      const responce =await axios.patch("http://localhost:5050/admin/rejectPlayer",{playerId:selectedPlayer._id , reason:rejectReason},{
-         headers: {
-          authorization: `Bearer ${getAdminToken()}`,
-        },
-      })   
+      const responce = await axios.patch("http://localhost:5050/admin/rejectPlayer", 
+        { playerId: selectedPlayer._id, reason: rejectReason },
+        {
+          withCredentials: true,
+        })
       setShowModal(false);
       setRejectReason("");
 
@@ -62,9 +59,7 @@ function PlayerRequestQueue() {
       const res = await axios.get(
         "http://localhost:5050/admin/getPendingPlayers",
         {
-          headers: {
-            authorization: `Bearer ${getAdminToken()}`,
-          },
+          withCredentials: true,
         },
       );
 

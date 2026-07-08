@@ -6,12 +6,22 @@ const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
 
   if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
-    const token = jwt.sign({ id:"admin",role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1h" });
-    res.status(200).json({
+    const token = jwt.sign({ id: "admin", role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+
+    return res.status(200).json({
       success: true,
-      message: "Admin logged in successfully",
-      token: token,
-      user:{role:"admin"}
+      message: "Login Successful",
+      user: {
+        role: "admin"
+      }
     });
   } else {
     res.status(401).json({
@@ -20,6 +30,13 @@ const loginAdmin = async (req, res) => {
     });
 
   }
+}
+
+const verifyAdmin = async (req, res) => {
+    res.status(200).json({
+        success: true,
+        isAuthenticated: true,
+    });
 }
 
 const getPendingPlayers = async (req, res) => {
@@ -53,7 +70,7 @@ const acceptPlayer = async (req, res) => {
       });
     }
 
-    await Player.findByIdAndUpdate(playerId, { $set: { requestStatus: "Accepted", isEditable: true, rejectionReson: "" }});
+    await Player.findByIdAndUpdate(playerId, { $set: { requestStatus: "Accepted", isEditable: true, rejectionReson: "" } });
 
     await sendAcceptedMail(player.fullName, player.email)
 
@@ -97,7 +114,7 @@ const rejectPlayer = async (req, res) => {
     const { playerId, reason } = req.body;
 
     const player = await Player.findById(playerId);
-if (!player) {
+    if (!player) {
       return res.status(404).json({
         success: false,
         message: "Player not found",
@@ -105,7 +122,7 @@ if (!player) {
     }
     await Player.findByIdAndUpdate(playerId, { requestStatus: "Rejected", rejectionReason: reason, isEditable: true });
 
-    await sendRejectionMail(player.fullName,player.email,reason)
+    await sendRejectionMail(player.fullName, player.email, reason)
 
     res.status(200).json({
       success: true,
@@ -135,4 +152,4 @@ const makeEveryonePending = async (req, res) => {
     });
   }
 }
-export { getPendingPlayers, acceptPlayer, rejectPlayer, loginAdmin, makeEveryonePending };
+export { getPendingPlayers, acceptPlayer, rejectPlayer, loginAdmin,verifyAdmin, makeEveryonePending };

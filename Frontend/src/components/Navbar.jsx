@@ -1,6 +1,6 @@
-import { NavLink,useNavigate } from "react-router-dom";
-import logo from "../assets/ASFC_Logo.png";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -9,117 +9,108 @@ const Navbar = () => {
     logout();
     navigate("/");
   };
+
+  const navLinkClass = ({ isActive }) =>
+    `relative text-[17px] font-medium transition-all duration-300
+     ${isActive
+      ? "text-blue-500 after:w-full"
+      : "text-white hover:text-blue-400"
+    }
+     after:absolute after:left-0 after:-bottom-2 after:h-[2px]
+     after:w-0 after:bg-blue-500 after:transition-all after:duration-300
+     hover:after:w-full`;
+
   return (
-    <nav className="bg-slate-900 text-white shadow-md">
+    <nav className="w-screen mx-auto px-6 h-[82px] bg-[#111827]/95 backdrop-blur-xl border border-white/10">
 
-      <div className="w-full px-12 py-4 flex items-center justify-between">
+  <div className="flex h-full items-center justify-between">
 
-        {/* Logo */}
-        <div className="flex items-center">
-          <img
-            src={logo}
-            alt="ASFC Logo"
-            className="h-14 object-contain"
-          />
-        </div>
+    {/* Logo */}
+    <NavLink to="/" className="select-none">
+      <h1 className="text-3xl font-extrabold tracking-tight">
+        <span className="text-white">ALL STAR </span>
+        <span className="text-white">FENCING </span>
+        <span className="text-blue-500">CLUB</span>
+      </h1>
+    </NavLink>
 
-        {/* Navigation Links */}
-        <div className="flex items-center gap-10 text-xl font-medium">
+    {/* Navigation */}
+    <div className="hidden md:flex items-center gap-14">
+      <NavLink to="/" className={navLinkClass}>
+        Home
+      </NavLink>
 
+      <NavLink to="/about" className={navLinkClass}>
+        About
+      </NavLink>
+
+      <NavLink to="/contact" className={navLinkClass}>
+        Contact
+      </NavLink>
+    </div>
+
+    {/* Right Buttons */}
+    <div className="flex items-center gap-4">
+
+      {!user && (
+        <>
           <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `transition duration-300 hover:text-yellow-400 ${isActive ? "text-yellow-400 font-semibold" : ""
-              }`
-            }
+            to="/player/login"
+            className="border border-white/15 rounded-full px-6 py-2.5 text-white hover:border-blue-500 hover:text-blue-400 transition"
           >
-            Home
+            Login
           </NavLink>
 
           <NavLink
-            to="/about"
-            className={({ isActive }) =>
-              `transition duration-300 hover:text-yellow-400 ${isActive ? "text-yellow-400 font-semibold" : ""
-              }`
-            }
+            to="/player/register"
+            className="rounded-full bg-gradient-to-r from-blue-600 to-blue-500 px-7 py-2.5 text-white font-semibold hover:scale-105 transition"
           >
-            About
+            Register
           </NavLink>
+        </>
+      )}
 
+      {user?.role === "player" && (
+        <>
           <NavLink
-            to="/contact"
-            className={({ isActive }) =>
-              `transition duration-300 hover:text-yellow-400 ${isActive ? "text-yellow-400 font-semibold" : ""
-              }`
-            }
+            to="/player/profile"
+            className="rounded-full bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-2.5 text-white font-semibold"
           >
-            Contact
+            My Profile
           </NavLink>
 
-        </div>
+          <button
+            onClick={handleLogout}
+            className="rounded-full bg-red-500 px-6 py-2.5 text-white font-semibold hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </>
+      )}
 
-        {/* Buttons */}
-        <div className="flex items-center gap-4">
+      {user?.role === "admin" && (
+        <>
+          <NavLink
+            to="/admin/dashboard"
+            className="rounded-full bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-2.5 text-white font-semibold"
+          >
+            Dashboard
+          </NavLink>
 
-          {!user && (
-            <>
-              <NavLink
-                to="/player/login"
-                className="bg-white text-black px-5 py-2 rounded-md font-medium hover:bg-gray-200 transition"
-              >
-                Login
-              </NavLink>
+          <button
+            onClick={handleLogout}
+            className="rounded-full bg-red-500 px-6 py-2.5 text-white font-semibold hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </>
+      )}
 
-              <NavLink
-                to="/player/register"
-                className="bg-yellow-400 text-black px-5 py-2 rounded-md font-semibold hover:bg-yellow-300 transition"
-              >
-                Register
-              </NavLink>
-            </>
-          )}
+    </div>
 
-          {user?.role === "player" && (
-            <>
-              <NavLink
-                to="/player/profile"
-                className="bg-white text-black px-5 py-2 rounded-md font-medium hover:bg-gray-200 transition"
-              >
-                My Profile
-              </NavLink>
+  </div>
 
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 px-5 py-2 rounded-md hover:bg-red-600"
-              >
-                Logout
-              </button>
-            </>
-          )}
-
-          {user?.role === "admin" && (
-            <>
-              <NavLink
-                to="/admin/dashboard"
-                className="bg-white text-black px-5 py-2 rounded-md font-medium hover:bg-gray-200 transition"
-              >
-                Dashboard
-              </NavLink>
-
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 px-5 py-2 rounded-md hover:bg-red-600"
-              >
-                Logout
-              </button>
-            </>
-          )}
-
-        </div>
-
-      </div>
-
-    </nav>
+</nav>
   );
 };
 

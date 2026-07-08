@@ -13,9 +13,7 @@ const PlayersBoard = () => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   const fetchPlayers = async () => {
-    const res = await axios.get(
-      "http://localhost:5050/player/getAllPlayers"
-    );
+    const res = await axios.get("http://localhost:5050/player/getAllPlayers",{withCredentials:true});
     setPlayers(res.data.data);
   };
 

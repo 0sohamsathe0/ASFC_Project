@@ -11,7 +11,7 @@ playerRouter.post("/add",upload.fields([{ name: 'photo', maxCount: 1 }, { name: 
 playerRouter.put("/:pid",updatePlayer)
 
 playerRouter.post("/login", loginPlayer);
-playerRouter.post("/logout",verifyJWT,authorizeRoles("player"), logoutPlayer);
+playerRouter.post("/logout",verifyJWT,authorizeRoles("player","admin"), logoutPlayer);
 
 playerRouter.get("/profile", verifyJWT,authorizeRoles('player'),getPlayerProfile);
 

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import axios from 'axios'
 
 const AuthContext = createContext();
 
@@ -6,20 +7,23 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     const login = (userData) => {
-    console.log("LOGIN FUNCTION CALLED");
-    console.log(userData);
+        setUser(userData);
+    };
 
-    setUser(userData);
-};
+    const logout = async() => {
+        try {
+            await axios.post(
+                "http://localhost:5050/player/logout",
+                {},
+                {
+                    withCredentials: true,
+                }
+            );
 
-console.log("Current Auth User:", user);
-
-    const logout = () => {
-        setUser(null);
-
-        // We'll replace this with a backend logout API
-        document.cookie =
-            "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            setUser(null);
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
     };
 
     return (

@@ -15,19 +15,19 @@ const Login = () => {
     const inputDob = new Date(dob).toISOString().split("T")[0];
 
     try {
-      const response = await axios.post("http://localhost:5050/player/login", {
-        aadharCard,
-        dob: inputDob,
-      });
-
+      const response = await axios.post(
+        "http://localhost:5050/player/login",
+        {
+          aadharCard,
+          dob: inputDob,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       login(response.data.user);
-
-
-
       alert("Login successful");
-      document.cookie = `token=${response.data.token};`;
-      response.data.token;
       navigate("/player/profile");
     } catch (error) {
       alert("Invalid Credentials");
@@ -36,7 +36,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-[calc(100vh-110px)] bg-gray-100">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-lg w-96"

@@ -33,8 +33,6 @@ import { useAuth } from "./context/AuthContext.jsx";
 function App() {
   const [count, setCount] = useState(0);
   const { user } = useAuth();
-
-console.log("App User:", user);
   return (
     <>
       <Navbar />

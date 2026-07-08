@@ -5,12 +5,16 @@ const Topbar = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  const handleLogout = () => {
-    // Clear the admin token cookie
-       logout();
+  const handleLogout = async () => {
+    try {
+        await logout();
+        alert("Admin logged out successfully");
+        navigate("/admin/login");
+    } catch (error) {
+        alert("Logout failed");
+        console.error(error);
+    }
 
-    alert("Admin logged out successfully");
-    navigate("/admin/login");
   };
   return (
     <div className="bg-white shadow px-6 py-4 flex justify-between items-center">

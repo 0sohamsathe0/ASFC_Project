@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import getAdminToken from "../../utils/getAdminToken";
 
 const AddIndividualResult = () => {
   const [tournaments, setTournaments] = useState([]);
@@ -25,7 +24,7 @@ const AddIndividualResult = () => {
 
   const fetchTournaments = async () => {
     const res = await axios.get("http://localhost:5050/tournament?type=completed", {
-      headers: { authorization: `Bearer ${getAdminToken()}` },
+      withCredentials: true,
     });
     setTournaments(res.data.data);
   };
@@ -37,7 +36,7 @@ const AddIndividualResult = () => {
     // Entries
     const entryRes = await axios.get(
       `http://localhost:5050/tournament/entry/${tid}`,
-      { headers: { authorization: `Bearer ${getAdminToken()}` } }
+      { withCredentials: true, }
     );
 
     const playersData = entryRes.data.data.map((entry) => ({
@@ -53,7 +52,7 @@ const AddIndividualResult = () => {
     // Results
     const resultRes = await axios.get(
       `http://localhost:5050/result/individual/${tid}`,
-      { headers: { authorization: `Bearer ${getAdminToken()}` } }
+      { withCredentials: true, }
     );
 
     const formatted = {};
@@ -154,10 +153,7 @@ const AddIndividualResult = () => {
         "http://localhost:5050/result/individual",
         final,
         {
-          headers: {
-            authorization: `Bearer ${getAdminToken()}`,
-            "Content-Type": "application/json",
-          },
+          withCredentials: true,
         }
       );
 
@@ -197,11 +193,10 @@ const AddIndividualResult = () => {
             <button
               key={g}
               onClick={() => setActiveGender(g)}
-              className={`px-4 py-2 rounded ${
-                activeGender === g
-                  ? "bg-yellow-400 text-black"
-                  : "bg-slate-700"
-              }`}
+              className={`px-4 py-2 rounded ${activeGender === g
+                ? "bg-yellow-400 text-black"
+                : "bg-slate-700"
+                }`}
             >
               {g}
             </button>
