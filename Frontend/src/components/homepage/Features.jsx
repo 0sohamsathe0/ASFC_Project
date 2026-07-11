@@ -48,19 +48,21 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="bg-[#020617] py-28">
+    <section className="bg-[#020617] py-20 sm:py-24 lg:py-28">
 
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
 
-        <div className="text-center max-w-3xl mx-auto">
+        {/* Heading */}
 
-          <p className="uppercase tracking-[6px] text-blue-400 font-semibold">
+        <div className="mx-auto max-w-3xl text-center">
+
+          <p className="text-xs sm:text-sm uppercase tracking-[4px] sm:tracking-[6px] font-semibold text-blue-400">
 
             Why Choose ASFC
 
           </p>
 
-          <h2 className="text-5xl lg:text-6xl font-black text-white mt-6">
+          <h2 className="mt-5 text-3xl sm:text-4xl lg:text-6xl font-black leading-tight text-white">
 
             Everything You Need To
 
@@ -72,7 +74,7 @@ export default function Features() {
 
           </h2>
 
-          <p className="text-slate-400 text-lg leading-8 mt-8">
+          <p className="mt-6 text-base sm:text-lg leading-7 sm:leading-8 text-slate-400">
 
             All Star Fencing Club combines expert coaching, structured
             training and competitive opportunities to help athletes
@@ -82,7 +84,9 @@ export default function Features() {
 
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-20">
+        {/* Cards */}
+
+        <div className="mt-14 sm:mt-16 lg:mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
 
           {features.map((feature, index) => {
 
@@ -92,25 +96,25 @@ export default function Features() {
 
               <div
                 key={index}
-                className="group rounded-3xl border border-white/10 bg-slate-900 hover:border-blue-500 transition-all duration-300 p-8"
+                className="group rounded-3xl border border-white/10 bg-slate-900 p-6 sm:p-8 transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 hover:shadow-[0_20px_60px_rgba(37,99,235,0.18)]"
               >
 
-                <div className="w-16 h-16 rounded-2xl bg-blue-600/20 flex items-center justify-center group-hover:bg-blue-600 transition">
+                <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-blue-600/20 transition group-hover:bg-blue-600">
 
                   <Icon
-                    className="text-blue-400 group-hover:text-white"
-                    size={30}
+                    size={28}
+                    className="text-blue-400 transition group-hover:text-white"
                   />
 
                 </div>
 
-                <h3 className="text-white text-2xl font-bold mt-8">
+                <h3 className="mt-6 sm:mt-8 text-xl sm:text-2xl font-bold text-white">
 
                   {feature.title}
 
                 </h3>
 
-                <p className="text-slate-400 leading-8 mt-5">
+                <p className="mt-4 sm:mt-5 text-sm sm:text-base leading-7 sm:leading-8 text-slate-400">
 
                   {feature.description}
 

@@ -38,7 +38,7 @@ const achievements = [
 
 export default function About() {
   return (
-    <section className="relative overflow-hidden bg-[#020617] pt-20 pb-28">
+    <section className="relative overflow-hidden bg-[#020617] pt-16 md:pt-20 lg:pt-24 pb-20 md:pb-24 lg:pb-28">
 
       {/* Background */}
 
@@ -52,9 +52,9 @@ export default function About() {
 
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
           {/* IMAGE */}
 
@@ -62,7 +62,7 @@ export default function About() {
             initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: .8 }}
+            transition={{ duration: 0.8 }}
             className="flex justify-center"
           >
 
@@ -71,18 +71,18 @@ export default function About() {
               <img
                 src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=900"
                 alt=""
-                className="w-full max-w-md lg:max-w-xl rounded-[35px] object-cover shadow-2xl"
+                className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl rounded-[28px] md:rounded-[35px] object-cover shadow-2xl"
               />
 
-              <div className="absolute -bottom-8 left-8 bg-blue-600 px-8 py-6 rounded-3xl shadow-xl">
+              <div className="absolute -bottom-5 left-5 sm:-bottom-7 sm:left-7 md:-bottom-8 md:left-8 bg-blue-600 px-5 py-4 sm:px-7 sm:py-5 md:px-8 md:py-6 rounded-2xl md:rounded-3xl shadow-xl">
 
-                <h2 className="text-5xl font-black text-white">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white">
 
                   8+
 
                 </h2>
 
-                <p className="text-white/80">
+                <p className="text-xs sm:text-sm md:text-base text-white/80">
 
                   Years of Excellence
 
@@ -100,16 +100,16 @@ export default function About() {
             initial={{ opacity: 0, x: 60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: .8 }}
+            transition={{ duration: 0.8 }}
           >
 
-            <span className="uppercase tracking-[8px] text-blue-400 font-semibold">
+            <span className="uppercase tracking-[4px] sm:tracking-[6px] lg:tracking-[8px] text-blue-400 font-semibold text-xs sm:text-sm">
 
               About ASFC
 
             </span>
 
-            <h1 className="text-5xl lg:text-6xl font-black text-white leading-tight mt-6">
+            <h1 className="mt-5 sm:mt-6 text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
 
               Building
 
@@ -133,7 +133,7 @@ export default function About() {
 
             </h1>
 
-            <p className="mt-8 text-slate-400 text-lg leading-9">
+            <p className="mt-6 sm:mt-8 text-base sm:text-lg text-slate-400 leading-8 sm:leading-9">
 
               All Star Fencing Club is dedicated to nurturing talented
               athletes through professional coaching, structured
@@ -144,11 +144,14 @@ export default function About() {
 
             </p>
 
-            <div className="grid sm:grid-cols-2 gap-5 mt-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mt-8 sm:mt-10">
 
               <div className="flex items-center gap-3">
 
-                <CheckCircle2 className="text-blue-400" />
+                <CheckCircle2
+                  size={20}
+                  className="text-blue-400 flex-shrink-0"
+                />
 
                 <span className="text-white">
 
@@ -160,7 +163,10 @@ export default function About() {
 
               <div className="flex items-center gap-3">
 
-                <CheckCircle2 className="text-blue-400" />
+                <CheckCircle2
+                  size={20}
+                  className="text-blue-400 flex-shrink-0"
+                />
 
                 <span className="text-white">
 
@@ -172,7 +178,10 @@ export default function About() {
 
               <div className="flex items-center gap-3">
 
-                <CheckCircle2 className="text-blue-400" />
+                <CheckCircle2
+                  size={20}
+                  className="text-blue-400 flex-shrink-0"
+                />
 
                 <span className="text-white">
 
@@ -184,7 +193,10 @@ export default function About() {
 
               <div className="flex items-center gap-3">
 
-                <CheckCircle2 className="text-blue-400" />
+                <CheckCircle2
+                  size={20}
+                  className="text-blue-400 flex-shrink-0"
+                />
 
                 <span className="text-white">
 
@@ -196,7 +208,7 @@ export default function About() {
 
             </div>
 
-            <button className="mt-12 bg-blue-600 hover:bg-blue-700 duration-300 px-8 py-4 rounded-full flex items-center gap-3 text-white font-semibold">
+            <button className="mt-10 sm:mt-12 w-full sm:w-fit justify-center bg-blue-600 hover:bg-blue-700 duration-300 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full flex items-center gap-3 text-white font-semibold">
 
               Learn More
 
@@ -207,10 +219,9 @@ export default function About() {
           </motion.div>
 
         </div>
+                {/* ACHIEVEMENT CARDS */}
 
-        {/* ACHIEVEMENT CARDS */}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-28">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mt-20 sm:mt-24 lg:mt-28">
 
           {achievements.map((item, index) => {
 
@@ -224,25 +235,25 @@ export default function About() {
                   y: -8,
                   scale: 1.02,
                 }}
-                className="bg-slate-900/70 backdrop-blur-xl border border-white/10 rounded-3xl p-8"
+                className="bg-slate-900/70 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8"
               >
 
-                <div className="w-16 h-16 rounded-2xl bg-blue-600/20 flex items-center justify-center">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-600/20 flex items-center justify-center">
 
                   <Icon
-                    size={30}
-                    className="text-blue-400"
+                    size={26}
+                    className="text-blue-400 sm:w-[30px] sm:h-[30px]"
                   />
 
                 </div>
 
-                <h3 className="text-white text-xl font-bold mt-6">
+                <h3 className="mt-5 sm:mt-6 text-lg sm:text-xl font-bold text-white">
 
                   {item.title}
 
                 </h3>
 
-                <p className="text-slate-400 mt-4 leading-7">
+                <p className="mt-3 sm:mt-4 text-sm sm:text-base text-slate-400 leading-7">
 
                   {item.description}
 

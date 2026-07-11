@@ -1,18 +1,11 @@
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Calendar,
-  ChevronRight,
-  Medal,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import fencing from '../../assets/fencing.jpg'
+import fencing from "../../assets/fencing.jpg";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[#020617]">
+    <section className="relative min-h-[100svh] overflow-hidden bg-[#020617]">
 
       {/* ================= Background ================= */}
 
@@ -26,9 +19,9 @@ export default function Hero() {
 
         {/* Glow */}
 
-        <div className="absolute -left-52 top-20 h-[450px] w-[450px] rounded-full bg-blue-600 blur-[170px] opacity-20" />
+        <div className="absolute -left-40 top-20 h-[320px] w-[320px] sm:h-[420px] sm:w-[420px] lg:h-[450px] lg:w-[450px] rounded-full bg-blue-600 blur-[170px] opacity-20" />
 
-        <div className="absolute right-0 bottom-0 h-[550px] w-[550px] rounded-full bg-cyan-500 blur-[170px] opacity-20" />
+        <div className="absolute right-0 bottom-0 h-[350px] w-[350px] sm:h-[450px] sm:w-[450px] lg:h-[550px] lg:w-[550px] rounded-full bg-cyan-500 blur-[170px] opacity-20" />
 
       </div>
 
@@ -40,7 +33,7 @@ export default function Hero() {
           duration: 5,
           repeat: Infinity,
         }}
-        className="absolute left-20 top-56 h-28 w-28 rotate-45 border border-blue-500/30"
+        className="hidden lg:block absolute left-20 top-56 h-28 w-28 rotate-45 border border-blue-500/30"
       />
 
       <motion.div
@@ -49,30 +42,31 @@ export default function Hero() {
           duration: 7,
           repeat: Infinity,
         }}
-        className="absolute right-32 bottom-32 h-10 w-10 rounded-full bg-blue-500/30"
+        className="hidden lg:block absolute right-32 bottom-32 h-10 w-10 rounded-full bg-blue-500/30"
       />
 
       {/* ================= Hero ================= */}
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-center px-6">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl items-center px-5 sm:px-6 lg:px-8 py-12">
 
-        <div className="grid w-full items-center gap-20 lg:grid-cols-2">
+        <div className="grid w-full items-center gap-14 lg:gap-20 lg:grid-cols-2">
 
           {/* LEFT */}
 
           <motion.div
             initial={{ opacity: 0, x: -60 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: .8 }}
+            transition={{ duration: 0.8 }}
+            className="text-center lg:text-left"
           >
 
-            <span className="tracking-[10px] uppercase text-blue-400 font-semibold">
+            <span className="text-xs sm:text-sm font-semibold uppercase tracking-[4px] sm:tracking-[6px] lg:tracking-[10px] text-blue-400">
 
               ALL STAR FENCING CLUB
 
             </span>
 
-            <h1 className="mt-8 text-6xl font-black leading-none text-white lg:text-8xl">
+            <h1 className="mt-6 text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-black leading-tight text-white">
 
               Where
 
@@ -90,7 +84,7 @@ export default function Hero() {
 
             </h1>
 
-            <p className="mt-10 max-w-xl text-xl leading-9 text-slate-300">
+            <p className="mx-auto lg:mx-0 mt-8 max-w-xl text-base sm:text-lg lg:text-xl leading-8 text-slate-300">
 
               Train with professional coaches, compete in district,
               state and national tournaments, and become part of a
@@ -98,9 +92,11 @@ export default function Hero() {
 
             </p>
 
-            <div className="mt-12 flex flex-wrap gap-5">
+            {/* CTA Buttons */}
 
-              <button className="group flex items-center gap-3 rounded-full bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-700">
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+
+              <button className="group flex w-full sm:w-auto items-center justify-center gap-3 rounded-full bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-700">
 
                 Register Now
 
@@ -111,7 +107,7 @@ export default function Hero() {
 
               </button>
 
-              <button className="rounded-full border border-white/20 px-8 py-4 text-white transition hover:bg-white/10">
+              <button className="w-full sm:w-auto rounded-full border border-white/20 px-8 py-4 text-white transition hover:bg-white/10">
 
                 Explore Tournaments
 
@@ -119,9 +115,9 @@ export default function Hero() {
 
             </div>
 
-            {/* Mini Stats */}
+            {/* Statistics */}
 
-            <div className="mt-16 grid grid-cols-3 gap-8">
+            <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center lg:text-left">
 
               <div>
 
@@ -174,31 +170,31 @@ export default function Hero() {
             </div>
 
           </motion.div>
+                    {/* RIGHT */}
 
-          {/* RIGHT */}
           <motion.div
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="relative flex items-center justify-center"
+            className="relative mt-10 lg:mt-0 flex items-center justify-center"
           >
 
             {/* Background Glow */}
 
-            <div className="absolute w-[650px] h-[650px] rounded-full bg-blue-600/20 blur-[180px]" />
+            <div className="absolute w-[320px] h-[320px] sm:w-[500px] sm:h-[500px] lg:w-[650px] lg:h-[650px] rounded-full bg-blue-600/20 blur-[180px]" />
 
             {/* Decorative Ring */}
 
-            <div className="absolute w-[520px] h-[520px] rounded-full border border-blue-500/10" />
+            <div className="absolute w-[260px] h-[260px] sm:w-[400px] sm:h-[400px] lg:w-[520px] lg:h-[520px] rounded-full border border-blue-500/10" />
 
             {/* Main Image */}
 
-            <div className="relative z-10 overflow-hidden rounded-[32px]">
+            <div className="relative z-10 overflow-hidden rounded-[24px] lg:rounded-[32px]">
 
               <img
                 src={fencing}
                 alt="All Star Fencing Club"
-                className="w-[700px] lg:w-[760px] object-cover rounded-[32px] shadow-[0_35px_80px_rgba(0,0,0,.45)]"
+                className="w-full max-w-sm sm:max-w-lg lg:max-w-2xl object-cover rounded-[24px] lg:rounded-[32px] shadow-[0_35px_80px_rgba(0,0,0,.45)]"
               />
 
               {/* Dark Overlay */}
@@ -207,13 +203,14 @@ export default function Hero() {
 
             </div>
 
-            {/* Decorative Dot */}
+            {/* Decorative Elements */}
 
-            <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full border border-blue-500/20" />
+            <div className="hidden lg:block absolute -top-6 -right-6 w-28 h-28 rounded-full border border-blue-500/20" />
 
-            <div className="absolute -bottom-8 -left-8 w-16 h-16 rounded-full bg-blue-500/20 blur-md" />
+            <div className="hidden lg:block absolute -bottom-8 -left-8 w-16 h-16 rounded-full bg-blue-500/20 blur-md" />
 
           </motion.div>
+
         </div>
 
       </div>
@@ -230,16 +227,16 @@ export default function Hero() {
           duration: 2,
           repeat: Infinity,
         }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center"
+        className="hidden lg:flex absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex-col items-center"
       >
 
-        <span className="text-xs uppercase tracking-[6px] text-slate-400 mb-4">
+        <span className="mb-4 text-xs uppercase tracking-[6px] text-slate-400">
 
           Scroll
 
         </span>
 
-        <div className="h-14 w-8 rounded-full border-2 border-white/30 flex justify-center">
+        <div className="flex h-14 w-8 justify-center rounded-full border-2 border-white/30">
 
           <motion.div
             animate={{
@@ -258,7 +255,7 @@ export default function Hero() {
 
       {/* ================= Bottom Fade ================= */}
 
-      <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#020617] to-transparent" />
+      <div className="absolute bottom-0 left-0 h-40 w-full bg-gradient-to-t from-[#020617] to-transparent" />
 
     </section>
   );

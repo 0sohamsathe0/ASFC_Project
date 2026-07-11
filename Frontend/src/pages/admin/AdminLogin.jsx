@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const AdminLogin = () => {
@@ -42,21 +42,23 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-110px)] bg-gray-100">
+    <div className="flex items-center justify-center min-h-[calc(100vh-110px)] bg-gray-100 px-4 py-8">
 
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 sm:p-8">
 
-        <h2 className="text-2xl font-bold text-center mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6">
+
           Admin Login
+
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
 
           <input
-            type="name"
+            type="text"
             name="username"
-            placeholder="Admin username"
-            className="w-full border p-2 rounded"
+            placeholder="Admin Username"
+            className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm sm:text-base"
             onChange={handleChange}
           />
 
@@ -64,26 +66,34 @@ const AdminLogin = () => {
             type="password"
             name="password"
             placeholder="Password"
-            className="w-full border p-2 rounded"
+            className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-800 text-sm sm:text-base"
             onChange={handleChange}
           />
 
           <button
-            className="w-full bg-slate-900 text-white py-2 rounded hover:bg-slate-800"
+            type="submit"
+            className="w-full bg-slate-900 text-white py-3 rounded-lg hover:bg-slate-800 transition duration-300 font-medium"
           >
+
             Login
+
           </button>
 
         </form>
 
-        <p className="text-center text-sm mt-4 text-gray-600">
+        <p className="text-center text-sm text-gray-600 mt-5 leading-6">
+
           Not an admin?{" "}
-          <a
-            href="/player/login"
+
+          <Link
+            to="/player/login"
             className="text-blue-600 font-semibold hover:underline"
           >
+
             Player Login
-          </a>
+
+          </Link>
+
         </p>
 
       </div>
