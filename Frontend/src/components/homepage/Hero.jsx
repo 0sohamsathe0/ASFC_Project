@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
-import fencing from "../../assets/fencing.jpg";
+import fencing from "../../assets/fencing.avif";
 
 export default function Hero() {
   return (

@@ -37,6 +37,17 @@ const Navbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const navLinkClass = ({ isActive }) =>
     `relative text-[17px] font-medium transition-all duration-300
     ${isActive
@@ -152,16 +163,16 @@ const Navbar = () => {
               <Menu
                 size={30}
                 className={`absolute transition-all duration-300 ${isMenuOpen
-                    ? "opacity-0 rotate-90"
-                    : "opacity-100 rotate-0"
+                  ? "opacity-0 rotate-90"
+                  : "opacity-100 rotate-0"
                   }`}
               />
 
               <X
                 size={30}
                 className={`absolute transition-all duration-300 ${isMenuOpen
-                    ? "opacity-100 rotate-0"
-                    : "opacity-0 -rotate-90"
+                  ? "opacity-100 rotate-0"
+                  : "opacity-0 -rotate-90"
                   }`}
               />
             </div>
@@ -173,16 +184,16 @@ const Navbar = () => {
       <div
         onClick={closeMenu}
         className={`fixed inset-0 z-[101] bg-black/40 backdrop-blur-sm transition-all duration-300 md:hidden ${isMenuOpen
-            ? "opacity-100 visible"
-            : "opacity-0 invisible"
+          ? "opacity-100 visible"
+          : "opacity-0 invisible"
           }`}
       />
 
       {/* Mobile Menu */}
       <div
         className={`fixed top-20 left-0 right-0 z-[102] bg-[#111827] border-t border-white/10 shadow-2xl transform transition-all duration-300 ease-in-out md:hidden ${isMenuOpen
-            ? "translate-y-0 opacity-100"
-            : "-translate-y-6 opacity-0 pointer-events-none"
+          ? "translate-y-0 opacity-100"
+          : "-translate-y-6 opacity-0 pointer-events-none"
           }`}
       >
         <div className="flex flex-col gap-6 px-6 py-7">

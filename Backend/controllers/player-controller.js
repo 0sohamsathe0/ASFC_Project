@@ -4,19 +4,28 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const addPlayer = async (req, res) => {
   try {
-    const {
-      fullName,
-      gender,
-      dob,
-      aadharCard,
-      event,
-      email,
-      phone,
-      addressLine1,
-      addressLine2,
-      pincode,
-      institute,
-    } = req.body;
+    const fullName = req.body.fullName?.trim();
+    const gender = req.body.gender?.trim();
+    const dob = req.body.dob?.trim();
+
+    const aadharCard = req.body.aadharCard
+      ?.replace(/\s+/g, "")
+      .trim();
+
+    const event = req.body.event?.trim();
+
+    const email = req.body.email
+      ?.trim()
+      .toLowerCase();
+
+    const phone = req.body.phone
+      ?.replace(/\s+/g, "")
+      .trim();
+
+    const addressLine1 = req.body.addressLine1?.trim();
+    const addressLine2 = req.body.addressLine2?.trim();
+    const pincode = req.body.pincode?.trim();
+    const institute = req.body.institute?.trim();
 
     const address = {
       addressLine1,
@@ -43,7 +52,8 @@ const addPlayer = async (req, res) => {
       !event ||
       !email ||
       !phone ||
-      !address ||
+      !addressLine1 ||
+      !pincode ||
       !institute
     ) {
       return res.status(400).json({
@@ -62,9 +72,19 @@ const addPlayer = async (req, res) => {
     }
 
     //upload files to cloudinary and get URLs
-    const photoURL = await uploadOnCloudinary(photo);
-    const aadharCardURL = await uploadOnCloudinary(aadharCardPhoto);
+    const [photoURL, aadharCardURL] = await Promise.all([
+      uploadOnCloudinary(photo),
+      uploadOnCloudinary(aadharCardPhoto),
+    ]);
 
+    console.log("Photo URL:", photoURL);
+    console.log("Aadhar URL:", aadharCardURL);
+    if (!photoURL || !aadharCardURL) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to upload required documents.",
+      });
+    }
 
     //Create new player
     const newPlayer = await Player.create({
@@ -81,11 +101,32 @@ const addPlayer = async (req, res) => {
       aadharCardURL,
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Player added successfully",
-      data: newPlayer,
-    });
+    const token = jwt.sign(
+  {
+    id: newPlayer._id,
+    role: "player",
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: "1d",
+  }
+);
+
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 24 * 60 * 60 * 1000,
+});
+
+    return res.status(201).json({
+  success: true,
+  message: "Player added successfully",
+  user: {
+    id: newPlayer._id,
+    role: "player",
+  },
+});
   } catch (error) {
     console.error(error);
 
@@ -150,6 +191,7 @@ const getPlayers = async (req, res) => {
 const loginPlayer = async (req, res) => {
   try {
     const { aadharCard, dob } = req.body;
+    console.log(aadharCard,dob)
 
     const player = await Player.findOne({ aadharCard });
 

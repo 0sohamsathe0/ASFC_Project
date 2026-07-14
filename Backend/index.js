@@ -22,6 +22,10 @@ dns.setDefaultResultOrder("ipv4first");
 dotenv.config();
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  `http://${process.env.HOST_IP}:5173`, // e.g. 10.255.51.159
+];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,9 +34,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cors({ origin: "http://localhost:5173", credentials: true, }));
+
+
+app.use((req, res, next) => {
+  console.log("Incoming Origin:", req.headers.origin);
+  next();
+});
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (Postman, mobile apps, etc.)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+  console.log("Incoming:", req.method, req.originalUrl);
+  next();
+});
 
 app.use("/player", playerRouter);
 app.use("/admin", adminRouter);
@@ -43,6 +69,9 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
+app.get("/ping", (req, res) => {
+  res.send("pong");
+});
 
 const startServer = async () => {
   try {
@@ -52,6 +81,8 @@ const startServer = async () => {
 
     app.listen(process.env.PORT, () => {
       console.log(`Server running on port ${process.env.PORT}`);
+      console.log("HOST_IP:", process.env.HOST_IP);
+      console.log("Allowed Origins:", allowedOrigins);
     });
 
   } catch (err) {

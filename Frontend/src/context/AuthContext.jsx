@@ -1,6 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import axios from 'axios'
-
+import { api } from "../components/api";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -10,19 +9,14 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
     };
 
-    const logout = async() => {
+    const logout = async () => {
         try {
-            await axios.post(
-                "http://localhost:5050/player/logout",
-                {},
-                {
-                    withCredentials: true,
-                }
-            );
-
+            await api.post("/player/logout");
             setUser(null);
         } catch (error) {
             console.error("Logout failed:", error);
+        } finally {
+            setUser(null);
         }
     };
 

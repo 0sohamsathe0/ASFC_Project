@@ -10,6 +10,8 @@ import Navbar from "./components/Navbar";
 import LoadingScreen from "./components/common/loadingState.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
 
+import {baseURL} from './components/api.js'
+
 // Lazy Loaded Pages
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
@@ -18,32 +20,67 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const PlayerProfile = lazy(() => import("./pages/PlayerProfile"));
-const EditPlayerProfile = lazy(() =>
-  import("./components/Player/EditPlayerProfile .jsx")
+const EditPlayerProfile= lazy(() =>
+  import("./components/Player/EditPlayerProfile.jsx")
 );
 
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 
 // Admin Dashboard Components
-import AnalyticsDashboard from "./components/Admin/AnalyticsDashboard.jsx";
-import PlayersBoard from "./components/Player/PlayerBoard.jsx";
-import PlayerRequestQueue from "./components/Player/PlayerRequestQueue.jsx";
-import RejectPlayer from "./components/Admin/RejectPlayer.jsx";
+// Admin Dashboard Components
+const AnalyticsDashboard = lazy(() =>
+  import("./components/Admin/AnalyticsDashboard.jsx")
+);
 
-import AllTournaments from "./components/Tournament/AllTournaments.jsx";
-import AddTournament from "./components/Tournament/AddTournament.jsx";
-import TournamentEntry from "./components/Tournament/TournamentEntry.jsx";
+const PlayersBoard = lazy(() =>
+  import("./components/Player/PlayerBoard.jsx")
+);
 
-import IndividualResult from "./components/Result/IndividualResult.jsx";
-import TeamResult from "./components/Result/TeamResult.jsx";
+const PlayerRequestQueue = lazy(() =>
+  import("./components/Player/PlayerRequestQueue.jsx")
+);
 
-import MeritCertificates from "./components/Certificate/MeritCertificates.jsx";
-import ParticipationCertificates from "./components/Certificate/ParticipationCertificates.jsx";
+const RejectPlayer = lazy(() =>
+  import("./components/Admin/RejectPlayer.jsx")
+);
 
+// Tournament Components
+const AllTournaments = lazy(() =>
+  import("./components/Tournament/AllTournaments.jsx")
+);
+
+const AddTournament = lazy(() =>
+  import("./components/Tournament/AddTournament.jsx")
+);
+
+const TournamentEntry = lazy(() =>
+  import("./components/Tournament/TournamentEntry.jsx")
+);
+
+// Result Components
+const IndividualResult = lazy(() =>
+  import("./components/Result/IndividualResult.jsx")
+);
+
+const TeamResult = lazy(() =>
+  import("./components/Result/TeamResult.jsx")
+);
+
+// Certificate Components
+const MeritCertificates = lazy(() =>
+  import("./components/Certificate/MeritCertificates.jsx")
+);
+
+const ParticipationCertificates = lazy(() =>
+  import("./components/Certificate/ParticipationCertificates.jsx")
+);
 function App() {
+
   return (
     <>
+      <p>API Base URL: {baseURL}</p>
+      <p>{window.location.href}  {window.location.hostname};</p>
       <Navbar />
 
       <Suspense fallback={<LoadingScreen />}>
@@ -59,7 +96,7 @@ function App() {
           <Route path="/player/profile" element={<PlayerProfile />} />
           <Route
             path="/player/edit/:playerId"
-            element={<EditPlayerProfile />}
+            element={<EditPlayerProfile/>}
           />
 
           {/* Admin Login */}

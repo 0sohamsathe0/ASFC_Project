@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { api } from "../components/api.js";
 
 import DesktopProfile from "./player/DesktopProfile.jsx";
 import MobileProfile from "./player/Mobile/MobileProfile.jsx";
@@ -48,22 +48,13 @@ const PlayerProfile = () => {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const response = await axios.get(
-          "http://localhost:5050/player/profile",
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await api.get("/player/profile");
 
         setPlayer(response.data.player);
 
         const [individualRes, teamRes] = await Promise.all([
-          axios.get(
-            `http://localhost:5050/result/player/individual/${response.data.player._id}`
-          ),
-          axios.get(
-            `http://localhost:5050/result/player/team/${response.data.player._id}`
-          ),
+          api.get(`/result/player/individual/${response.data.player._id}`),
+          api.get(`/result/player/team/${response.data.player._id}`),
         ]);
 
         setIndividualResults(individualRes.data.data);

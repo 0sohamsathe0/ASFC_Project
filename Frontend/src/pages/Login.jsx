@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-
+import {api} from '../components/api.js'
 const Login = () => {
   const [aadharCard, setAadharCard] = useState("");
   const [dob, setDob] = useState("");
@@ -15,23 +14,28 @@ const Login = () => {
     const inputDob = new Date(dob).toISOString().split("T")[0];
 
     try {
-      const response = await axios.post(
-        "http://localhost:5050/player/login",
-        {
-          aadharCard,
-          dob: inputDob,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.post("/player/login", {
+        aadharCard,
+        dob: inputDob,
+      });
 
       login(response.data.user);
       alert("Login successful");
       navigate("/player/profile");
     } catch (error) {
-      alert("Invalid Credentials");
-      console.log(error);
+      console.log("Full Error:", error);
+
+      if (error.response) {
+        console.log("Status:", error.response.status);
+        console.log("Data:", error.response.data);
+        alert(error.response.data.message);
+      } else if (error.request) {
+        console.log("Request made but no response:", error.request);
+        alert("No response from server");
+      } else {
+        console.log("Error:", error.message);
+        alert(error.message);
+      }
     }
   };
 

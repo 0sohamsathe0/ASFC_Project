@@ -1,5 +1,5 @@
-import html2canvas from "html2canvas-pro";
-import { jsPDF } from "jspdf";
+const html2canvas = (await import("html2canvas")).default;
+const jsPDF = (await import("jspdf")).default;
 
 const exportCertificate = async (
   element,
