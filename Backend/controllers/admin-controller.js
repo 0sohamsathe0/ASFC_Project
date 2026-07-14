@@ -20,6 +20,7 @@ const loginAdmin = async (req, res) => {
       success: true,
       message: "Login Successful",
       user: {
+        id: "admin",
         role: "admin"
       }
     });

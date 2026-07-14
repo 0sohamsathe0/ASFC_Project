@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { api } from "../../components/api";
 
 const AdminLogin = () => {
 
@@ -25,11 +25,7 @@ const AdminLogin = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(
-        "http://localhost:5050/admin/login",
-        formData,
-        { withCredentials: true }
-      );
+      const res = await api.post("/admin/login", formData);
 
       login(res.data.user);
       alert("Admin Login Successful");
@@ -37,8 +33,16 @@ const AdminLogin = () => {
       navigate("/admin/dashboard");
 
     } catch (error) {
-      alert("Invalid admin credentials");
-    }
+  console.error("Admin Login Error:", error);
+
+  if (error.response) {
+    alert(error.response.data.message);
+  } else if (error.request) {
+    alert("No response from server");
+  } else {
+    alert(error.message);
+  }
+}
   };
 
   return (

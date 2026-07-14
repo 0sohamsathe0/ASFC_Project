@@ -9,8 +9,9 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import LoadingScreen from "./components/common/loadingState.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
-import {baseURL} from './components/api.js'
+import { baseURL } from './components/api.js'
 
 // Lazy Loaded Pages
 const Home = lazy(() => import("./pages/Home"));
@@ -20,7 +21,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const PlayerProfile = lazy(() => import("./pages/PlayerProfile"));
-const EditPlayerProfile= lazy(() =>
+const EditPlayerProfile = lazy(() =>
   import("./components/Player/EditPlayerProfile.jsx")
 );
 
@@ -96,7 +97,7 @@ function App() {
           <Route path="/player/profile" element={<PlayerProfile />} />
           <Route
             path="/player/edit/:playerId"
-            element={<EditPlayerProfile/>}
+            element={<EditPlayerProfile />}
           />
 
           {/* Admin Login */}
@@ -144,6 +145,7 @@ function App() {
               element={<ParticipationCertificates />}
             />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </>
