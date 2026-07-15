@@ -8,7 +8,7 @@ const playerRouter = Router();
 
 playerRouter.get("/getAllPlayers",verifyJWT,authorizeRoles("admin"), getPlayers);
 playerRouter.post("/add",upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'aadharCardPhoto', maxCount: 1 }]) ,addPlayer);
-playerRouter.put("/:pid",updatePlayer)
+playerRouter.put("/:pid",verifyJWT,authorizeRoles("admin"),updatePlayer)
 
 playerRouter.post("/login", loginPlayer);
 playerRouter.post("/logout",verifyJWT,authorizeRoles("player","admin"), logoutPlayer);

@@ -22,10 +22,9 @@ dns.setDefaultResultOrder("ipv4first");
 dotenv.config();
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  `http://${process.env.HOST_IP}:5173`, // e.g. 10.255.51.159
-];
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",").map((origin) => origin.trim())
+  : [];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -44,13 +43,20 @@ app.use((req, res, next) => {
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (Postman, mobile apps, etc.)
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests without origin
+      // Example: Postman, server-to-server requests
+      if (!origin) {
         return callback(null, true);
       }
-      callback(new Error("Not allowed by CORS"));
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      callback(new Error(`CORS blocked origin: ${origin}`));
     },
     credentials: true,
+
   })
 );
 app.use(cookieParser());
@@ -66,7 +72,7 @@ app.use("/tournament", tournamentRouter)
 app.use("/result", resultRouter)
 
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.send("ASFC Backend is running !!");
 });
 
 app.get("/ping", (req, res) => {
