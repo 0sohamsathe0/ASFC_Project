@@ -6,7 +6,7 @@ const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
 
   if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
-    const token = jwt.sign({ id: "admin", role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: "admin", role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -71,10 +71,7 @@ const acceptPlayer = async (req, res) => {
       });
     }
 
-    await Player.findByIdAndUpdate(playerId, { $set: { requestStatus: "Accepted", isEditable: true, rejectionReson: "" } });
-
-    await sendAcceptedMail(player.fullName, player.email)
-
+    await Player.findByIdAndUpdate(playerId, { $set: { requestStatus: "Accepted", isEditable: true, rejectionReason: "" } });
     let emailStatus = true;
 
     try {
