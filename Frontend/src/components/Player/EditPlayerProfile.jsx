@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api";
 import { useParams, useNavigate } from "react-router-dom";
 
 const EditPlayerProfile = () => {
@@ -32,12 +32,7 @@ const EditPlayerProfile = () => {
 
   const fetchPlayer = async () => {
   try {
-    const response = await axios.get(
-      "http://localhost:5050/player/profile",
-      {
-         withCredentials: true,
-      }
-    );
+    const response = await api.get("/player/profile");
 
     const player = response.data.player;
 
@@ -143,14 +138,7 @@ const EditPlayerProfile = () => {
 
     console.log(payload);
 
-    await axios.put(
-      `http://localhost:5050/player/${playerId}`,
-      payload,
-      {
-         withCredentials: true,
-      }
-    );
-
+    await api.put(`/player/${playerId}`,payload);
     alert(
       "Profile updated successfully and sent for review"
     );

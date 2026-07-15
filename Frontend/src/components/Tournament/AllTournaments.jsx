@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import TournamentTable from "./TournamentTable";
 import EditTournamentModal from "./EditTournamentModal";
+import { api } from "../api";
 
 const AllTournaments = () => {
   const [tournaments, setTournaments] = useState({
@@ -13,9 +13,7 @@ const AllTournaments = () => {
   const [selectedTournament, setSelectedTournament] = useState(null);
   
   const fetchTournaments = async () => {
-  const res = await axios.get("http://localhost:5050/tournament",{
-        withCredentials: true,
-      });
+  const res = await api.get("/tournament");
 
   const data = res.data.data;
 

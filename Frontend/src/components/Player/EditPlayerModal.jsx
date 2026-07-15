@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-
+import { api } from "../api";
 const EditPlayerModal = ({ player, onClose, refresh }) => {
   const [formData, setFormData] = useState({});
   const [originalData, setOriginalData] = useState(null);
@@ -101,10 +100,7 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
     }
 
     try {
-      const responce = await axios.put(
-        `http://localhost:5050/player/${player._id}`,
-        updatedFields
-      );
+      const responce = await api.put(`/player/${player._id}`,updatedFields);
       alert("player updated successfully",responce);
       refresh();
       onClose();

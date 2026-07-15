@@ -4,18 +4,22 @@ import AdminDesktopOnly from "../../components/common/AdminDesktopOnly";
 import useIsDesktop from "../../hooks/useIsDesktop";
 
 const AdminRoute = ({ children }) => {
-  const { user } = useAuth();
-  const isDesktop = useIsDesktop();
+const { user, loading } = useAuth();
+const isDesktop = useIsDesktop();
 
-  if (!user || user.role !== "admin") {
-    return <Navigate to="/admin/login" replace />;
-  }
+if (loading) {
+return null;
+}
 
-  if (!isDesktop) {
-    return <AdminDesktopOnly />;
-  }
+if (!user || user.role !== "admin") {
+return <Navigate to="/admin/login" replace />;
+}
 
-  return children;
+if (!isDesktop) {
+return <AdminDesktopOnly />;
+}
+
+return children;
 };
 
 export default AdminRoute;

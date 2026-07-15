@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./calendar.css";
@@ -21,12 +21,7 @@ const AddTournament = () => {
 
   const fetchUpcomingTournaments = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5050/tournament?type=upcoming",
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await api.get("/tournament?type=upcoming");
 
         setUpcomingTournaments(res.data.data);
       } catch (err) {
@@ -63,9 +58,7 @@ const AddTournament = () => {
         ageCategory: categoryToAgeMap[formData.ageCategory],
       };
 
-      await axios.post("http://localhost:5050/tournament", finalData, {
-            withCredentials: true,
-      });
+      await api.post("/tournament", finalData);
 
       alert("Tournament Created");
 

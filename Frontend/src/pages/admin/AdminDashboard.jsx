@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate ,Outlet } from "react-router-dom";
 import Sidebar from "../../components/Admin/Sidebar.jsx";
 import Topbar from "../../components/Admin/Topbar.jsx";
+import { api } from "../../components/api.js";
 
 const AdminDashboard = ({ children }) => {
   const navigate = useNavigate();
@@ -11,12 +12,7 @@ const AdminDashboard = ({ children }) => {
 
 const verifyAdmin = async () => {
     try {
-        await axios.get(
-            "http://localhost:5050/admin/verify",
-            {
-                withCredentials: true,
-            }
-        );
+        await api.get("/admin/verify");
       }
       catch(err){
          if (

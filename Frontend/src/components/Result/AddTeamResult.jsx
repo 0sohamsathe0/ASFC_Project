@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
+import { api } from "../api";
 const AddTeamResult = () => {
   const [tournaments, setTournaments] = useState([]);
   const [selectedTournament, setSelectedTournament] = useState("");
@@ -9,8 +8,6 @@ const AddTeamResult = () => {
   const [results, setResults] = useState({});
   const [selectedPlayers, setSelectedPlayers] = useState({});
   const [selectedPlace, setSelectedPlace] = useState({});
-
-  const BASE_URL = "http://localhost:5050";
 
   const events = ["Epee", "Foil", "Sabre"];
   const genders = ["Male", "Female"];
@@ -27,9 +24,7 @@ const AddTeamResult = () => {
   }, []);
 
   const fetchTournaments = async () => {
-    const res = await axios.get(`http://localhost:5050/tournament?type=completed`, {
-     withCredentials: true,
-    });
+    const res = await api.get(`/tournament?type=completed`);
     setTournaments(res.data.data);
   };
 
@@ -38,10 +33,7 @@ const AddTeamResult = () => {
     setSelectedPlayers({});
     setSelectedPlace({});
 
-    const entryRes = await axios.get(
-      `${BASE_URL}/tournament/entry/${tid}`,
-      { withCredentials: true, }
-    );
+    const entryRes = await api.get(`/tournament/entry/${tid}`);
 
     const playersData = entryRes.data.data.map((entry) => ({
       _id: entry.playerId._id,
@@ -53,10 +45,7 @@ const AddTeamResult = () => {
 
     setPlayers(playersData);
 
-    const resultRes = await axios.get(
-      `${BASE_URL}/result/team/${tid}`,
-      { withCredentials: true, }
-    );
+    const resultRes = await api.get(`/result/team/${tid}`);
 
     const formatted = {};
 
@@ -121,8 +110,7 @@ const AddTeamResult = () => {
     if (team.length === 0) return alert("Select players");
 
     try {
-      await axios.post(
-        `${BASE_URL}/result/team`,
+      await api.post(`/result/team`,
         {
           tournamentId: selectedTournament,
           category: categoryKey,
@@ -133,9 +121,6 @@ const AddTeamResult = () => {
             name: p.name,
           })),
         },
-        {
-          withCredentials: true,
-        }
       );
 
       alert("Saved ✅");
@@ -198,10 +183,9 @@ const AddTeamResult = () => {
                           !isLocked && togglePlayer(key, p)
                         }
                         className={`text-[11px] px-2 py-0.5 rounded cursor-pointer
-                          ${
-                            isSelected
-                              ? "bg-yellow-400 text-black"
-                              : "bg-slate-700"
+                          ${isSelected
+                            ? "bg-yellow-400 text-black"
+                            : "bg-slate-700"
                           }
                           ${isLocked && "opacity-50 cursor-not-allowed"}
                         `}
@@ -254,11 +238,10 @@ const AddTeamResult = () => {
                   <button
                     disabled={isLocked}
                     onClick={() => saveResult(key)}
-                    className={`text-xs px-3 py-1 rounded ${
-                      isLocked
+                    className={`text-xs px-3 py-1 rounded ${isLocked
                         ? "bg-gray-500"
                         : "bg-green-500 hover:bg-green-600"
-                    }`}
+                      }`}
                   >
                     Submit
                   </button>

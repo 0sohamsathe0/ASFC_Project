@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api";
 
 const AddIndividualResult = () => {
   const [tournaments, setTournaments] = useState([]);
@@ -23,9 +23,7 @@ const AddIndividualResult = () => {
   }, []);
 
   const fetchTournaments = async () => {
-    const res = await axios.get("http://localhost:5050/tournament?type=completed", {
-      withCredentials: true,
-    });
+    const res = await api.get("/tournament?type=completed");
     setTournaments(res.data.data);
   };
 
@@ -34,10 +32,7 @@ const AddIndividualResult = () => {
     setSelectedTournament(tid);
 
     // Entries
-    const entryRes = await axios.get(
-      `http://localhost:5050/tournament/entry/${tid}`,
-      { withCredentials: true, }
-    );
+    const entryRes = await api.get(`/tournament/entry/${tid}`);
 
     const playersData = entryRes.data.data.map((entry) => ({
       _id: entry.playerId._id,
@@ -50,10 +45,7 @@ const AddIndividualResult = () => {
     setPlayers(playersData);
 
     // Results
-    const resultRes = await axios.get(
-      `http://localhost:5050/result/individual/${tid}`,
-      { withCredentials: true, }
-    );
+    const resultRes = await api.get(`/result/individual/${tid}`);
 
     const formatted = {};
 
@@ -149,14 +141,7 @@ const AddIndividualResult = () => {
         return;
       }
 
-      await axios.post(
-        "http://localhost:5050/result/individual",
-        final,
-        {
-          withCredentials: true,
-        }
-      );
-
+      await api.post("/result/individual",final);
       alert("Results saved ✅");
 
       // 🔥 Refresh results

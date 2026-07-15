@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api.js";
 import PlayerTable from "./PlayerTable.jsx";
 import EditPlayerModal from "./EditPlayerModal.jsx";
 
@@ -13,7 +13,7 @@ const PlayersBoard = () => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   const fetchPlayers = async () => {
-    const res = await axios.get("http://localhost:5050/player/getAllPlayers",{withCredentials:true});
+    const res = await api.get("/player/getAllPlayers");
     setPlayers(res.data.data);
   };
 

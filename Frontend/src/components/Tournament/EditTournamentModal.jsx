@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import axios from "axios";
+import { api } from "../api";
 const EditTournamentModal = ({ tournament, onClose, refresh }) => {
   // 🔹 Original Data (for comparison)
   const originalData = useMemo(
@@ -54,13 +54,7 @@ const EditTournamentModal = ({ tournament, onClose, refresh }) => {
     }
 
     try {
-      await axios.put(
-        `http://localhost:5050/tournament/${tournament._id}`,
-        updatedData,
-        {
-          withCredentials: true,
-        }
-      );
+      await api.put(`/tournament/${tournament._id}`,updatedData);
 
       refresh();
       onClose();

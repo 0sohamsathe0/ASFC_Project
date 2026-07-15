@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../api";
 
 function TournamentEntry() {
   const [tournaments, setTournaments] = useState([]);
@@ -12,32 +12,20 @@ function TournamentEntry() {
 
   // 🔹 Fetch tournaments
   const fetchTournaments = async () => {
-    const result = await axios.get("http://localhost:5050/tournament?type=upcoming", {
-       withCredentials: true,
-    });
+    const result = await api.get("/tournament?type=upcoming")
     setTournaments(result.data.data);
   };
 
   // 🔹 Fetch players
   const fetchPlayers = async () => {
-    const result = await axios.get(
-      "http://localhost:5050/player/getAllPlayers?status=Accepted",
-      {
-        withCredentials: true,
-      }
-    );
+    const result = await api.get("/player/getAllPlayers?status=Accepted");
     setPlayers(result.data.data);
   };
 
   // 🔹 Fetch existing entries
   const fetchExistingEntries = async (tournamentId) => {
     try {
-      const res = await axios.get(
-        `http://localhost:5050/tournament/entry/${tournamentId}`,
-        {
-           withCredentials: true,
-        }
-      );
+      const res = await api.get(`/tournament/entry/${tournamentId}`);
 
       const ids = res.data.data.map((entry) =>
         entry.playerId._id.toString()
@@ -115,13 +103,7 @@ function TournamentEntry() {
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:5050/tournament/createEntry",
-        payload,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.post("/tournament/createEntry",payload);
 
       const data = response.data;
 

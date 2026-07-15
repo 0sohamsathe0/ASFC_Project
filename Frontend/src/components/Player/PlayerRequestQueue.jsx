@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { api } from "../api.js";
 import RejectPlayer from "../Admin/RejectPlayer.jsx";
 
 function PlayerRequestQueue() {
@@ -12,56 +12,42 @@ function PlayerRequestQueue() {
   const [showModal, setShowModal] = useState(false);
 
   const handleApprove = (playerId) => async () => {
-    try {
-      const res = await axios.patch(
-        `http://localhost:5050/admin/acceptPlayer/${playerId}`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+  try {
+    const res = await api.patch(`/admin/acceptPlayer/${playerId}`);
 
-      if (!res.data.emailSent) {
-        alert(
-          "Player approved successfully, but email delivery failed."
-        );
-      }
-
-      fetchRequests();
-
-    } catch (err) {
-      console.error(err);
-
-      alert(
-        err.response?.data?.message || "Something went wrong"
-      );
+    if (!res.data.emailSent) {
+      alert("Player approved successfully, but email delivery failed.");
     }
-  };
+
+    await fetchRequests();
+  } catch (err) {
+    console.error(err);
+
+    alert(
+      err.response?.data?.message || "Something went wrong"
+    );
+  }
+};
 
   const handleReject = async () => {
-    try {
-      const responce = await axios.patch("http://localhost:5050/admin/rejectPlayer", 
-        { playerId: selectedPlayer._id, reason: rejectReason },
-        {
-          withCredentials: true,
-        })
-      setShowModal(false);
-      setRejectReason("");
+  try {
+    await api.patch("/admin/rejectPlayer", {
+      playerId: selectedPlayer._id,
+      reason: rejectReason,
+    });
 
-      fetchRequests(); // refresh table
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    setShowModal(false);
+    setRejectReason("");
+
+    await fetchRequests();
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const fetchRequests = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5050/admin/getPendingPlayers",
-        {
-          withCredentials: true,
-        },
-      );
+      const res = await api.get("/admin/getPendingPlayers");
 
       setPlayers(res.data.data);
     } catch (err) {
