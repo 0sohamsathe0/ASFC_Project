@@ -1,11 +1,25 @@
 import { MonitorSmartphone, House } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminDesktopOnly = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      alert("Admin logged out successfully");
+      navigate("/admin/login");
+    } catch (error) {
+      alert("Logout failed");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-6">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
-
         <div className="flex justify-center mb-6">
           <MonitorSmartphone className="w-16 h-16 text-blue-600" />
         </div>
@@ -24,14 +38,13 @@ const AdminDesktopOnly = () => {
           Please sign in from a laptop or desktop computer to continue.
         </p>
 
-        <Link
-          to="/"
+        <button
+          onClick={handleLogout}
           className="mt-8 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
         >
           <House size={18} />
           Go to Home
-        </Link>
-
+        </button>
       </div>
     </div>
   );

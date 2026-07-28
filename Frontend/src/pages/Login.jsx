@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import {api} from '../components/api.js'
+import { api } from '../components/api.js'
 const Login = () => {
   const [aadharCard, setAadharCard] = useState("");
   const [dob, setDob] = useState("");
@@ -62,7 +62,15 @@ const Login = () => {
           required
         />
 
+        <label
+          htmlFor="dob"
+          className="block mb-2 text-sm font-medium text-gray-700"
+        >
+          Date of Birth
+        </label>
+
         <input
+          id="dob"
           type="date"
           value={dob}
           onChange={(e) => setDob(e.target.value)}

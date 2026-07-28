@@ -11,8 +11,6 @@ import LoadingScreen from "./components/common/loadingState.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
-import { baseURL } from './components/api.js'
-
 // Lazy Loaded Pages
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
@@ -80,8 +78,6 @@ function App() {
 
   return (
     <>
-      <p>API Base URL: {baseURL}</p>
-      <p>{window.location.href}  {window.location.hostname};</p>
       <Navbar />
 
       <Suspense fallback={<LoadingScreen />}>

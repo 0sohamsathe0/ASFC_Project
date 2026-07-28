@@ -370,21 +370,17 @@ const DesktopProfile = ({
         {showCertificate && (
           <div
             onClick={() => setShowCertificate(false)}
-            className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4 sm:p-6"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex justify-center items-start pt-28 px-4 pb-6"
           >
-
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-7xl max-h-[95vh] overflow-auto shadow-2xl"
+              className="w-full max-w-6xl h-[82vh] rounded-2xl overflow-hidden bg-white shadow-[0_25px_60px_rgba(0,0,0,0.45)] border border-gray-200 flex flex-col"
             >
-
               <MeritCertificates
                 certificateData={selectedCertificate}
                 onClose={() => setShowCertificate(false)}
               />
-
             </div>
-
           </div>
         )}
 

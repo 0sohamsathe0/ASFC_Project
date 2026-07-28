@@ -4,8 +4,9 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../components/api.js";
 
 import DesktopProfile from "./player/DesktopProfile.jsx";
-import MobileProfile from "./player/Mobile/MobileProfile.jsx";
+import MobileProfile from "./player/mobile/MobileProfile.jsx";
 import AadhaarPreview from "./player/AadhaarPreview.jsx";
+import useIsDesktop from "../hooks/useIsDesktop.js";
 
 const PlayerProfile = () => {
   const [player, setPlayer] = useState(null);
@@ -18,6 +19,8 @@ const PlayerProfile = () => {
 
   const navigate = useNavigate();
   const { logout } = useAuth();
+    const isDesktop = useIsDesktop();
+
 
   const totalTournamentsPlayed = 12;
 
@@ -69,7 +72,7 @@ const PlayerProfile = () => {
     }
 
     fetchProfile();
-  }, []);
+  }, [navigate]);
 
   if (!player) {
     return (
@@ -79,48 +82,36 @@ const PlayerProfile = () => {
     );
   }
 
+  const profileProps = {
+    player,
+    showAadhar,
+    setShowAadhar,
+    individualResults,
+    teamResults,
+    selectedCertificate,
+    setSelectedCertificate,
+    showCertificate,
+    setShowCertificate,
+    HandleLogout,
+    totalTournamentsPlayed,
+    upcomingTournaments,
+    navigate,
+  };
+
+
   return (
     <>
-      <div className="md:hidden">
-        <MobileProfile
-          player={player}
-          showAadhar={showAadhar}
-          setShowAadhar={setShowAadhar}
-          individualResults={individualResults}
-          teamResults={teamResults}
-          selectedCertificate={selectedCertificate}
-          setSelectedCertificate={setSelectedCertificate}
-          showCertificate={showCertificate}
-          setShowCertificate={setShowCertificate}
-          HandleLogout={HandleLogout}
-          totalTournamentsPlayed={totalTournamentsPlayed}
-          upcomingTournaments={upcomingTournaments}
-          navigate={navigate}
-        />
-      </div>
+       {isDesktop ? (
+        <DesktopProfile {...profileProps} />
+      ) : (
+        <MobileProfile {...profileProps} />
+      )}
 
-      <div className="hidden md:block">
-        <DesktopProfile
-          player={player}
-          showAadhar={showAadhar}
-          setShowAadhar={setShowAadhar}
-          individualResults={individualResults}
-          teamResults={teamResults}
-          selectedCertificate={selectedCertificate}
-          setSelectedCertificate={setSelectedCertificate}
-          showCertificate={showCertificate}
-          setShowCertificate={setShowCertificate}
-          HandleLogout={HandleLogout}
-          totalTournamentsPlayed={totalTournamentsPlayed}
-          upcomingTournaments={upcomingTournaments}
-          navigate={navigate}
-        />
-      </div>
       <AadhaarPreview
-    open={showAadhar}
-    image={player.aadharCardURL}
-    onClose={() => setShowAadhar(false)}
-  />
+        open={showAadhar}
+        image={player.aadharCardURL}
+        onClose={() => setShowAadhar(false)}
+      />
     </>
 
   );

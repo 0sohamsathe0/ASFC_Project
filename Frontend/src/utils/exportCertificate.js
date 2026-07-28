@@ -1,4 +1,4 @@
-const html2canvas = (await import("html2canvas")).default;
+const html2canvas = (await import("html2canvas-pro")).default;
 const jsPDF = (await import("jspdf")).default;
 
 const exportCertificate = async (
@@ -11,18 +11,50 @@ const exportCertificate = async (
   }
 
   try {
-    // Capture certificate
+    /* ---------------- Wait for fonts ---------------- */
+
+    if (document.fonts) {
+      await document.fonts.ready;
+    }
+
+    /* ---------------- Wait for images ---------------- */
+
+    const images = element.querySelectorAll("img");
+
+    await Promise.all(
+      [...images].map((img) => {
+        if (img.complete) return Promise.resolve();
+
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      })
+    );
+
+    /* ---------------- Capture Certificate ---------------- */
+
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: 2.5,
+
       useCORS: true,
+
+      allowTaint: true,
+
       backgroundColor: "#ffffff",
+
       logging: false,
+
+      imageTimeout: 0,
+
+      removeContainer: true,
     });
 
-    // Convert canvas to compressed JPEG
-    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+    /* ---------------- Convert Canvas ---------------- */
 
-    // Create PDF
+const imgData = canvas.toDataURL("image/jpeg", 0.95);
+    /* ---------------- Create PDF ---------------- */
+
     const pdf = new jsPDF({
       orientation: "landscape",
       unit: "mm",
@@ -30,15 +62,12 @@ const exportCertificate = async (
       compress: true,
     });
 
-    // A4 Landscape dimensions
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    // Canvas dimensions
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
-    // Calculate aspect ratios
     const canvasRatio = canvasWidth / canvasHeight;
     const pageRatio = pageWidth / pageHeight;
 
@@ -46,22 +75,21 @@ const exportCertificate = async (
     let pdfHeight;
 
     if (canvasRatio > pageRatio) {
-      // Fit to page width
       pdfWidth = pageWidth;
       pdfHeight = pageWidth / canvasRatio;
     } else {
-      // Fit to page height
       pdfHeight = pageHeight;
       pdfWidth = pageHeight * canvasRatio;
     }
 
-    // Center the certificate
     const x = (pageWidth - pdfWidth) / 2;
     const y = (pageHeight - pdfHeight) / 2;
 
+    /* ---------------- Add Image ---------------- */
+
     pdf.addImage(
       imgData,
-      "JPEG",
+      "PNG",
       x,
       y,
       pdfWidth,
@@ -70,7 +98,14 @@ const exportCertificate = async (
       "FAST"
     );
 
-    pdf.save(fileName);
+    /* ---------------- Safe File Name ---------------- */
+
+    const safeFileName = fileName.replace(
+      /[\\/:*?"<>|]/g,
+      " : "
+    );
+
+    pdf.save(safeFileName);
   } catch (error) {
     console.error("Error exporting certificate:", error);
   }

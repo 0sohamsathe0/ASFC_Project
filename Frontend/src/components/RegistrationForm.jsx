@@ -220,7 +220,7 @@ function RegistrationForm() {
 
   return (
     <Container
-      maxWidth="xl"
+      maxWidth="lg"
       sx={{
         py: {
           xs: 2,
@@ -469,9 +469,9 @@ function RegistrationForm() {
 
             {/* Mobile Header */}
 
-            <div className="lg:hidden bg-gray-900 text-white px-6 py-8">
+            <div className="lg:hidden bg-gradient-to-r from-slate-900 to-blue-900 px-5 py-5">
 
-              <h1 className="text-3xl font-bold">
+              <h1 className="text-3xl font-bold text-white">
                 All Star Fencing Club
               </h1>
 
@@ -483,10 +483,10 @@ function RegistrationForm() {
 
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="p-4 sm:p-6 md:p-8 lg:p-10"
+              className="px-4 py-5 sm:p-6 md:p-8 lg:p-10"
             >
 
-              <div className="mb-10">
+              <div className="hidden lg:block mb-10">
 
                 <h2 className="text-3xl font-bold text-gray-900">
                   Player Registration
@@ -503,7 +503,7 @@ function RegistrationForm() {
               <Paper
                 elevation={3}
                 sx={{
-                  p: { xs: 3, md: 4 },
+                  p: { xs: 2, sm: 3, md: 4 },
                   borderRadius: "20px",
                   mb: 4,
                 }}
@@ -565,8 +565,10 @@ function RegistrationForm() {
                   {/* DOB */}
 
                   <TextField
+                    label="Date of Birth"
                     type="date"
                     fullWidth
+                    size="small"
                     InputLabelProps={{
                       shrink: true,
                     }}
