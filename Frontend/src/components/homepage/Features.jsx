@@ -48,7 +48,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="bg-[#020617] py-20 sm:py-24 lg:py-28">
+    <section className="bg-[#020617] py-16 sm:py-20 lg:py-24">
 
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
 
@@ -62,7 +62,7 @@ export default function Features() {
 
           </p>
 
-          <h2 className="mt-5 text-3xl sm:text-4xl lg:text-6xl font-black leading-tight text-white">
+          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight text-white">
 
             Everything You Need To
 
@@ -74,7 +74,7 @@ export default function Features() {
 
           </h2>
 
-          <p className="mt-6 text-base sm:text-lg leading-7 sm:leading-8 text-slate-400">
+          <p className="mt-6 text-sm sm:text-base lg:text-lg leading-6 sm:leading-7 max-w-2xl mx-auto text-slate-400">
 
             All Star Fencing Club combines expert coaching, structured
             training and competitive opportunities to help athletes
@@ -86,7 +86,7 @@ export default function Features() {
 
         {/* Cards */}
 
-        <div className="mt-14 sm:mt-16 lg:mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="mt-10 sm:mt-12 lg:mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
 
           {features.map((feature, index) => {
 
@@ -96,10 +96,10 @@ export default function Features() {
 
               <div
                 key={index}
-                className="group rounded-3xl border border-white/10 bg-slate-900 p-6 sm:p-8 transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 hover:shadow-[0_20px_60px_rgba(37,99,235,0.18)]"
+                className="group rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900 to-slate-950 p-5 sm:p-6 lg:p-7 transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500/60 hover:shadow-[0_20px_60px_rgba(37,99,235,0.15)]"
               >
 
-                <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-blue-600/20 transition group-hover:bg-blue-600">
+                <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-blue-600/20 transition group-hover:bg-blue-600">
 
                   <Icon
                     size={28}

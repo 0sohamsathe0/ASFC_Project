@@ -1,4 +1,6 @@
-const RejectPlayer = ({ showModal, setShowModal, rejectReason, setRejectReason, handleReject }) => {
+import { CircularProgress } from "@mui/material";
+
+const RejectPlayer = ({ showModal, setShowModal, rejectReason, setRejectReason, handleReject, isLoading }) => {
   if (!showModal) return null;
 
   return (
@@ -21,16 +23,31 @@ const RejectPlayer = ({ showModal, setShowModal, rejectReason, setRejectReason, 
 
           <button
             onClick={() => setShowModal(false)}
-            className="px-4 py-1 border rounded"
+            disabled={isLoading}
+            className="px-4 py-1 border rounded disabled:opacity-50"
           >
             Cancel
           </button>
 
           <button
             onClick={handleReject}
-            className="bg-red-500 text-white px-4 py-1 rounded"
+            disabled={isLoading}
+            className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-4 py-1 rounded flex items-center justify-center min-w-[140px]"
           >
-            Reject Player
+            {isLoading ? (
+              <>
+                <CircularProgress
+                  size={18}
+                  sx={{
+                    color: "white",
+                    mr: 1,
+                  }}
+                />
+                Rejecting...
+              </>
+            ) : (
+              "Reject Player"
+            )}
           </button>
 
         </div>

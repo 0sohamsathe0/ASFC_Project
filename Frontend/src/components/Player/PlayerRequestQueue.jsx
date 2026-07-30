@@ -3,47 +3,104 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import RejectPlayer from "../Admin/RejectPlayer.jsx";
 
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
+
 function PlayerRequestQueue() {
   const navigate = useNavigate();
   const [players, setPlayers] = useState([]);
+  const [loadingPlayerId, setLoadingPlayerId] = useState(null);
+  const [loadingAction, setLoadingAction] = useState("");
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
 
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
   const [showModal, setShowModal] = useState(false);
 
   const handleApprove = (playerId) => async () => {
-  try {
-    const res = await api.patch(`/admin/acceptPlayer/${playerId}`);
+    try {
+      setLoadingPlayerId(playerId);
+      setLoadingAction("approve");
 
-    if (!res.data.emailSent) {
-      alert("Player approved successfully, but email delivery failed.");
+      const res = await api.patch(
+        `/admin/acceptPlayer/${playerId}`
+      );
+
+      setSnackbar({
+        open: true,
+        severity: res.data.emailSent ? "success" : "warning",
+        message: res.data.message,
+      });
+
+      await fetchRequests();
+
+    } catch (err) {
+
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message:
+          err.response?.data?.message ||
+          "Something went wrong",
+      });
+
+    } finally {
+
+      setLoadingPlayerId(null);
+      setLoadingAction("");
+
     }
-
-    await fetchRequests();
-  } catch (err) {
-    console.error(err);
-
-    alert(
-      err.response?.data?.message || "Something went wrong"
-    );
-  }
-};
+  };
 
   const handleReject = async () => {
-  try {
-    await api.patch("/admin/rejectPlayer", {
-      playerId: selectedPlayer._id,
-      reason: rejectReason,
-    });
 
-    setShowModal(false);
-    setRejectReason("");
+    try {
 
-    await fetchRequests();
-  } catch (err) {
-    console.error(err);
-  }
-};
+      setLoadingPlayerId(selectedPlayer._id);
+      setLoadingAction("reject");
+
+      const res = await api.patch(
+        "/admin/rejectPlayer",
+        {
+          playerId: selectedPlayer._id,
+          reason: rejectReason,
+        }
+      );
+
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: res.data.message,
+      });
+
+      setShowModal(false);
+      setRejectReason("");
+
+      await fetchRequests();
+
+    } catch (err) {
+
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message:
+          err.response?.data?.message ||
+          "Something went wrong",
+      });
+
+    } finally {
+
+      setLoadingPlayerId(null);
+      setLoadingAction("");
+
+    }
+  };
 
   const fetchRequests = async () => {
     try {
@@ -114,20 +171,38 @@ function PlayerRequestQueue() {
 
                 <td className="p-4 flex gap-3">
                   <button
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-md text-sm"
+                    disabled={loadingPlayerId === player._id}
+                    className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-4 py-1 rounded-md text-sm flex items-center justify-center min-w-[100px]"
                     onClick={handleApprove(player._id)}
                   >
-                    Approve
+                    {loadingPlayerId === player._id &&
+                      loadingAction === "approve" ? (
+                      <CircularProgress
+                        size={18}
+                        sx={{ color: "white" }}
+                      />
+                    ) : (
+                      "Approve"
+                    )}
                   </button>
 
                   <button
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-md text-sm"
+                    disabled={loadingPlayerId === player._id}
+                    className=" bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-4 py-1 rounded-md text-sm flex items-center justify-center min-w-[100px]"
                     onClick={() => {
                       setSelectedPlayer(player);
                       setShowModal(true);
                     }}
                   >
-                    Reject
+                    {loadingPlayerId === player._id &&
+                      loadingAction === "reject" ? (
+                      <CircularProgress
+                        size={18}
+                        sx={{ color: "white" }}
+                      />
+                    ) : (
+                      "Reject"
+                    )}
                   </button>
                 </td>
               </tr>
@@ -135,12 +210,33 @@ function PlayerRequestQueue() {
           </tbody>
         </table>
       </div>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() =>
+          setSnackbar((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+      >
+        <Alert
+          severity={snackbar.severity}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       <RejectPlayer
         showModal={showModal}
         setShowModal={setShowModal}
         rejectReason={rejectReason}
         setRejectReason={setRejectReason}
         handleReject={handleReject}
+        isLoading={
+          loadingPlayerId === selectedPlayer?._id &&
+          loadingAction === "reject"
+        }
       />
     </div>
   );

@@ -1,10 +1,22 @@
 import { useState, useEffect } from "react";
+import { CircularProgress, Snackbar, Alert } from "@mui/material";
 import { api } from "../api";
+import SaveIcon from "@mui/icons-material/Save";
+import CloseIcon from "@mui/icons-material/Close";
+
 const EditPlayerModal = ({ player, onClose, refresh }) => {
   const [formData, setFormData] = useState({});
   const [originalData, setOriginalData] = useState(null);
 
-  // 🔹 Initialize data from props
+  const [loading, setLoading] = useState(false);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
+
+  // Initialize player data
   useEffect(() => {
     if (!player) return;
 
@@ -28,7 +40,7 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
     setOriginalData(initialData);
   }, [player]);
 
-  // 🔹 Handle normal fields
+  // Handle normal inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -38,7 +50,7 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
     }));
   };
 
-  // 🔹 Handle nested address fields
+  // Handle nested address fields
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
 
@@ -51,9 +63,9 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
     }));
   };
 
-  // 🔹 Get changed fields (with edge case fix)
+  // Find only modified fields
   const getChangedFields = () => {
-    if (!originalData) return {}; // ✅ edge case
+    if (!originalData) return {};
 
     let changed = {};
 
@@ -66,7 +78,8 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
             formData.address[addrKey] !==
             originalData.address[addrKey]
           ) {
-            addressChanges[addrKey] = formData.address[addrKey];
+            addressChanges[addrKey] =
+              formData.address[addrKey];
           }
         });
 
@@ -83,204 +96,392 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
     return changed;
   };
 
-  // 🔹 Check if anything changed (for button disable)
+  // Detect changes
   const isChanged =
     originalData &&
-    JSON.stringify(formData) !== JSON.stringify(originalData);
+    JSON.stringify(formData) !==
+    JSON.stringify(originalData);
 
-  // 🔹 Submit
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const updatedFields = getChangedFields();
 
     if (Object.keys(updatedFields).length === 0) {
-      alert("No changes made");
+      setSnackbar({
+        open: true,
+        severity: "info",
+        message: "No changes made",
+      });
       return;
     }
 
     try {
-      const responce = await api.put(`/player/${player._id}`,updatedFields);
-      alert("player updated successfully",responce);
-      refresh();
-      onClose();
+      setLoading(true);
+
+      const response = await api.put(
+        `/player/${player._id}`,
+        updatedFields
+      );
+
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message:
+          response.data.message ||
+          "Player updated successfully",
+      });
+
+      await refresh();
+
+      setTimeout(() => {
+        onClose();
+      }, 500);
+
     } catch (err) {
-      console.error("Update failed:", err);
+      console.error(err);
+
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message:
+          err.response?.data?.message ||
+          "Update failed",
+      });
+
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 🔹 Prevent rendering before data is ready
   if (!originalData) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center overflow-y-auto">
-      <div className="bg-slate-800 p-6 rounded-xl w-150 text-white">
-        <h2 className="text-xl font-semibold mb-4">Edit Player</h2>
+    <>
+      <div className="fixed inset-0 z-500 bg-black/50 flex items-center justify-center p-4">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* 🔹 Personal Details */}
-          <div>
-            <h3 className="text-sm text-gray-400 mb-2 border-b border-slate-600 pb-1">
-              Personal Details
-            </h3>
+        <div className="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] h-[90vh] flex flex-col">
 
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <input
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="p-2 rounded bg-slate-700"
-                placeholder="Full Name"
-              />
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
 
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="p-2 rounded bg-slate-700"
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
+            <div>
+              <h2 className="text-2xl font-semibold text-white">
+                Edit Player
+              </h2>
 
-              <input
-                type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
-                className="p-2 rounded bg-slate-700"
-              />
+              <p className="text-sm text-slate-400 mt-1">
+                Update player information
+              </p>
             </div>
+
+            <button
+              onClick={onClose}
+              disabled={loading}
+              className="text-slate-400 hover:text-white text-2xl disabled:opacity-50"
+            >
+              ✕
+            </button>
+
           </div>
 
-          {/* 🔹 Contact Info */}
-          <div>
-            <h3 className="text-sm text-gray-400 mb-2 border-b border-slate-600 pb-1">
-              Contact Information
-            </h3>
+          {/* Body */}
 
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <input
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="p-2 rounded bg-slate-700"
-                placeholder="Email"
-              />
+          <div className="flex-1 overflow-y-auto px-6 py-5">
 
-              <input
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="p-2 rounded bg-slate-700"
-                placeholder="Phone"
-              />
-            </div>
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-8"
+            >
+
+              {/* Personal Information */}
+
+              <section>
+
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Personal Information
+                </h3>
+
+                <div className="grid grid-cols-2 gap-5">
+
+                  <input
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="Full Name"
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    disabled={loading}
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+
+                  <input
+                    type="date"
+                    name="dob"
+                    value={formData.dob}
+                    onChange={handleChange}
+                    disabled={loading}
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                  <input
+                    name="aadharCard"
+                    value={formData.aadharCard}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="Aadhaar Number"
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                  <input
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="Email"
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                  <input
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="Phone Number"
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                  <input
+                    name="event"
+                    value={formData.event}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="Weapon"
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                  <input
+                    name="institute"
+                    value={formData.institute}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="Institute"
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                </div>
+
+              </section>
+              {/* Address */}
+
+              <section>
+
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Address
+                </h3>
+
+                <div className="space-y-4">
+
+                  <input
+                    name="addressLine1"
+                    value={formData.address.addressLine1}
+                    onChange={handleAddressChange}
+                    disabled={loading}
+                    placeholder="Address Line 1"
+                    className="w-full p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                  <input
+                    name="addressLine2"
+                    value={formData.address.addressLine2}
+                    onChange={handleAddressChange}
+                    disabled={loading}
+                    placeholder="Address Line 2"
+                    className="w-full p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                  <input
+                    name="pincode"
+                    value={formData.address.pincode}
+                    onChange={handleAddressChange}
+                    disabled={loading}
+                    placeholder="Pincode"
+                    className="w-full md:w-52 p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                </div>
+
+              </section>
+
+              {/* Documents */}
+
+              <section>
+
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Documents
+                </h3>
+
+                <div className="grid grid-cols-2 gap-6">
+
+                  {/* Photo */}
+
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+
+                    <p className="text-sm text-slate-300 mb-3 font-medium">
+                      Player Photo
+                    </p>
+
+                    <a
+                      href={player.photoURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={player.photoURL}
+                        alt="Player"
+                        className="w-32 h-32 object-cover rounded-lg border border-slate-500 hover:scale-105 transition"
+                      />
+                    </a>
+
+                  </div>
+
+                  {/* Aadhaar */}
+
+                  <div className="bg-slate-700 rounded-xl p-4 border border-slate-600">
+
+                    <p className="text-sm text-slate-300 mb-3 font-medium">
+                      Aadhaar Card
+                    </p>
+
+                    <a
+                      href={player.aadharCardURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={player.aadharCardURL}
+                        alt="Aadhaar"
+                        className="w-40 h-32 object-cover rounded-lg border border-slate-500 hover:scale-105 transition"
+                      />
+                    </a>
+
+                  </div>
+
+                </div>
+
+              </section>
+
+            </form>
+
           </div>
 
-          {/* 🔹 Event & Institute */}
-          <div>
-            <h3 className="text-sm text-gray-400 mb-2 border-b border-slate-600 pb-1">
-              Event & Institute
-            </h3>
+          {/* Footer */}
 
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <input
-                name="event"
-                value={formData.event}
-                onChange={handleChange}
-                className="p-2 rounded bg-slate-700"
-                placeholder="Event"
-              />
+          <div className="shrink-0 border-t border-slate-700 bg-slate-900/95 backdrop-blur-md px-6 py-5 flex justify-end items-center gap-4">
 
-              <input
-                name="institute"
-                value={formData.institute}
-                onChange={handleChange}
-                className="p-2 rounded bg-slate-700"
-                placeholder="Institute"
-              />
-            </div>
-          </div>
-
-          {/* 🔹 Address */}
-          <div>
-            <h3 className="text-sm text-gray-400 mb-2 border-b border-slate-600 pb-1">
-              Address
-            </h3>
-
-            <input
-              name="addressLine1"
-              value={formData.address.addressLine1}
-              onChange={handleAddressChange}
-              className="w-full p-2 mb-2 rounded bg-slate-700"
-              placeholder="Address Line 1"
-            />
-
-            <input
-              name="addressLine2"
-              value={formData.address.addressLine2}
-              onChange={handleAddressChange}
-              className="w-full p-2 mb-2 rounded bg-slate-700"
-              placeholder="Address Line 2"
-            />
-
-            <input
-              name="pincode"
-              value={formData.address.pincode}
-              onChange={handleAddressChange}
-              className="w-full p-2 rounded bg-slate-700"
-              placeholder="Pincode"
-            />
-          </div>
-
-          {/* 🔹 Documents */}
-          <div>
-            <h3 className="text-sm text-gray-400 mb-2 border-b border-slate-600 pb-1">
-              Documents
-            </h3>
-
-            <div className="flex gap-4 mt-2">
-              <div>
-                <p className="text-xs mb-1">Photo</p>
-                <img
-                  src={player.photoURL}
-                  className="w-20 h-20 rounded"
-                />
-              </div>
-
-              <div>
-                <p className="text-xs mb-1">Aadhar</p>
-                <img
-                  src={player.aadharCardURL}
-                  className="w-20 h-20 rounded"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 🔹 Buttons */}
-          <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-500 px-3 py-1 rounded"
+              disabled={loading}
+              className="
+      px-6
+      py-3
+      rounded-xl
+      border
+      border-slate-600
+      bg-slate-700
+      hover:bg-slate-600
+      text-white
+      font-medium
+      transition-all
+      duration-200
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+    "
             >
-              Cancel
+              <>
+                <CloseIcon fontSize="small" />
+                Cancel
+              </>
             </button>
 
             <button
               type="submit"
-              disabled={!isChanged}
-              className="bg-green-500 px-3 py-1 rounded disabled:opacity-50"
+              onClick={handleSubmit}
+              disabled={!isChanged || loading}
+              className="
+      min-w-[190px]
+      px-6
+      py-3
+      rounded-xl
+      bg-emerald-600
+      hover:bg-emerald-500
+      active:scale-95
+      text-white
+      font-semibold
+      shadow-lg
+      transition-all
+      duration-200
+      disabled:bg-slate-600
+      disabled:cursor-not-allowed
+      flex
+      items-center
+      justify-center
+      gap-2
+    "
             >
-              Save Changes
+              {loading ? (
+                <>
+                  <CircularProgress size={18} sx={{ color: "white" }} />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <SaveIcon fontSize="small" />
+                  Save Changes
+                </>
+              )}
             </button>
+
           </div>
-        </form>
+
+        </div>
+
       </div>
-    </div>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() =>
+          setSnackbar((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+    </>
   );
 };
 

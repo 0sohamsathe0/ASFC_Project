@@ -52,7 +52,7 @@ const TournamentTable = ({ title, data = [], onEdit }) => {
                 <td className="p-2">
                   <button
                     onClick={() => onEdit(tournament)}
-                    className="bg-blue-500 px-3 py-1 rounded"
+                    className="bg-blue-500 px-3 py-1 rounded text-white"
                   >
                     Edit
                   </button>

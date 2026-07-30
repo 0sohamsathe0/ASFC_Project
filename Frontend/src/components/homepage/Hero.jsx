@@ -5,7 +5,7 @@ import fencing from "../../assets/fencing.avif";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[100svh] overflow-hidden bg-[#020617]">
+    <section className="relative min-h-[90svh] overflow-hidden bg-[#020617]">
 
       {/* ================= Background ================= */}
 
@@ -47,9 +47,9 @@ export default function Hero() {
 
       {/* ================= Hero ================= */}
 
-      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl items-center px-5 sm:px-6 lg:px-8 py-12">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl items-center px-5 sm:px-6 lg:px-8 py-8 lg:py-10">
 
-        <div className="grid w-full items-center gap-14 lg:gap-20 lg:grid-cols-2">
+        <div className="grid w-full items-center gap-10 lg:gap-16 lg:grid-cols-2 lg:-translate-y-10">
 
           {/* LEFT */}
 
@@ -66,8 +66,7 @@ export default function Hero() {
 
             </span>
 
-            <h1 className="mt-6 text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-black leading-tight text-white">
-
+            <h1 className="mt-6 text-3xl sm:text-4xl lg:text-6xl xl:text-7xl font-black leading-[1.05] text-white">
               Where
 
               <br />
@@ -84,7 +83,7 @@ export default function Hero() {
 
             </h1>
 
-            <p className="mx-auto lg:mx-0 mt-8 max-w-xl text-base sm:text-lg lg:text-xl leading-8 text-slate-300">
+            <p className="mx-auto lg:mx-0 mt-6 max-w-lg text-sm sm:text-base lg:text-lg leading-7 text-slate-300">
 
               Train with professional coaches, compete in district,
               state and national tournaments, and become part of a
@@ -94,9 +93,9 @@ export default function Hero() {
 
             {/* CTA Buttons */}
 
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
 
-              <button className="group flex w-full sm:w-auto items-center justify-center gap-3 rounded-full bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-700">
+              <button className="group flex w-full sm:w-auto items-center justify-center gap-3 rounded-full bg-blue-600 px-7 py-3.5 font-semibold text-white transition hover:bg-blue-700">
 
                 Register Now
 
@@ -107,7 +106,7 @@ export default function Hero() {
 
               </button>
 
-              <button className="w-full sm:w-auto rounded-full border border-white/20 px-8 py-4 text-white transition hover:bg-white/10">
+              <button className="w-full sm:w-auto rounded-full border border-white/20 px-7 py-3.5 text-white transition hover:bg-white/10">
 
                 Explore Tournaments
 
@@ -117,11 +116,11 @@ export default function Hero() {
 
             {/* Statistics */}
 
-            <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center lg:text-left">
+            <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center lg:text-left">
 
               <div>
 
-                <h2 className="text-4xl font-black text-white">
+                <h2 className="text-3xl font-black text-white">
 
                   500+
 
@@ -170,18 +169,18 @@ export default function Hero() {
             </div>
 
           </motion.div>
-                    {/* RIGHT */}
+          {/* RIGHT */}
 
           <motion.div
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="relative mt-10 lg:mt-0 flex items-center justify-center"
+            className="relative mt-8 lg:mt-0 flex items-center justify-center"
           >
 
             {/* Background Glow */}
 
-            <div className="absolute w-[320px] h-[320px] sm:w-[500px] sm:h-[500px] lg:w-[650px] lg:h-[650px] rounded-full bg-blue-600/20 blur-[180px]" />
+            <div className="absolute w-[320px] h-[320px] sm:w-[500px] sm:h-[500px] lg:w-[560px] lg:h-[560px] rounded-full bg-blue-600/20 blur-[180px]" />
 
             {/* Decorative Ring */}
 

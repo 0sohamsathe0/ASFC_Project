@@ -2,6 +2,7 @@ import React from 'react'
 import MeritCertificates from "../../components/Certificate/MeritCertificates.jsx";
 import ResultsSection from "../../components/Player/ResultsSection.jsx";
 import AadhaarPreview from './AadhaarPreview.jsx';
+import {FileBadge2,Eye} from 'lucide-react'
 
 const DesktopProfile = ({
   player,
@@ -21,29 +22,33 @@ const DesktopProfile = ({
 
   return (
     <>
-      <div className="min-h-screen bg-gray-100 px-4 py-4 sm:px-6 sm:py-6">
+      <div className="min-h-screen bg-gray-100 px-4 pt-8 pb-6 sm:px-6">
 
         <div className="max-w-6xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden">
 
           {/* HEADER */}
 
-          <div className="bg-purple-700 text-white p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div className="bg-gradient-to-r from-indigo-700 via-violet-700 to-purple-700 text-white p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
 
-            <h1 className="text-2xl sm:text-3xl font-bold uppercase break-words">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold uppercase break-words">
+                {player.fullName}
+              </h1>
 
-              {player.fullName}
-
-            </h1>
+              <p className="mt-1 text-xs uppercase tracking-[4px] text-purple-200">
+                Player Profile
+              </p>
+            </div>
 
             <div className="flex items-center sm:justify-end">
 
               <span
                 className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap
                 ${player.requestStatus === "Accepted"
-                    ? "bg-green-400 text-black"
+                    ? "bg-green-600 text-white"
                     : player.requestStatus === "Rejected"
-                      ? "bg-red-400 text-black"
-                      : "bg-yellow-400 text-black"
+                      ? "bg-red-500 text-white"
+                      : "bg-yellow-500 text-black"
                   }`}
               >
                 {player.requestStatus}
@@ -79,7 +84,7 @@ const DesktopProfile = ({
               <img
                 src={player.photoURL}
                 alt="Player"
-                className="w-full max-w-sm mx-auto md:max-w-none rounded-lg shadow-md object-cover"
+                className="w-full aspect-[4/5] object-cover rounded-xl shadow-md"
               />
 
               <div className="bg-purple-100 p-4 rounded-lg text-center">
@@ -270,38 +275,49 @@ const DesktopProfile = ({
 
               {/* Aadhaar */}
 
-              <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-lg">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
 
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+  <div className="flex items-center justify-between">
 
-                  <div>
+    <div className="flex items-center gap-4">
 
-                    <h2 className="text-xl sm:text-2xl font-bold">
+      <div className="h-11 w-11 rounded-xl bg-violet-100 flex items-center justify-center">
 
-                      Aadhaar Card
+        <FileBadge2
+          size={20}
+          className="text-violet-700"
+        />
 
-                    </h2>
+      </div>
 
-                    <p className="text-sm text-gray-500">
+      <div>
 
-                      Identity verification
+        <h2 className="text-xl font-bold text-slate-900">
+          Aadhaar Card
+        </h2>
 
-                    </p>
+        <p className="text-sm text-slate-500">
+          Identity verification document
+        </p>
 
-                  </div>
+      </div>
 
-                  <button
-                    onClick={() => setShowAadhar(true)}
-                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 transition text-white px-6 py-3 rounded-lg"
-                  >
+    </div>
 
-                    Preview Aadhaar
+    <button
+      onClick={() => setShowAadhar(true)}
+      className="flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-700 transition px-5 py-2.5 text-sm font-medium text-white"
+    >
 
-                  </button>
+      <Eye size={18} />
 
-                </div>
+      Preview
 
-              </div>
+    </button>
+
+  </div>
+
+</div>
 
               {
                 player.requestStatus !== "Rejected" ? (

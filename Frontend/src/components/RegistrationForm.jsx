@@ -172,12 +172,6 @@ function RegistrationForm() {
       const response = await api.post(
         "player/add",
         data,
-        {
-          onUploadProgress: ({ loaded, total }) => {
-            if (!total) return;
-            setUploadProgress(Math.round((loaded * 100) / total));
-          }
-        }
       );
 
       login(response.data.user);
@@ -187,7 +181,11 @@ function RegistrationForm() {
       setAadharCardPhoto(null);
       setPhotoError("");
       setAadhaarError("");
-      navigate("/player/profile");
+
+      setTimeout(() => {
+        navigate("/player/profile");
+      }, 2500);
+
     } catch (error) {
       console.log("ERROR:", error);
 
@@ -198,6 +196,8 @@ function RegistrationForm() {
         const message = error.response.data.message;
 
         if (status === 409) {
+          setServerError(message);
+
           setError("aadharCard", {
             type: "server",
             message,
@@ -221,20 +221,29 @@ function RegistrationForm() {
   return (
     <Container
       maxWidth="lg"
+      disableGutters
       sx={{
         py: {
-          xs: 2,
+          xs: 0,
           md: 5,
         },
-      }}
-    >
+        px: {
+          xs: 0,
+          md: 2,
+        },
+      }}>
       <Paper
-        elevation={8}
+        elevation={{ xs: 0, md: 8 }}
         sx={{
           overflow: "hidden",
-          borderRadius: "24px",
-        }}
-      >
+
+          borderRadius: {
+            xs: "15px",
+            md: "24px",
+          },
+
+          minHeight: "100vh",
+        }}>
         <div className="flex flex-col lg:flex-row min-h-screen">
 
           {/* ================= LEFT PANEL ================= */}
@@ -483,7 +492,7 @@ function RegistrationForm() {
 
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="px-4 py-5 sm:p-6 md:p-8 lg:p-10"
+              className="px-4 py-5 sm:px-6 md:p-8 lg:p-10"
             >
 
               <div className="hidden lg:block mb-10">
@@ -503,7 +512,7 @@ function RegistrationForm() {
               <Paper
                 elevation={3}
                 sx={{
-                  p: { xs: 2, sm: 3, md: 4 },
+                  p: { xs: 1.5, sm: 3, md: 4 },
                   borderRadius: "20px",
                   mb: 4,
                 }}
@@ -646,7 +655,7 @@ function RegistrationForm() {
               <Paper
                 elevation={3}
                 sx={{
-                  p: { xs: 3, md: 4 },
+                  p: { xs: 1.5, sm: 3, md: 4 },
                   borderRadius: "20px",
                   mb: 4,
                 }}
@@ -714,7 +723,7 @@ function RegistrationForm() {
               <Paper
                 elevation={3}
                 sx={{
-                  p: { xs: 3, md: 4 },
+                  p: { xs: 1.5, sm: 3, md: 4 },
                   borderRadius: "20px",
                   mb: 4,
                 }}

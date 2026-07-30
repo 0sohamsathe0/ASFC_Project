@@ -50,9 +50,9 @@ function insertionSort2(a){
     }
 }
 
- 
-insertionSort2(a)
-console.log(a)
-
-
-
+function minDate(a){
+    arr = a.map((item)=> new Date(item))
+    arr.sort((a, b) => a - b)
+    return arr[0].toLocaleDateString('en-CA').replace(/-/g, '/')
+}
+console.log(minDate(["2023/01/01", "2023/02/02", "2022/12/31"]))

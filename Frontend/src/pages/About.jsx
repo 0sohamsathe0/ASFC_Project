@@ -38,7 +38,7 @@ const achievements = [
 
 export default function About() {
   return (
-    <section className="relative overflow-hidden bg-[#020617] pt-16 md:pt-20 lg:pt-24 pb-20 md:pb-24 lg:pb-28">
+    <section className="relative overflow-hidden bg-[#020617] pt-8 md:pt-10 lg:pt-12 pb-16 md:pb-20 lg:pb-24">
 
       {/* Background */}
 
@@ -109,7 +109,7 @@ export default function About() {
 
             </span>
 
-            <h1 className="mt-5 sm:mt-6 text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
+            <h1 className="mt-5 sm:mt-6 text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
 
               Building
 
@@ -133,7 +133,7 @@ export default function About() {
 
             </h1>
 
-            <p className="mt-6 sm:mt-8 text-base sm:text-lg text-slate-400 leading-8 sm:leading-9">
+            <p className="mt-5 sm:mt-7 text-sm sm:text-base lg:text-lg leading-7 text-slate-400">
 
               All Star Fencing Club is dedicated to nurturing talented
               athletes through professional coaching, structured

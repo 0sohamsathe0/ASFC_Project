@@ -3,13 +3,11 @@ import RegistrationForm from '../components/RegistrationForm'
 
 function Register() {
   return (
-    <div>
         
-    <div className="bg-linear-to-bl from-blue-200 to-blue-600 h-full p-5">
+    <div className="bg-linear-to-bl from-blue-200 to-blue-600  min-h-screen  p-2 md:p-5">
       <RegistrationForm />
     </div>
 
-    </div>
   )
 }
 
