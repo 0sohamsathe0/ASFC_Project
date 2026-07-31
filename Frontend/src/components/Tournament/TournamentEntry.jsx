@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import toast from "react-hot-toast";
+import { exportTournamentEntries } from "../../utils/exportTournamentEntries.js";
 
 import {
   Trophy,
@@ -19,27 +20,21 @@ const TournamentEntry = () => {
   // ============================================
 
   const [loading, setLoading] = useState(false);
-
   const [tournaments, setTournaments] = useState([]);
-
   const [players, setPlayers] = useState([]);
+  const [selectedTournament, setSelectedTournament] = useState(null);
+  const [selectedPlayers, setSelectedPlayers] = useState([]);
 
-  const [selectedTournament, setSelectedTournament] =
-    useState(null);
-
-  const [selectedPlayers, setSelectedPlayers] =
-    useState([]);
-
-  const [existingPlayerIds, setExistingPlayerIds] =
-    useState([]);
+  const [existingEntries, setExistingEntries] = useState([]);
+  const [existingPlayerIds, setExistingPlayerIds] = useState([]);
+  const [loadingEntries, setLoadingEntries] = useState(false);
 
   const [search, setSearch] = useState("");
+  const [genderFilter, setGenderFilter] = useState("All");
+  const [eventFilter, setEventFilter] = useState("All");
+  const [entryGender, setEntryGender] = useState("Male");
 
-  const [genderFilter, setGenderFilter] =
-    useState("All");
-
-  const [eventFilter, setEventFilter] =
-    useState("All");
+  const [exporting, setExporting] = useState(false);
 
   // ============================================
   // FETCH TOURNAMENTS
@@ -79,24 +74,26 @@ const TournamentEntry = () => {
   // FETCH EXISTING ENTRIES
   // ============================================
 
-  const fetchExistingEntries = async (
-    tournamentId
-  ) => {
+  const fetchExistingEntries = async (tournamentId) => {
     try {
-      const res = await api.get(
-        `/tournament/entry/${tournamentId}`
-      );
+      setLoadingEntries(true);
 
-      const ids = res.data.data.map((entry) =>
+      const res = await api.get(`/tournament/entry/${tournamentId}`);
+
+      const entries = res.data.data || [];
+
+      setExistingEntries(entries);
+
+      const ids = entries.map((entry) =>
         entry.playerId._id.toString()
       );
 
       setExistingPlayerIds(ids);
     } catch (err) {
       console.error(err);
-      toast.error(
-        "Unable to fetch tournament entries."
-      );
+      toast.error("Unable to fetch tournament entries.");
+    } finally {
+      setLoadingEntries(false);
     }
   };
 
@@ -140,7 +137,7 @@ const TournamentEntry = () => {
       month < 0 ||
       (month === 0 &&
         today.getDate() <
-          birth.getDate())
+        birth.getDate())
     ) {
       age--;
     }
@@ -186,8 +183,8 @@ const TournamentEntry = () => {
 
       return true;
     }).sort((a, b) =>
-    a.fullName.localeCompare(b.fullName)
-  );
+      a.fullName.localeCompare(b.fullName)
+    );
   }, [
     players,
     selectedTournament,
@@ -238,9 +235,9 @@ const TournamentEntry = () => {
     setSelectedPlayers((prev) =>
       prev.includes(id)
         ? prev.filter(
-            (playerId) =>
-              playerId !== id
-          )
+          (playerId) =>
+            playerId !== id
+        )
         : [...prev, id]
     );
   };
@@ -316,10 +313,55 @@ const TournamentEntry = () => {
 
       toast.error(
         err.response?.data?.message ||
-          "Unable to create entries."
+        "Unable to create entries."
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  //Handle Export
+
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+
+      const filteredEntries = existingEntries
+        .filter(
+          (entry) => entry.playerId.gender === entryGender
+        )
+        .sort((a, b) => {
+          const order = {
+            Epee: 1,
+            Foil: 2,
+            Sabre: 3,
+          };
+
+          if (
+            order[a.playerId.event] !==
+            order[b.playerId.event]
+          ) {
+            return (
+              order[a.playerId.event] -
+              order[b.playerId.event]
+            );
+          }
+
+          return a.playerId.fullName.localeCompare(
+            b.playerId.fullName
+          );
+        });
+
+      await exportTournamentEntries(
+        selectedTournament,
+        filteredEntries,
+        entryGender
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Unable to export Excel.");
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -329,7 +371,7 @@ const TournamentEntry = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6 lg:p-8">
-            {/* ========================================= */}
+      {/* ========================================= */}
       {/* HEADER */}
       {/* ========================================= */}
 
@@ -654,7 +696,7 @@ const TournamentEntry = () => {
         </div>
 
       </div>
-            {/* ========================================= */}
+      {/* ========================================= */}
       {/* PLAYER TABLE */}
       {/* ========================================= */}
 
@@ -724,10 +766,10 @@ const TournamentEntry = () => {
                 className="rounded-xl bg-blue-600 hover:bg-blue-700 transition px-5 py-2 font-medium"
               >
                 {selectedPlayers.length ===
-                filteredPlayers.filter(
-                  (p) =>
-                    !existingPlayerIds.includes(p._id)
-                ).length
+                  filteredPlayers.filter(
+                    (p) =>
+                      !existingPlayerIds.includes(p._id)
+                  ).length
                   ? "Unselect All"
                   : "Select All"}
               </button>
@@ -751,12 +793,12 @@ const TournamentEntry = () => {
                         checked={
                           selectedPlayers.length > 0 &&
                           selectedPlayers.length ===
-                            filteredPlayers.filter(
-                              (p) =>
-                                !existingPlayerIds.includes(
-                                  p._id
-                                )
-                            ).length
+                          filteredPlayers.filter(
+                            (p) =>
+                              !existingPlayerIds.includes(
+                                p._id
+                              )
+                          ).length
                         }
                         onChange={handleSelectAll}
                       />
@@ -805,11 +847,10 @@ const TournamentEntry = () => {
                         key={player._id}
                         className={`border-b border-slate-800 transition
 
-                        ${
-                          registered
+                        ${registered
                             ? "opacity-60"
                             : "hover:bg-slate-800/60"
-                        }`}
+                          }`}
                       >
 
                         <td className="px-5 py-4">
@@ -854,12 +895,11 @@ const TournamentEntry = () => {
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-medium
 
-                            ${
-                              player.gender ===
-                              "Male"
+                            ${player.gender ===
+                                "Male"
                                 ? "bg-sky-500/20 text-sky-400"
                                 : "bg-pink-500/20 text-pink-400"
-                            }`}
+                              }`}
                           >
 
                             {player.gender}
@@ -923,7 +963,7 @@ const TournamentEntry = () => {
         )}
 
       </div>
-            {/* ========================================= */}
+      {/* ========================================= */}
       {/* ACTION BAR */}
       {/* ========================================= */}
 
@@ -1022,6 +1062,259 @@ const TournamentEntry = () => {
 
         </div>
       )}
+
+      {/* ========================================= */}
+      {/* EXISTING TOURNAMENT ENTRIES */}
+      {/* ========================================= */}
+
+      {selectedTournament && (
+        <div className="mt-8 rounded-xl border border-slate-800 bg-slate-900">
+
+          {/* Header */}
+
+          <div className="border-b border-slate-800 px-6 py-5">
+
+            <h2 className="text-xl font-semibold">
+              Existing Tournament Entries
+            </h2>
+
+            <div className="mt-3 flex flex-wrap gap-8 text-sm text-slate-400">
+
+              <p>
+                <span className="font-medium text-slate-300">
+                  Tournament :
+                </span>{" "}
+                {selectedTournament.title}
+              </p>
+
+              <p>
+                <span className="font-medium text-slate-300">
+                  Total Entries :
+                </span>{" "}
+                {
+                  existingEntries.filter(
+                    (entry) => entry.playerId.gender === entryGender
+                  ).length
+                }
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* Toolbar */}
+
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 px-6 py-4">
+
+            <div className="flex items-center gap-4">
+
+              <select
+                value={entryGender}
+                onChange={(e) => setEntryGender(e.target.value)}
+                className="rounded-md border border-slate-700 bg-slate-800 px-4 py-2.5 outline-none focus:border-blue-500"
+              >
+                <option value="Male">Boys</option>
+                <option value="Female">Girls</option>
+              </select>
+
+              <div className="relative w-80">
+
+                <Search
+                  size={18}
+                  className="absolute left-3 top-3 text-slate-500"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Search registered player..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full rounded-md border border-slate-700 bg-slate-800 py-2.5 pl-10 pr-4 outline-none focus:border-blue-500"
+                />
+
+              </div>
+
+            </div>
+
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {exporting && (
+                <Loader2
+                  size={18}
+                  className="animate-spin"
+                />
+              )}
+
+              {exporting ? "Generating..." : "Export Excel"}
+            </button>
+
+          </div>
+
+          {/* Loading */}
+
+          {loadingEntries ? (
+
+            <div className="flex items-center justify-center py-16">
+
+              <Loader2
+                size={34}
+                className="animate-spin text-blue-500"
+              />
+
+            </div>
+
+          ) : (
+
+            <div className="overflow-auto max-h-[650px]">
+
+              <table className="min-w-full text-sm">
+
+                <thead className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950">
+
+                  <tr>
+
+                    <th className="px-4 py-3 text-left">
+                      Sr
+                    </th>
+
+                    <th className="px-4 py-3 text-left">
+                      Player Name
+                    </th>
+
+                    <th className="px-4 py-3 text-left">
+                      Event
+                    </th>
+
+                    <th className="px-4 py-3 text-left">
+                      DOB
+                    </th>
+
+                    <th className="px-4 py-3 text-left">
+                      Phone
+                    </th>
+
+                    <th className="px-4 py-3 text-left">
+                      Institute
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+                <tbody>
+
+                  {existingEntries
+                    .filter(
+                      (entry) =>
+                        entry.playerId.gender === entryGender &&
+                        entry.playerId.fullName
+                          .toLowerCase()
+                          .includes(search.toLowerCase())
+                    )
+                    .sort((a, b) => {
+
+                      const order = {
+                        Epee: 1,
+                        Foil: 2,
+                        Sabre: 3,
+                      };
+
+                      if (
+                        order[a.playerId.event] !==
+                        order[b.playerId.event]
+                      ) {
+                        return (
+                          order[a.playerId.event] -
+                          order[b.playerId.event]
+                        );
+                      }
+
+                      return a.playerId.fullName.localeCompare(
+                        b.playerId.fullName
+                      );
+
+                    })
+                    .map((entry, index) => {
+
+                      const player = entry.playerId;
+
+                      return (
+
+                        <tr
+                          key={entry._id}
+                          className={`border-b border-slate-800 hover:bg-slate-800/40 ${index % 2 === 0
+                              ? "bg-slate-900"
+                              : "bg-slate-950/40"
+                            }`}
+                        >
+
+                          <td className="px-4 py-2.5">
+                            {index + 1}
+                          </td>
+
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            {player.fullName}
+                          </td>
+
+                          <td className="px-4 py-2.5 text-purple-300">
+                            {player.event}
+                          </td>
+
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            {new Date(
+                              player.dob
+                            ).toLocaleDateString()}
+                          </td>
+
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            {player.phone}
+                          </td>
+
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            {player.institute}
+                          </td>
+
+                        </tr>
+
+                      );
+
+                    })}
+
+                  {existingEntries.filter(
+                    (entry) =>
+                      entry.playerId.gender === entryGender &&
+                      entry.playerId.fullName
+                        .toLowerCase()
+                        .includes(search.toLowerCase())
+                  ).length === 0 && (
+
+                      <tr>
+
+                        <td
+                          colSpan={6}
+                          className="py-12 text-center text-slate-500"
+                        >
+                          No {entryGender === "Male" ? "boys" : "girls"} entries found.
+                        </td>
+
+                      </tr>
+
+                    )}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          )}
+
+        </div>
+      )}
+
 
       {/* ========================================= */}
       {/* LOADING OVERLAY */}

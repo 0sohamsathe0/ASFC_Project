@@ -270,7 +270,7 @@ const getTournamentEntries = async (req, res) => {
     }
 
     const entries = await TournamentEntry.find({ tournamentId: tid })
-      .populate("playerId", "fullName gender event");
+      .populate("playerId", "fullName gender dob event email phone institute aadharCard");
 
     res.status(200).json({
       success: true,
