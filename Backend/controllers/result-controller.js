@@ -1,6 +1,7 @@
 import IndividualResult from "../models/individual-result-model.js"
 import TeamResult from "../models/team-result-model.js";
 import TournamentEntry from "../models/tournamentEntry-model.js";
+import Player from "../models/player-model.js"
 
 
 //getting tournament wise result 
@@ -317,6 +318,196 @@ const addTeamResult = async (req, res) => {
     }
 }
 
+//result 
+const levelOrder = {
+    International: 0,
+    National: 1,
+    State: 2,
+    District: 3,
+};
+
+const getClubResults = async (req, res) => {
+    try {
+        // ================= FETCH DATA =================
+
+        const registeredPlayers = await Player.countDocuments();
+
+        const individualResults = await IndividualResult.find()
+            .populate("tournamentId")
+            .populate({
+                path: "tournamentEntryId",
+                populate: {
+                    path: "playerId",
+                },
+            })
+            .lean();
+
+        const teamResults = await TeamResult.find()
+            .populate("tournamentId")
+            .populate("players.playerId")
+            .lean();
+
+        // ================= ANALYTICS =================
+
+        const analytics = {
+            registeredPlayers,
+
+            totalMedals: 0,
+
+            internationalMedals: 0,
+            nationalMedals: 0,
+            stateMedals: 0,
+            districtMedals: 0,
+        };
+
+        const incrementMedalCount = (level) => {
+            analytics.totalMedals++;
+
+            switch (level) {
+                case "International":
+                    analytics.internationalMedals++;
+                    break;
+
+                case "National":
+                    analytics.nationalMedals++;
+                    break;
+
+                case "State":
+                    analytics.stateMedals++;
+                    break;
+
+                case "District":
+                    analytics.districtMedals++;
+                    break;
+
+                default:
+                    break;
+            }
+        };
+
+        // ================= TOURNAMENT MAP =================
+
+        const tournamentMap = new Map();
+
+        const getTournamentObject = (tournament) => {
+            const tournamentId = tournament._id.toString();
+
+            if (!tournamentMap.has(tournamentId)) {
+                tournamentMap.set(tournamentId, {
+                    _id: tournament._id,
+                    title: tournament.title,
+                    locationCity: tournament.locationCity,
+                    locationState: tournament.locationState,
+                    startingDate: tournament.startingDate,
+                    endDate: tournament.endDate,
+                    level: tournament.level,
+                    totalMedals: 0,
+
+                    achievements: {
+                        team: [],
+                        individual: [],
+                    },
+                });
+            }
+
+            return tournamentMap.get(tournamentId);
+        };
+
+        // ================= INDIVIDUAL RESULTS =================
+
+        for (const result of individualResults) {
+            const player = result.tournamentEntryId?.playerId;
+            const tournament = result.tournamentId;
+
+            if (!player || !tournament) continue;
+
+            const tournamentData = getTournamentObject(tournament);
+
+            tournamentData.achievements.individual.push({
+                name: player.fullName,
+                medal: result.place,
+                category: result.category,
+            });
+
+            tournamentData.totalMedals++;
+
+            incrementMedalCount(tournament.level);
+        }
+
+        // ================= TEAM RESULTS =================
+
+        for (const result of teamResults) {
+            const tournament = result.tournamentId;
+
+            if (!tournament) continue;
+
+            const clubPlayers = result.players
+                .filter((player) => player.playerId)
+                .map((player) => player.playerId.fullName);
+
+            if (clubPlayers.length === 0) continue;
+
+            const tournamentData = getTournamentObject(tournament);
+
+            tournamentData.achievements.team.push({
+                category: result.category,
+                medal: result.place,
+                players: clubPlayers,
+            });
+
+            tournamentData.totalMedals++;
+
+            incrementMedalCount(tournament.level);
+        }
+
+        // ================= GROUP BY LEVEL =================
+
+        const groupedResults = {};
+
+        for (const tournament of tournamentMap.values()) {
+            if (!groupedResults[tournament.level]) {
+                groupedResults[tournament.level] = [];
+            }
+
+            groupedResults[tournament.level].push(tournament);
+        }
+
+        // ================= SORT TOURNAMENTS =================
+
+        Object.values(groupedResults).forEach((tournaments) => {
+            tournaments.sort(
+                (a, b) => new Date(b.startingDate) - new Date(a.startingDate)
+            );
+        });
+
+        // ================= FORMAT RESPONSE =================
+
+        const data = Object.entries(groupedResults)
+            .sort(([a], [b]) => levelOrder[a] - levelOrder[b])
+            .map(([level, tournaments]) => ({
+                level,
+                tournaments,
+            }));
+
+        // ================= RESPONSE =================
+
+        return res.status(200).json({
+            success: true,
+            analytics,
+            data,
+        });
+    } catch (err) {
+        console.error("Get Club Results Error:", err);
+
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
+    }
+};
+
+
 export {
-    getIndividualResult, addIndividualResult, getTeamResult, addTeamResult, getPlayerIndividualResults, getPlayerTeamResults
+    getIndividualResult, addIndividualResult, getTeamResult, addTeamResult, getPlayerIndividualResults, getPlayerTeamResults,
+    getClubResults
 }
