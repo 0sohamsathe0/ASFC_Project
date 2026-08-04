@@ -9,6 +9,7 @@ import {
   CircularProgress,
   LinearProgress,
 } from "@mui/material";
+import { Controller } from "react-hook-form";
 
 import { useForm } from "react-hook-form";
 import Alert from "@mui/material/Alert";
@@ -35,28 +36,37 @@ function RegistrationForm() {
   const [aadhaarError, setAadhaarError] = useState("");
 
   const {
-    register,
-    handleSubmit,
-    setError,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(playerSchema),
-
-    defaultValues: {
-      fullName: "",
-      gender: "",
-      dob: "",
-      event: "",
-      aadharCard: "",
-      email: "",
-      phone: "",
-      institute: "",
-      addressLine1: "",
-      addressLine2: "",
-      pincode: "",
-    },
-  });
+  register,
+  handleSubmit,
+  setError,
+  reset,
+  setValue,
+  watch,
+  formState: { errors },
+} = useForm({
+  resolver: zodResolver(playerSchema),
+  defaultValues: {
+    fullName: "",
+    gender: "",
+    dob: "",
+    event: "",
+    aadharCard: "",
+    email: "",
+    phone: "",
+    institute: "",
+    addressLine1: "",
+    addressLine2: "",
+    pincode: "",
+    faiId: "",
+    mfaId: "",
+  },
+});
+const aadhaarValue = watch("aadharCard") || "";
+const formatAadhaar = (value) => {
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{4})(?=\d)/g, "$1 ");
+};
 
   useEffect(() => {
     if (successMessage) {
@@ -140,78 +150,57 @@ function RegistrationForm() {
       setSuccessMessage("");
       setUploadProgress(0);
 
+      // Validate uploads
       if (!photo) {
-        setServerError("Upload player photo");
+        setServerError("Please upload the player's photo.");
         return;
       }
 
       if (!aadharCardPhoto) {
-        setServerError("Upload Aadhaar card");
+        setServerError("Please upload the Aadhaar card.");
         return;
       }
 
-      if (photo.size > MAX_FILE_SIZE) {
-        setServerError("Photo must be below 5MB");
-        return;
-      }
-
-      if (aadharCardPhoto.size > MAX_FILE_SIZE) {
-        setServerError("Aadhaar file must be below 5MB");
-        return;
-      }
-
+      // Create FormData
       const data = new FormData();
 
-      Object.keys(formData).forEach((key) => {
-        data.append(key, formData[key]);
+      Object.entries(formData).forEach(([key, value]) => {
+        data.append(key, value);
       });
 
       data.append("photo", photo);
       data.append("aadharCardPhoto", aadharCardPhoto);
 
-      const response = await api.post(
-        "player/add",
-        data,
-      );
+      const response = await api.post("/player/add", data);
 
       login(response.data.user);
+
+      setSuccessMessage(
+        "Registration submitted successfully. Redirecting..."
+      );
 
       reset();
       setPhoto(null);
       setAadharCardPhoto(null);
       setPhotoError("");
       setAadhaarError("");
-
-      setTimeout(() => {
-        navigate("/player/profile");
-      }, 2500);
-
+      navigate("/player/profile");
     } catch (error) {
-      console.log("ERROR:", error);
+      console.error(error);
 
-      if (error.response) {
-        console.log("Response:", error.response);
+      const message =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
 
-        const status = error.response.status;
-        const message = error.response.data.message;
-
-        if (status === 409) {
-          setServerError(message);
-
-          setError("aadharCard", {
-            type: "server",
-            message,
-          });
-        } else {
-          setServerError(`${status}: ${message}`);
-        }
-      } else if (error.request) {
-        console.log("Request:", error.request);
-        setServerError("Request sent but no response received.");
-      } else {
-        console.log("Message:", error.message);
-        setServerError(error.message);
+      if (error.response?.status === 409) {
+        setError("aadharCard", {
+          type: "server",
+          message,
+        });
       }
+
+      setServerError(message);
+
     } finally {
       setLoading(false);
       setUploadProgress(0);
@@ -233,7 +222,7 @@ function RegistrationForm() {
         },
       }}>
       <Paper
-        elevation={{ xs: 0, md: 8 }}
+        elevation={0}
         sx={{
           overflow: "hidden",
 
@@ -545,12 +534,24 @@ function RegistrationForm() {
                   {/* Aadhaar */}
 
                   <TextField
-                    label="Aadhaar Number"
-                    fullWidth
-                    {...register("aadharCard")}
-                    error={!!errors.aadharCard}
-                    helperText={errors.aadharCard?.message}
-                  />
+  label="Aadhaar Number"
+  fullWidth
+  value={formatAadhaar(aadhaarValue)}
+  onChange={(e) => {
+    const raw = e.target.value.replace(/\D/g, "").slice(0, 12);
+
+    setValue("aadharCard", raw, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }}
+  inputProps={{
+    inputMode: "numeric",
+    maxLength: 14, // 12 digits + 2 spaces
+  }}
+  error={!!errors.aadharCard}
+  helperText={errors.aadharCard?.message}
+/>
 
                   {/* Gender */}
 
@@ -558,6 +559,7 @@ function RegistrationForm() {
                     select
                     label="Gender"
                     fullWidth
+                    defaultValue=""
                     {...register("gender")}
                     error={!!errors.gender}
                     helperText={errors.gender?.message}
@@ -592,6 +594,7 @@ function RegistrationForm() {
                     select
                     label="Weapon"
                     fullWidth
+                    defaultValue=""
                     {...register("event")}
                     error={!!errors.event}
                     helperText={errors.event?.message}
@@ -691,6 +694,7 @@ function RegistrationForm() {
                   {/* Address Line 2 */}
 
                   <TextField
+                    className="mt-5"
                     label="Address Line 2"
                     placeholder="Area, Landmark (Optional)"
                     fullWidth
@@ -703,6 +707,7 @@ function RegistrationForm() {
 
                     <TextField
                       label="Pincode"
+                      className="mt-5"
                       fullWidth
                       {...register("pincode")}
                       error={!!errors.pincode}
@@ -717,6 +722,45 @@ function RegistrationForm() {
 
                 </div>
 
+              </Paper>
+
+              {/* ================= Association Registration ================= */}
+
+              <Paper
+                elevation={3}
+                sx={{
+                  p: { xs: 1.5, sm: 3, md: 4 },
+                  borderRadius: "20px",
+                  mb: 4,
+                }}
+              >
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold text-gray-800">
+                    Association Registration
+                  </h3>
+
+                  <p className="text-gray-500 mt-1">
+                    Enter your FAI and MFA registration IDs.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <TextField
+                    label="FAI ID"
+                    fullWidth
+                    {...register("faiId")}
+                    error={!!errors.faiId}
+                    helperText={errors.faiId?.message}
+                  />
+
+                  <TextField
+                    label="MFA ID"
+                    fullWidth
+                    {...register("mfaId")}
+                    error={!!errors.mfaId}
+                    helperText={errors.mfaId?.message}
+                  />
+                </div>
               </Paper>
               {/* ================= UPLOAD DOCUMENTS ================= */}
 

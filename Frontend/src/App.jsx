@@ -74,6 +74,10 @@ const MeritCertificates = lazy(() =>
 const ParticipationCertificates = lazy(() =>
   import("./components/Certificate/ParticipationCertificates.jsx")
 );
+
+const ExploreTournament = lazy(() =>
+  import("./components/homepage/ExploreTournament.jsx")
+);
 function App() {
 
   return (
@@ -86,6 +90,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/explore-tournament" element={<ExploreTournament />} />
 
           {/* Player Routes */}
           <Route path="/player/login" element={<Login />} />

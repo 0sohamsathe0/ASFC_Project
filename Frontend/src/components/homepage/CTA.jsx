@@ -1,6 +1,9 @@
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function CTA() {
+    const navigate = useNavigate();
+
   return (
     <section className="bg-[#020617] py-20 sm:py-24 lg:py-28">
 
@@ -42,13 +45,13 @@ export default function CTA() {
 
             <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
 
-              <button className="w-full sm:w-auto rounded-full bg-white px-8 py-4 font-bold text-blue-700 transition hover:scale-105">
+              <button className="w-full sm:w-auto rounded-full bg-white px-8 py-4 font-bold text-blue-700 transition hover:scale-105" onClick={() => navigate("/player/register")}>
 
                 Register Now
 
               </button>
 
-              <button className="flex w-full sm:w-auto items-center justify-center gap-3 rounded-full border border-white px-8 py-4 text-white transition hover:bg-white hover:text-blue-700">
+              <button className="flex w-full sm:w-auto items-center justify-center gap-3 rounded-full border border-white px-8 py-4 text-white transition hover:bg-white hover:text-blue-700" onClick={() => navigate("/contact")}>
 
                 Contact Us
 

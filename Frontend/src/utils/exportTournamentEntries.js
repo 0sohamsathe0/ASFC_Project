@@ -39,7 +39,7 @@ export const exportTournamentEntries = async (
   // TITLE
   // ====================================================
 
-  worksheet.mergeCells("A1:F1");
+  worksheet.mergeCells("A1:H1");
 
   const titleCell = worksheet.getCell("A1");
 
@@ -63,7 +63,7 @@ export const exportTournamentEntries = async (
   // VENUE
   // ====================================================
 
-  worksheet.mergeCells("A2:F2");
+  worksheet.mergeCells("A2:H2");
 
   const venueCell = worksheet.getCell("A2");
 
@@ -82,13 +82,12 @@ export const exportTournamentEntries = async (
   // GENDER
   // ====================================================
 
-  worksheet.mergeCells("A3:F3");
+  worksheet.mergeCells("A3:H3");
 
   const genderCell = worksheet.getCell("A3");
 
-  genderCell.value = `Gender : ${
-    gender === "Male" ? "Boys" : "Girls"
-  }`;
+  genderCell.value = `Gender : ${gender === "Male" ? "Boys" : "Girls"
+    }`;
 
   genderCell.font = {
     size: 12,
@@ -108,6 +107,8 @@ export const exportTournamentEntries = async (
   header.values = [
     "Sr No.",
     "Player Name",
+    "FAI ID",
+    "MFA ID",
     "DOB",
     "Event",
     "Phone",
@@ -144,159 +145,161 @@ export const exportTournamentEntries = async (
   // ====================================================
 
   worksheet.getColumn(1).width = 10;
-  worksheet.getColumn(3).width = 15;
-  worksheet.getColumn(4).width = 10;
-  worksheet.getColumn(5).width = 18;
+  worksheet.getColumn(3).width = 22; // FAI ID
+  worksheet.getColumn(4).width = 18; // MFA ID
+  worksheet.getColumn(5).width = 15; // DOB
+  worksheet.getColumn(6).width = 10; // Event
+  worksheet.getColumn(7).width = 18; // Phone
 
   let currentRow = 5;
   // ====================================================
-// PLAYER DATA
-// ====================================================
+  // PLAYER DATA
+  // ====================================================
 
-entries.forEach((entry, index) => {
-  const player = entry.playerId;
+  entries.forEach((entry, index) => {
+    const player = entry.playerId;
 
-  const row = worksheet.getRow(currentRow);
+    const row = worksheet.getRow(currentRow);
 
-  row.getCell(1).value = index + 1;
-  row.getCell(2).value = player.fullName;
-  row.getCell(3).value = new Date(player.dob);
-  row.getCell(4).value = player.event;
-  row.getCell(5).value = player.phone;
-  row.getCell(6).value = player.institute;
+    row.getCell(1).value = index + 1;
+    row.getCell(2).value = player.fullName;
+    row.getCell(3).value = player.faiId;
+    row.getCell(4).value = player.mfaId;
+    row.getCell(5).value = new Date(player.dob);
+    row.getCell(6).value = player.event;
+    row.getCell(7).value = player.phone;
+    row.getCell(8).value = player.institute;
 
-  row.height = 22;
+    row.height = 22;
 
-  // Date format
-  row.getCell(3).numFmt = "dd-mm-yyyy";
+    // Date format
+    row.getCell(5).numFmt = "dd-mm-yyyy";
 
-  // Event Color
-  const fillColor =
-    EVENT_COLORS[player.event] || "FFFFFF";
+    // Event Color
+    const fillColor =
+      EVENT_COLORS[player.event] || "FFFFFF";
 
-  row.eachCell((cell, colNumber) => {
-    cell.border = BORDER;
+    row.eachCell((cell, colNumber) => {
+      cell.border = BORDER;
 
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: {
-        argb: fillColor,
-      },
-    };
-
-    cell.font = {
-      name: "Calibri",
-      size: 11,
-      color: {
-        argb: "000000",
-      },
-    };
-
-    // Alignment
-    if ([1, 3, 4, 5].includes(colNumber)) {
-      cell.alignment = {
-        horizontal: "center",
-        vertical: "middle",
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: fillColor,
+        },
       };
-    } else {
-      cell.alignment = {
-        horizontal: "left",
-        vertical: "middle",
+
+      cell.font = {
+        name: "Calibri",
+        size: 11,
+        color: {
+          argb: "000000",
+        },
       };
-    }
+
+      // Alignment
+      if ([1, 3, 4, 5, 6, 7].includes(colNumber)) {
+        cell.alignment = {
+          horizontal: "center",
+          vertical: "middle",
+        };
+      } else {
+        cell.alignment = {
+          horizontal: "left",
+          vertical: "middle",
+        };
+      }
+    });
+
+    currentRow++;
   });
 
-  currentRow++;
-});
+  // ====================================================
+  // AUTO WIDTH (ONLY NAME & INSTITUTE)
+  // ====================================================
 
-// ====================================================
-// AUTO WIDTH (ONLY NAME & INSTITUTE)
-// ====================================================
+[2, 3, 4, 8].forEach((columnNumber) => {    const column = worksheet.getColumn(columnNumber);
 
-[2, 6].forEach((columnNumber) => {
-  const column = worksheet.getColumn(columnNumber);
+    let maxLength = 15;
 
-  let maxLength = 15;
+    column.eachCell({ includeEmpty: true }, (cell) => {
+      const value = cell.value
+        ? cell.value.toString()
+        : "";
 
-  column.eachCell({ includeEmpty: true }, (cell) => {
-    const value = cell.value
-      ? cell.value.toString()
-      : "";
+      if (value.length > maxLength) {
+        maxLength = value.length;
+      }
+    });
 
-    if (value.length > maxLength) {
-      maxLength = value.length;
-    }
+    column.width = Math.min(maxLength + 4, 45);
   });
+  // ====================================================
+  // TOTAL ENTRIES
+  // ====================================================
 
-  column.width = Math.min(maxLength + 4, 45);
-});
-// ====================================================
-// TOTAL ENTRIES
-// ====================================================
+  currentRow += 1;
 
-currentRow += 1;
+  const totalRow = worksheet.getRow(currentRow);
 
-const totalRow = worksheet.getRow(currentRow);
+  worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
 
-worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+  const totalCell = worksheet.getCell(`A${currentRow}`);
 
-const totalCell = worksheet.getCell(`A${currentRow}`);
+  totalCell.value = `Total Entries : ${entries.length}`;
 
-totalCell.value = `Total Entries : ${entries.length}`;
+  totalCell.font = {
+    bold: true,
+    size: 11,
+    name: "Calibri",
+  };
 
-totalCell.font = {
-  bold: true,
-  size: 11,
-  name: "Calibri",
-};
+  totalCell.alignment = {
+    horizontal: "right",
+    vertical: "middle",
+  };
 
-totalCell.alignment = {
-  horizontal: "right",
-  vertical: "middle",
-};
+  // ====================================================
+  // PAGE SETUP
+  // ====================================================
 
-// ====================================================
-// PAGE SETUP
-// ====================================================
+  worksheet.pageSetup = {
+    paperSize: 9, // A4
+    orientation: "landscape",
+    fitToPage: true,
+    fitToWidth: 1,
+    fitToHeight: 0,
+    margins: {
+      left: 0.3,
+      right: 0.3,
+      top: 0.5,
+      bottom: 0.5,
+      header: 0.2,
+      footer: 0.2,
+    },
+  };
 
-worksheet.pageSetup = {
-  paperSize: 9, // A4
-  orientation: "landscape",
-  fitToPage: true,
-  fitToWidth: 1,
-  fitToHeight: 0,
-  margins: {
-    left: 0.3,
-    right: 0.3,
-    top: 0.5,
-    bottom: 0.5,
-    header: 0.2,
-    footer: 0.2,
-  },
-};
+  // Repeat header row while printing
+  worksheet.pageSetup.printTitlesRow = "4:4";
 
-// Repeat header row while printing
-worksheet.pageSetup.printTitlesRow = "4:4";
+  // ====================================================
+  // WORKBOOK PROPERTIES
+  // ====================================================
 
-// ====================================================
-// WORKBOOK PROPERTIES
-// ====================================================
+  workbook.subject = tournament.title;
+  workbook.company = "All Star Fencing Club";
+  workbook.manager = "All Star Fencing Club";
 
-workbook.subject = tournament.title;
-workbook.company = "All Star Fencing Club";
-workbook.manager = "All Star Fencing Club";
+  // ====================================================
+  // EXPORT
+  // ====================================================
 
-// ====================================================
-// EXPORT
-// ====================================================
+  const buffer = await workbook.xlsx.writeBuffer();
 
-const buffer = await workbook.xlsx.writeBuffer();
-
-saveAs(
-  new Blob([buffer]),
-  `${tournament.title}_${
-    gender === "Male" ? "Boys" : "Girls"
-  }.xlsx`
-);
+  saveAs(
+    new Blob([buffer]),
+    `${tournament.title}_${gender === "Male" ? "Boys" : "Girls"
+    }.xlsx`
+  );
 }

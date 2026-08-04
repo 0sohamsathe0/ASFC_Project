@@ -101,6 +101,7 @@ const PlayerProfile = () => {
 
   return (
     <>
+    {console.log(player)}
        {isDesktop ? (
         <DesktopProfile {...profileProps} />
       ) : (

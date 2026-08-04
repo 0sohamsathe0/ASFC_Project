@@ -27,6 +27,8 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
       gender: player.gender || "",
       dob: player.dob?.slice(0, 10) || "",
       aadharCard: player.aadharCard || "",
+      faiId: player.faiId || "",
+      mfaId: player.mfaId || "",
       event: player.event || "",
       institute: player.institute || "",
       address: {
@@ -261,14 +263,18 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
                     className="p-3 rounded-lg bg-slate-700 border border-slate-600"
                   />
 
-                  <input
+                  <select
                     name="event"
                     value={formData.event}
                     onChange={handleChange}
                     disabled={loading}
-                    placeholder="Weapon"
                     className="p-3 rounded-lg bg-slate-700 border border-slate-600"
-                  />
+                  >
+                    <option value="">Select Weapon</option>
+                    <option value="Epee">Epee</option>
+                    <option value="Foil">Foil</option>
+                    <option value="Sabre">Sabre</option>
+                  </select>
 
                   <input
                     name="institute"
@@ -276,6 +282,33 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Institute"
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+                  <input
+                    name="faiId"
+                    value={formData.faiId}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        faiId: e.target.value.toUpperCase(),
+                      }))
+                    }
+                    disabled={loading}
+                    placeholder="FAI ID"
+                    className="p-3 rounded-lg bg-slate-700 border border-slate-600"
+                  />
+
+                  <input
+                    name="mfaId"
+                    value={formData.mfaId}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        mfaId: e.target.value.toUpperCase(),
+                      }))
+                    }
+                    disabled={loading}
+                    placeholder="MFA ID"
                     className="p-3 rounded-lg bg-slate-700 border border-slate-600"
                   />
 

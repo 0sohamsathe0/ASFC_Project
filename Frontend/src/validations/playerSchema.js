@@ -42,5 +42,15 @@ export const playerSchema = z.object({
 
   pincode: z
     .string()
-    .regex(/^\d{6}$/, "Pincode must contain 6 digits")
+    .regex(/^\d{6}$/, "Pincode must contain 6 digits"),
+
+  faiId: z
+  .string()
+  .trim()
+  .min(1, "FAI ID is required"),
+
+mfaId: z
+  .string()
+  .trim()
+  .min(1, "MFA ID is required"),
 });

@@ -16,6 +16,7 @@ import tournamentRouter from "./routes/tournament-router.js"
 import resultRouter from "./routes/result-router.js";
 
 import dns from "dns";
+import { createContact,getAllContacts } from "./controllers/contacts-controller.js";
 
 dns.setDefaultResultOrder("ipv4first");
 
@@ -70,6 +71,10 @@ app.use("/player", playerRouter);
 app.use("/admin", adminRouter);
 app.use("/tournament", tournamentRouter)
 app.use("/result", resultRouter)
+
+app.post("/contact",createContact);
+
+app.get("/contacts",getAllContacts);
 
 app.get("/", (req, res) => {
   res.send("ASFC Backend is running !!");

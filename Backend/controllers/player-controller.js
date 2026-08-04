@@ -7,6 +7,8 @@ const addPlayer = async (req, res) => {
     const fullName = req.body.fullName?.trim();
     const gender = req.body.gender?.trim();
     const dob = req.body.dob?.trim();
+    const faiId = req.body.faiId?.trim()
+    const mfaId = req.body.mfaId?.trim()
 
     const aadharCard = req.body.aadharCard
       ?.replace(/\s+/g, "")
@@ -40,6 +42,13 @@ const addPlayer = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Photo and Aadhaar card images are required",
+      });
+    }
+
+    if (!faiId || !mfaId) {
+      return res.status(400).json({
+        success: false,
+        message: "FAI ID and MFA ID are required.",
       });
     }
 
@@ -99,34 +108,36 @@ const addPlayer = async (req, res) => {
       institute,
       photoURL,
       aadharCardURL,
+      faiId,
+      mfaId,
     });
 
     const token = jwt.sign(
-  {
-    id: newPlayer._id,
-    role: "player",
-  },
-  process.env.JWT_SECRET,
-  {
-    expiresIn: "1d",
-  }
-);
+      {
+        id: newPlayer._id,
+        role: "player",
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
 
-res.cookie("token", token, {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
-  maxAge: 24 * 60 * 60 * 1000,
-});
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
     return res.status(201).json({
-  success: true,
-  message: "Player added successfully",
-  user: {
-    id: newPlayer._id,
-    role: "player",
-  },
-});
+      success: true,
+      message: "Player added successfully",
+      user: {
+        id: newPlayer._id,
+        role: "player",
+      },
+    });
   } catch (error) {
     console.error(error);
 
@@ -191,7 +202,7 @@ const getPlayers = async (req, res) => {
 const loginPlayer = async (req, res) => {
   try {
     const { aadharCard, dob } = req.body;
-    console.log(aadharCard,dob)
+    console.log(aadharCard, dob)
 
     const player = await Player.findOne({ aadharCard });
 
@@ -244,7 +255,6 @@ const loginPlayer = async (req, res) => {
 
 const getPlayerProfile = async (req, res) => {
   try {
-    console.log(req.user)
     const player = await Player.findById(req.user.id);
     res.json({
       success: true,
@@ -278,7 +288,7 @@ const updatePlayer = async (req, res) => {
     const playerId = req.params.pid;
     const data = req.body;
     const updates = {};
-    const restrictedFields = ["_id", "password"];
+    const restrictedFields = ["_id","password","requestStatus","role","isAdmin","createdAt","updatedAt",];
 
 
     for (let key in data) {
@@ -327,58 +337,6 @@ const updatePlayer = async (req, res) => {
       message: "Player updated successfully",
       data: updatedPlayer,
     });
-
-    {/*
-    // Fields that should not be updated directly
-    const restrictedFields = ["_id", "password"];
-
-    // Flatten nested objects
-    for (let key in data) {
-      if (restrictedFields.includes(key)) continue;
-
-      if (
-        typeof data[key] === "object" &&
-        data[key] !== null &&
-        !Array.isArray(data[key])
-      ) {
-        for (let subKey in data[key]) {
-          updates[`${key}.${subKey}`] = data[key][subKey];
-        }
-      } else {
-        updates[key] = data[key];
-      }
-    }
-
-    // Prevent empty update
-    if (Object.keys(updates).length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No valid fields to update",
-      });
-    }
-
-    const updatedPlayer = await Player.findByIdAndUpdate(
-      playerId,
-      { $set: updates },
-      {
-        new: true, // returns updated document
-        runValidators: true,
-      }
-    );
-
-    if (!updatedPlayer) {
-      return res.status(404).json({
-        success: false,
-        message: "Player not found",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Player updated successfully",
-      data: updatedPlayer,
-    });
-*/}
   } catch (error) {
     console.error("Update error:", error);
 

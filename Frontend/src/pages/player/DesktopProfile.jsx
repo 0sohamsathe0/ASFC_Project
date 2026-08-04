@@ -33,15 +33,41 @@ const DesktopProfile = ({
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold uppercase break-words">
                 {player.fullName}
+
               </h1>
 
               <p className="mt-1 text-xs uppercase tracking-[4px] text-purple-200">
                 Player Profile
+                
               </p>
+              
+<pre
+  className="
+    mt-2 inline-flex items-center
+    rounded-full
+    border border-slate-300
+    bg-gradient-to-r
+    from-[#FF9933]
+    via-white
+    to-[#138808]
+    px-4 py-1
+    font-mono
+    text-[11px]
+    font-bold
+    uppercase
+    tracking-[0.3em]
+    text-[#0A3D91]
+    shadow-md
+  "
+>
+  {player.faiId}
+</pre> <br />
+       
+
             </div>
 
             <div className="flex items-center sm:justify-end">
-
+              
               <span
                 className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap
                 ${player.requestStatus === "Accepted"
@@ -53,6 +79,7 @@ const DesktopProfile = ({
               >
                 {player.requestStatus}
               </span>
+              <br />
 
             </div>
 
@@ -265,6 +292,12 @@ const DesktopProfile = ({
                         Pincode:
                       </span>{" "}
                       {player.address.pincode}
+                    </p>
+                    <p className="break-words">
+                      <span className="font-semibold">
+                        MFA Id :
+                      </span>{" "}
+                      {player.mfaId}
                     </p>
 
                   </div>

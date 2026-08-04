@@ -1,9 +1,13 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 
 import fencing from "../../assets/fencing.avif";
 
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
     <section className="relative min-h-[90svh] overflow-hidden bg-[#020617]">
 
@@ -95,7 +99,7 @@ export default function Hero() {
 
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
 
-              <button className="group flex w-full sm:w-auto items-center justify-center gap-3 rounded-full bg-blue-600 px-7 py-3.5 font-semibold text-white transition hover:bg-blue-700">
+              <button className="group flex w-full sm:w-auto items-center justify-center gap-3 rounded-full bg-blue-600 px-7 py-3.5 font-semibold text-white transition hover:bg-blue-700" onClick={() => navigate("/player/register")}>
 
                 Register Now
 
@@ -106,7 +110,7 @@ export default function Hero() {
 
               </button>
 
-              <button className="w-full sm:w-auto rounded-full border border-white/20 px-7 py-3.5 text-white transition hover:bg-white/10">
+              <button className="w-full sm:w-auto rounded-full border border-white/20 px-7 py-3.5 text-white transition hover:bg-white/10" onClick={() => navigate("/explore-tournament")}>
 
                 Explore Tournaments
 

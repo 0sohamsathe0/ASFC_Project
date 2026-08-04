@@ -76,6 +76,19 @@ const playerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    // models/Player.js
+
+    faiId: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    mfaId: {
+      type: String,
+      default: "",
+      trim: true,
+    },
 
     //for admin approval process
     requestStatus: {
@@ -83,11 +96,11 @@ const playerSchema = new mongoose.Schema(
       enum: ["Pending", "Accepted", "Rejected"],
       default: "Pending",
     },
-    rejectionReason:{
-      type:String,
-      default:""
+    rejectionReason: {
+      type: String,
+      default: ""
     },
-    isEditable:{ type:Boolean, default:false },
+    isEditable: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

@@ -5,6 +5,7 @@ import { getAllTournaments,addTournament,createEntries, updateTournament,getTour
 const router = express.Router()
 
 //tournament?type=["upcoming","ongoing","completed"]
+router.get('/all',getAllTournaments)
 router.get('/',verifyJWT,authorizeRoles('admin'),getAllTournaments)
 router.post('/',verifyJWT,authorizeRoles('admin'),addTournament)
 router.put('/:id',verifyJWT,authorizeRoles('admin'),updateTournament)

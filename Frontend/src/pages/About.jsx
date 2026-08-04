@@ -63,36 +63,17 @@ export default function About() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="flex justify-center"
+            className="w-full"
           >
-
-            <div className="relative">
-
+            <div className="relative w-full overflow-hidden rounded-[28px] md:rounded-[35px]">
               <img
-                src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=900"
-                alt=""
-                className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl rounded-[28px] md:rounded-[35px] object-cover shadow-2xl"
+                src="https://res.cloudinary.com/sohamsathe/image/upload/v1785830273/width_1600_1_cpzabd.jpg"
+                alt="All Star Fencing Club"
+                className="w-full h-auto rounded-[28px] md:rounded-[35px] shadow-2xl"
               />
-
-              <div className="absolute -bottom-5 left-5 sm:-bottom-7 sm:left-7 md:-bottom-8 md:left-8 bg-blue-600 px-5 py-4 sm:px-7 sm:py-5 md:px-8 md:py-6 rounded-2xl md:rounded-3xl shadow-xl">
-
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white">
-
-                  8+
-
-                </h2>
-
-                <p className="text-xs sm:text-sm md:text-base text-white/80">
-
-                  Years of Excellence
-
-                </p>
-
-              </div>
-
             </div>
-
           </motion.div>
+          
 
           {/* CONTENT */}
 
@@ -102,7 +83,6 @@ export default function About() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-
             <span className="uppercase tracking-[4px] sm:tracking-[6px] lg:tracking-[8px] text-blue-400 font-semibold text-xs sm:text-sm">
 
               About ASFC
@@ -144,13 +124,14 @@ export default function About() {
 
             </p>
 
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mt-8 sm:mt-10">
 
               <div className="flex items-center gap-3">
 
                 <CheckCircle2
                   size={20}
-                  className="text-blue-400 flex-shrink-0"
+                  className="text-blue-400 shrink-0"
                 />
 
                 <span className="text-white">
@@ -208,18 +189,12 @@ export default function About() {
 
             </div>
 
-            <button className="mt-10 sm:mt-12 w-full sm:w-fit justify-center bg-blue-600 hover:bg-blue-700 duration-300 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full flex items-center gap-3 text-white font-semibold">
 
-              Learn More
-
-              <ArrowRight size={20} />
-
-            </button>
 
           </motion.div>
 
         </div>
-                {/* ACHIEVEMENT CARDS */}
+        {/* ACHIEVEMENT CARDS */}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mt-20 sm:mt-24 lg:mt-28">
 
@@ -268,6 +243,7 @@ export default function About() {
         </div>
 
       </div>
+
 
     </section>
   );

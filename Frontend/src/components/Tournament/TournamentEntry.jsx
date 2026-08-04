@@ -182,9 +182,19 @@ const TournamentEntry = () => {
         return false;
 
       return true;
-    }).sort((a, b) =>
-      a.fullName.localeCompare(b.fullName)
-    );
+    }).sort((a, b) => {
+  const order = {
+    Epee: 1,
+    Foil: 2,
+    Sabre: 3,
+  };
+
+  if (order[a.event] !== order[b.event]) {
+    return order[a.event] - order[b.event];
+  }
+
+  return a.fullName.localeCompare(b.fullName);
+});
   }, [
     players,
     selectedTournament,
@@ -824,6 +834,13 @@ const TournamentEntry = () => {
                     <th className="px-5 py-4 text-left">
                       Status
                     </th>
+                    <th className="px-5 py-4 text-left">
+                      FAI ID
+                    </th>
+
+                    <th className="px-5 py-4 text-left">
+                      MFA ID
+                    </th>
 
                   </tr>
 
@@ -944,6 +961,17 @@ const TournamentEntry = () => {
 
                           )}
 
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="font-mono text-sm text-cyan-300">
+                            {player.faiId}
+                          </div>
+                        </td>
+
+                        <td className="px-5 py-4">
+                          <div className="font-mono text-sm text-amber-300">
+                            {player.mfaId}
+                          </div>
                         </td>
 
                       </tr>
@@ -1246,8 +1274,8 @@ const TournamentEntry = () => {
                         <tr
                           key={entry._id}
                           className={`border-b border-slate-800 hover:bg-slate-800/40 ${index % 2 === 0
-                              ? "bg-slate-900"
-                              : "bg-slate-950/40"
+                            ? "bg-slate-900"
+                            : "bg-slate-950/40"
                             }`}
                         >
 
