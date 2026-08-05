@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import LoadingScreen from "./components/common/loadingState.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import ServerMonitor from "./components/common/ServerMonitor.jsx";
 
 // Lazy Loaded Pages
 const Home = lazy(() => import("./pages/Home"));
@@ -25,6 +26,7 @@ const EditPlayerProfile = lazy(() =>
 
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
+const Maintenance = lazy(() => import("./pages/Maintenance.jsx"));
 
 // Admin Dashboard Components
 // Admin Dashboard Components
@@ -82,6 +84,8 @@ function App() {
 
   return (
     <>
+      <ServerMonitor/>
+
       <Navbar />
 
       <Suspense fallback={<LoadingScreen />}>
@@ -91,6 +95,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/explore-tournament" element={<ExploreTournament />} />
+          <Route path="/maintenance" element={<Maintenance />} />
 
           {/* Player Routes */}
           <Route path="/player/login" element={<Login />} />

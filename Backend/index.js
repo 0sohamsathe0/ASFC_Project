@@ -73,11 +73,17 @@ app.use("/tournament", tournamentRouter)
 app.use("/result", resultRouter)
 
 app.post("/contact",createContact);
-
 app.get("/contacts",getAllContacts);
 
 app.get("/", (req, res) => {
   res.send("ASFC Backend is running !!");
+});
+
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        timestamp: Date.now(),
+    });
 });
 
 app.get("/ping", (req, res) => {
