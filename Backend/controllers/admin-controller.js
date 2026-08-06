@@ -8,10 +8,12 @@ const loginAdmin = async (req, res) => {
   if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
     const token = jwt.sign({ id: "admin", role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -34,10 +36,10 @@ const loginAdmin = async (req, res) => {
 }
 
 const verifyAdmin = async (req, res) => {
-    res.status(200).json({
-        success: true,
-        isAuthenticated: true,
-    });
+  res.status(200).json({
+    success: true,
+    isAuthenticated: true,
+  });
 }
 
 const getPendingPlayers = async (req, res) => {
@@ -150,4 +152,4 @@ const makeEveryonePending = async (req, res) => {
     });
   }
 }
-export { getPendingPlayers, acceptPlayer, rejectPlayer, loginAdmin,verifyAdmin, makeEveryonePending };
+export { getPendingPlayers, acceptPlayer, rejectPlayer, loginAdmin, verifyAdmin, makeEveryonePending };
