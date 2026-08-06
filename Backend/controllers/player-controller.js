@@ -135,11 +135,12 @@ const addPlayer = async (req, res) => {
         expiresIn: "1d",
       }
     );
+    const isProduction = process.env.NODE_ENV === "production";
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -317,7 +318,7 @@ const updatePlayer = async (req, res) => {
     const playerId = req.params.pid;
     const data = req.body;
     const updates = {};
-    const restrictedFields = ["_id", "password", "requestStatus", "role", "isAdmin", "createdAt", "updatedAt",];
+    const restrictedFields = ["_id", "password","role", "isAdmin", "createdAt", "updatedAt",];
 
 
     for (let key in data) {
