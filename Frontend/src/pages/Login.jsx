@@ -23,17 +23,12 @@ const Login = () => {
       alert("Login successful");
       navigate("/player/profile");
     } catch (error) {
-      console.log("Full Error:", error);
 
       if (error.response) {
-        console.log("Status:", error.response.status);
-        console.log("Data:", error.response.data);
         alert(error.response.data.message);
       } else if (error.request) {
-        console.log("Request made but no response:", error.request);
         alert("No response from server");
       } else {
-        console.log("Error:", error.message);
         alert(error.message);
       }
     }

@@ -37,7 +37,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 app.use((req, res, next) => {
-  console.log("Incoming Origin:", req.headers.origin);
   next();
 });
 
@@ -63,7 +62,6 @@ app.use(
 app.use(cookieParser());
 
 app.use((req, res, next) => {
-  console.log("Incoming:", req.method, req.originalUrl);
   next();
 });
 
@@ -94,18 +92,11 @@ const startServer = async () => {
   try {
     await mongoose.connect(process.env.mongodb_connection_string);
 
-    console.log("MongoDB Connected");
 
     app.listen(process.env.PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${process.env.PORT}`);
-  console.log("Allowed Origins:", allowedOrigins);
 });
 
   } catch (err) {
-    console.log("DB Connection Failed");
-    console.log(err.message);
-
-    console.log("🔁 Retrying in 3 seconds...");
     setTimeout(startServer, 3000);
   }
 };
@@ -114,7 +105,6 @@ startServer();
 
 
 process.on('SIGINT', async () => {
-  console.log("🛑 Shutting down server...");
   await mongoose.connection.close();
   process.exit(0);
 });

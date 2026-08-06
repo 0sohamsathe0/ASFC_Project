@@ -16,7 +16,6 @@ transporter.verify((error, success) => {
     if (error) {
         console.error("Transporter error:", error);
     } else {
-        console.log("Transporter is ready to send emails");
     }
 });
 
@@ -142,7 +141,6 @@ const sendRejectionMail = async ( recipientName,recipientEmail,rejectionReason) 
         `,
     });
 
-    console.log("Rejection email sent: %s", info.messageId);
 };
 
 export { sendAcceptedMail, sendRejectionMail }

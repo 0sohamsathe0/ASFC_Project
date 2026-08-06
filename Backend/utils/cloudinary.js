@@ -20,7 +20,6 @@ export const uploadOnCloudinary = async (localFilePath) => {
       resource_type: "auto",
     });
 
-    console.log("Cloudinary Upload Success:", response.secure_url);
 
     return response;
   } catch (error) {
@@ -42,7 +41,6 @@ export const deleteFromCloudinary = async (publicId) => {
 
   try {
     await cloudinary.uploader.destroy(publicId);
-    console.log(`Deleted Cloudinary asset: ${publicId}`);
   } catch (error) {
     console.error("Cloudinary Cleanup Error:", error);
   }

@@ -48,10 +48,7 @@ const EditTournamentModal = ({ tournament, onClose, refresh }) => {
   const handleSubmit = async (e) => {
   e.preventDefault();
 
-  console.log("🔥 handleSubmit called");
-
   const updatedData = getChangedFields();
-  console.log("Updated Data:", updatedData);
 
   if (Object.keys(updatedData).length === 0) {
     toast("No changes made");
@@ -59,14 +56,8 @@ const EditTournamentModal = ({ tournament, onClose, refresh }) => {
   }
 
   try {
-    console.log("⏳ Setting loading true");
     setLoading(true);
-
-    console.log("📡 Calling API...");
     const res = await api.put(`/tournament/${tournament._id}`, updatedData);
-
-    console.log("✅ API Success", res);
-
     toast.success("Tournament updated successfully");
 
     await refresh();
@@ -75,7 +66,6 @@ const EditTournamentModal = ({ tournament, onClose, refresh }) => {
     console.error("❌ API Error", err);
     toast.error(err.response?.data?.message || "Failed");
   } finally {
-    console.log("🏁 Loading false");
     setLoading(false);
   }
 };

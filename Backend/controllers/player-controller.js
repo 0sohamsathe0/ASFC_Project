@@ -231,10 +231,7 @@ const getPlayers = async (req, res) => {
 const loginPlayer = async (req, res) => {
   try {
     const { aadharCard, dob } = req.body;
-    console.log(aadharCard, dob)
-
     const player = await Player.findOne({ aadharCard });
-
 
     if (!player) {
       return res.status(404).json({
@@ -344,7 +341,6 @@ const updatePlayer = async (req, res) => {
       });
     }
 
-    console.log(updates)
     const updatedPlayer = await Player.findByIdAndUpdate(
       playerId,
       { $set: updates },

@@ -63,7 +63,6 @@ const PlayerProfile = () => {
         setIndividualResults(individualRes.data.data);
         setTeamResults(teamRes.data.data);
       } catch (err) {
-        console.log("Profile Error:", err);
 
         if (err.response?.status === 401) {
           navigate("/player/login");
@@ -101,7 +100,6 @@ const PlayerProfile = () => {
 
   return (
     <>
-    {console.log(player)}
        {isDesktop ? (
         <DesktopProfile {...profileProps} />
       ) : (

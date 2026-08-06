@@ -61,7 +61,6 @@ const EditPlayerProfile = () => {
     setOriginalData(playerData);
 
   } catch (error) {
-    console.log(error);
   }
 };
 
@@ -136,7 +135,6 @@ const EditPlayerProfile = () => {
     payload.rejectionReason = "";
     payload.isEditable = false;
 
-    console.log(payload);
 
     await api.put(`/player/${playerId}`,payload);
     alert(
@@ -147,7 +145,6 @@ const EditPlayerProfile = () => {
 
   } catch (error) {
 
-    console.log(error);
 
     alert(
       error.response?.data?.message ||
