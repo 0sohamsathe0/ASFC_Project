@@ -10,25 +10,40 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadOnCloudinary = async (localFilePath) => {
-  try {
-    if (!localFilePath) return null;
+export const uploadOnCloudinary = async (localFilePath) => {
+  if (!localFilePath) {
+    throw new Error("No file path provided.");
+  }
 
+  try {
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
 
-    console.log("File uploaded:", response.secure_url);
+    console.log("Cloudinary Upload Success:", response.secure_url);
 
-    return response.secure_url;
+    return response;
   } catch (error) {
     console.error("Cloudinary Upload Error:", error);
-    return null;
+    throw error;
   } finally {
-    if (localFilePath && fs.existsSync(localFilePath)) {
-      await fs.promises.unlink(localFilePath);
+    try {
+      if (fs.existsSync(localFilePath)) {
+        await fs.promises.unlink(localFilePath);
+      }
+    } catch (err) {
+      console.error("Failed to delete local file:", err);
     }
   }
 };
 
-export { uploadOnCloudinary };
+export const deleteFromCloudinary = async (publicId) => {
+  if (!publicId) return;
+
+  try {
+    await cloudinary.uploader.destroy(publicId);
+    console.log(`Deleted Cloudinary asset: ${publicId}`);
+  } catch (error) {
+    console.error("Cloudinary Cleanup Error:", error);
+  }
+};

@@ -1,14 +1,17 @@
 import jwt from "jsonwebtoken";
 import Player from "../models/player-model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 
 const addPlayer = async (req, res) => {
+  let photoUpload = null;
+  let aadhaarUpload = null;
+
   try {
     const fullName = req.body.fullName?.trim();
     const gender = req.body.gender?.trim();
     const dob = req.body.dob?.trim();
-    const faiId = req.body.faiId?.trim()
-    const mfaId = req.body.mfaId?.trim()
+    const faiId = req.body.faiId?.trim();
+    const mfaId = req.body.mfaId?.trim();
 
     const aadharCard = req.body.aadharCard
       ?.replace(/\s+/g, "")
@@ -35,13 +38,13 @@ const addPlayer = async (req, res) => {
       pincode,
     };
 
-    const photo = req.files?.photo ? req.files.photo[0].path : null;
-    const aadharCardPhoto = req.files?.aadharCardPhoto ? req.files.aadharCardPhoto[0].path : null;
+    const photo = req.files?.photo?.[0]?.path;
+    const aadharCardPhoto = req.files?.aadharCardPhoto?.[0]?.path;
 
     if (!photo || !aadharCardPhoto) {
       return res.status(400).json({
         success: false,
-        message: "Photo and Aadhaar card images are required",
+        message: "Photo and Aadhaar card images are required.",
       });
     }
 
@@ -52,7 +55,6 @@ const addPlayer = async (req, res) => {
       });
     }
 
-    // ✅ Basic validation
     if (
       !fullName ||
       !gender ||
@@ -67,7 +69,7 @@ const addPlayer = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "All required fields must be provided",
+        message: "All required fields must be provided.",
       });
     }
 
@@ -76,41 +78,52 @@ const addPlayer = async (req, res) => {
     if (existingPlayer) {
       return res.status(409).json({
         success: false,
-        message: "Player already registered with this Aadhaar",
+        message: "Player already registered with this Aadhaar.",
       });
     }
 
-    //upload files to cloudinary and get URLs
-    const [photoURL, aadharCardURL] = await Promise.all([
-      uploadOnCloudinary(photo),
-      uploadOnCloudinary(aadharCardPhoto),
-    ]);
+    // Upload player photo
+    photoUpload = await uploadOnCloudinary(photo);
 
-    console.log("Photo URL:", photoURL);
-    console.log("Aadhar URL:", aadharCardURL);
-    if (!photoURL || !aadharCardURL) {
-      return res.status(500).json({
+    // Upload Aadhaar
+    try {
+      aadhaarUpload = await uploadOnCloudinary(aadharCardPhoto);
+    } catch (error) {
+      await deleteFromCloudinary(photoUpload.public_id);
+
+      return res.status(503).json({
         success: false,
-        message: "Failed to upload required documents.",
+        message:
+          "We're unable to upload your documents at the moment. Please try again later.",
       });
     }
 
-    //Create new player
-    const newPlayer = await Player.create({
-      fullName,
-      gender,
-      dob,
-      aadharCard,
-      event,
-      email,
-      phone,
-      address,
-      institute,
-      photoURL,
-      aadharCardURL,
-      faiId,
-      mfaId,
-    });
+    let newPlayer;
+
+    try {
+      newPlayer = await Player.create({
+        fullName,
+        gender,
+        dob,
+        aadharCard,
+        event,
+        email,
+        phone,
+        address,
+        institute,
+        photoURL: photoUpload.secure_url,
+        aadharCardURL: aadhaarUpload.secure_url,
+        faiId,
+        mfaId,
+      });
+    } catch (dbError) {
+      await Promise.all([
+        deleteFromCloudinary(photoUpload.public_id),
+        deleteFromCloudinary(aadhaarUpload.public_id),
+      ]);
+
+      throw dbError;
+    }
 
     const token = jwt.sign(
       {
@@ -132,18 +145,34 @@ const addPlayer = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Player added successfully",
+      message: "Player added successfully.",
       user: {
         id: newPlayer._id,
         role: "player",
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Player Registration Error:", error);
 
-    res.status(500).json({
+    // Cleanup uploaded files (if any)
+    await Promise.all([
+      deleteFromCloudinary(photoUpload?.public_id),
+      deleteFromCloudinary(aadhaarUpload?.public_id),
+    ]);
+
+    // Cloudinary / External service error
+    if (error.http_code || error.name === "Error") {
+      return res.status(503).json({
+        success: false,
+        message:
+          "We're unable to upload your documents at the moment. Please try again later.",
+      });
+    }
+
+    // Unexpected server error
+    return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: "Server Error. Please try again later.",
     });
   }
 };
@@ -288,7 +317,7 @@ const updatePlayer = async (req, res) => {
     const playerId = req.params.pid;
     const data = req.body;
     const updates = {};
-    const restrictedFields = ["_id","password","requestStatus","role","isAdmin","createdAt","updatedAt",];
+    const restrictedFields = ["_id", "password", "requestStatus", "role", "isAdmin", "createdAt", "updatedAt",];
 
 
     for (let key in data) {

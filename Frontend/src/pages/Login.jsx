@@ -55,9 +55,17 @@ const Login = () => {
 
         <input
           type="text"
-          placeholder="Aadhar Card"
-          value={aadharCard}
-          onChange={(e) => setAadharCard(e.target.value)}
+          placeholder="Aadhaar Card"
+          value={aadharCard.replace(/(\d{4})(?=\d)/g, "$1 ")}
+          onChange={(e) => {
+            const value = e.target.value
+              .replace(/\D/g, "")
+              .slice(0, 12);
+
+            setAadharCard(value);
+          }}
+          inputMode="numeric"
+          maxLength={14} // 12 digits + 2 spaces
           className="w-full mb-4 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm sm:text-base"
           required
         />

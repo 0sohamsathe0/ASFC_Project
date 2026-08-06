@@ -5,12 +5,14 @@ import { ServerStatusProvider } from './context/ServerStatusContext.jsx'
 import './index.css'
 import App from './App.jsx'
 import { Toaster } from "react-hot-toast";
+import InternetStatusBanner from "./components/InternetStatusBanner";
 
 
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <ServerStatusProvider>
+      <InternetStatusBanner />
       <AuthProvider>
         <Toaster
           position="top-right"

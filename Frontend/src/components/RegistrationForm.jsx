@@ -36,37 +36,38 @@ function RegistrationForm() {
   const [aadhaarError, setAadhaarError] = useState("");
 
   const {
-  register,
-  handleSubmit,
-  setError,
-  reset,
-  setValue,
-  watch,
-  formState: { errors },
-} = useForm({
-  resolver: zodResolver(playerSchema),
-  defaultValues: {
-    fullName: "",
-    gender: "",
-    dob: "",
-    event: "",
-    aadharCard: "",
-    email: "",
-    phone: "",
-    institute: "",
-    addressLine1: "",
-    addressLine2: "",
-    pincode: "",
-    faiId: "",
-    mfaId: "",
-  },
-});
-const aadhaarValue = watch("aadharCard") || "";
-const formatAadhaar = (value) => {
-  return value
-    .replace(/\D/g, "")
-    .replace(/(\d{4})(?=\d)/g, "$1 ");
-};
+    control,
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(playerSchema),
+    defaultValues: {
+      fullName: "",
+      gender: "",
+      dob: "",
+      event: "",
+      aadharCard: "",
+      email: "",
+      phone: "",
+      institute: "",
+      addressLine1: "",
+      addressLine2: "",
+      pincode: "",
+      faiId: "",
+      mfaId: "",
+    },
+  });
+  const aadhaarValue = watch("aadharCard") || "";
+  const formatAadhaar = (value) => {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{4})(?=\d)/g, "$1 ");
+  };
 
   useEffect(() => {
     if (successMessage) {
@@ -188,19 +189,43 @@ const formatAadhaar = (value) => {
     } catch (error) {
       console.error(error);
 
-      const message =
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-
-      if (error.response?.status === 409) {
-        setError("aadharCard", {
-          type: "server",
-          message,
-        });
+      // Network error (No Internet)
+      if (!error.response) {
+        setServerError(
+          "No internet connection. Please check your network and try again."
+        );
+        return;
       }
 
-      setServerError(message);
+      const { status, data } = error.response;
 
+      switch (status) {
+        case 400:
+          setServerError(data.message);
+          break;
+
+        case 409:
+          setError("aadharCard", {
+            type: "server",
+            message: data.message,
+          });
+
+          setServerError(data.message);
+          break;
+
+        case 503:
+          setServerError(
+            data.message ||
+            "We're unable to upload your documents at the moment. Please try again later."
+          );
+          break;
+
+        default:
+          setServerError(
+            data.message ||
+            "Something went wrong. Please try again later."
+          );
+      }
     } finally {
       setLoading(false);
       setUploadProgress(0);
@@ -533,25 +558,30 @@ const formatAadhaar = (value) => {
 
                   {/* Aadhaar */}
 
-                  <TextField
-  label="Aadhaar Number"
-  fullWidth
-  value={formatAadhaar(aadhaarValue)}
-  onChange={(e) => {
-    const raw = e.target.value.replace(/\D/g, "").slice(0, 12);
+                  <Controller
+                    name="aadharCard"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        label="Aadhaar Number"
+                        fullWidth
+                        value={formatAadhaar(field.value || "")}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 12);
 
-    setValue("aadharCard", raw, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  }}
-  inputProps={{
-    inputMode: "numeric",
-    maxLength: 14, // 12 digits + 2 spaces
-  }}
-  error={!!errors.aadharCard}
-  helperText={errors.aadharCard?.message}
-/>
+                          field.onChange(value);
+                        }}
+                        inputProps={{
+                          maxLength: 14, // 12 digits + spaces
+                          inputMode: "numeric",
+                        }}
+                        error={!!errors.aadharCard}
+                        helperText={errors.aadharCard?.message}
+                      />
+                    )}
+                  />
 
                   {/* Gender */}
 
@@ -614,12 +644,30 @@ const formatAadhaar = (value) => {
 
                   {/* Phone */}
 
-                  <TextField
-                    label="Phone Number"
-                    fullWidth
-                    {...register("phone")}
-                    error={!!errors.phone}
-                    helperText={errors.phone?.message}
+                  <Controller
+                    name="phone"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Phone Number"
+                        fullWidth
+                        value={field.value || ""}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 10);
+
+                          field.onChange(value);
+                        }}
+                        inputProps={{
+                          maxLength: 10,
+                          inputMode: "numeric",
+                        }}
+                        error={!!errors.phone}
+                        helperText={errors.phone?.message}
+                      />
+                    )}
                   />
 
                 </div>
@@ -628,12 +676,22 @@ const formatAadhaar = (value) => {
 
                 <div className="mt-5">
 
-                  <TextField
-                    label="Email Address"
-                    fullWidth
-                    {...register("email")}
-                    error={!!errors.email}
-                    helperText={errors.email?.message}
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Email Address"
+                        fullWidth
+                        value={field.value || ""}
+                        onChange={(e) => {
+                          field.onChange(e.target.value.toLowerCase());
+                        }}
+                        error={!!errors.email}
+                        helperText={errors.email?.message}
+                      />
+                    )}
                   />
 
                 </div>
