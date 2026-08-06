@@ -16,6 +16,7 @@ transporter.verify((error, success) => {
     if (error) {
         console.error("Transporter error:", error);
     } else {
+        console.log("transponder is ready to send mail")
     }
 });
 

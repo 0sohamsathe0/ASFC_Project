@@ -1,13 +1,13 @@
 import React from 'react'
 import Hero from '../components/homepage/Hero.jsx'
-import Features from '../components/homepage/Features.jsx'
+import AboutPreview from '../components/homepage/AboutPreview.jsx'
 import CTA from '../components/homepage/CTA.jsx'
 
 function Home() {
   return (
     <>
       <Hero />
-      <Features />
+      <AboutPreview />
       <CTA />
     </>
   )

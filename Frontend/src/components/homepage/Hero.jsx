@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 
 import fencing from "../../assets/fencing.avif";
 
@@ -9,257 +8,121 @@ export default function Hero() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative min-h-[90svh] overflow-hidden bg-[#020617]">
-
-      {/* ================= Background ================= */}
-
-      <div className="absolute inset-0">
-
-        <div className="absolute inset-0 bg-gradient-to-br from-[#020617] via-[#07142E] to-[#0F2E63]" />
-
-        {/* Grid */}
-
-        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:70px_70px]" />
-
-        {/* Glow */}
-
-        <div className="absolute -left-40 top-20 h-[320px] w-[320px] sm:h-[420px] sm:w-[420px] lg:h-[450px] lg:w-[450px] rounded-full bg-blue-600 blur-[170px] opacity-20" />
-
-        <div className="absolute right-0 bottom-0 h-[350px] w-[350px] sm:h-[450px] sm:w-[450px] lg:h-[550px] lg:w-[550px] rounded-full bg-cyan-500 blur-[170px] opacity-20" />
-
+    <section className="relative flex min-h-[calc(100vh-4rem)] w-full flex-col justify-between overflow-hidden bg-[#020617] pt-15 pb-6 lg:justify-center lg:py-12">
+      {/* Background Glow FX */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#08152e] to-[#020617]" />
+        <div className="absolute top-0 right-0 h-[280px] w-[280px] sm:h-[450px] sm:w-[450px] rounded-full bg-blue-600/20 blur-[100px]" />
+        <div className="absolute bottom-10 left-0 h-[220px] w-[220px] rounded-full bg-cyan-500/15 blur-[90px]" />
       </div>
 
-      {/* Floating Shapes */}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid flex-1 w-full gap-4 sm:gap-6 items-center lg:grid-cols-2 lg:gap-12">
 
-      <motion.div
-        animate={{ y: [0, -20, 0] }}
-        transition={{
-          duration: 5,
-          repeat: Infinity,
-        }}
-        className="hidden lg:block absolute left-20 top-56 h-28 w-28 rotate-45 border border-blue-500/30"
-      />
-
-      <motion.div
-        animate={{ y: [0, 30, 0] }}
-        transition={{
-          duration: 7,
-          repeat: Infinity,
-        }}
-        className="hidden lg:block absolute right-32 bottom-32 h-10 w-10 rounded-full bg-blue-500/30"
-      />
-
-      {/* ================= Hero ================= */}
-
-      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl items-center px-5 sm:px-6 lg:px-8 py-8 lg:py-10">
-
-        <div className="grid w-full items-center gap-10 lg:gap-16 lg:grid-cols-2 lg:-translate-y-10">
-
-          {/* LEFT */}
-
+          {/* CONTENT SECTION */}
           <motion.div
-            initial={{ opacity: 0, x: -60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center lg:text-left"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-start text-left"
           >
+            {/* Top Badge */}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-400/30 bg-blue-500/10 px-3.5 py-1 text-[11px] font-bold tracking-wide uppercase text-blue-400 backdrop-blur-md">
+              <Trophy size={13} className="text-blue-400" />
+              <span>ALL STAR FENCING CLUB</span>
+            </div>
 
-            <span className="text-xs sm:text-sm font-semibold uppercase tracking-[4px] sm:tracking-[6px] lg:tracking-[10px] text-blue-400">
-
-              ALL STAR FENCING CLUB
-
-            </span>
-
-            <h1 className="mt-6 text-3xl sm:text-4xl lg:text-6xl xl:text-7xl font-black leading-[1.05] text-white">
-              Where
-
-              <br />
-
-              <span className="text-blue-500">
-
+            {/* Headline */}
+            <h1 className="mt-3.5 text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-white leading-[1.1]">
+              Where <br className="hidden sm:block" />
+              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent">
                 Champions
-
-              </span>
-
-              <br />
-
+              </span>{" "}
               Are Forged
-
             </h1>
 
-            <p className="mx-auto lg:mx-0 mt-6 max-w-lg text-sm sm:text-base lg:text-lg leading-7 text-slate-300">
-
-              Train with professional coaches, compete in district,
-              state and national tournaments, and become part of a
-              modern fencing community built for champions.
-
+            {/* Paragraph */}
+            <p className="mt-3 text-xs sm:text-base text-slate-300 max-w-md leading-relaxed">
+              Train with elite coaches, compete in national tournaments, and join a high-performance fencing community.
             </p>
 
-            {/* CTA Buttons */}
+            {/* Polished Full-Width / Stacked Button Group */}
+            <div className="mt-6 flex w-full flex-col gap-3 sm:max-w-md">
+              <div className="flex flex-col sm:flex-row gap-2.5 w-full">
+                <button
+                  onClick={() => navigate("/player/register")}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition active:scale-[0.97]"
+                >
+                  Register Now
+                  <ArrowRight size={15} />
+                </button>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <button
+                  onClick={() => navigate("/explore-tournament")}
+                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/[0.05] px-5 py-3.5 text-xs sm:text-sm font-semibold text-white transition hover:bg-white/10 active:scale-[0.97]"
+                >
+                  Tournaments
+                </button>
+              </div>
 
-              <button className="group flex w-full sm:w-auto items-center justify-center gap-3 rounded-full bg-blue-600 px-7 py-3.5 font-semibold text-white transition hover:bg-blue-700" onClick={() => navigate("/player/register")}>
-
-                Register Now
-
-                <ArrowRight
-                  size={20}
-                  className="transition group-hover:translate-x-1"
-                />
-
-              </button>
-
-              <button className="w-full sm:w-auto rounded-full border border-white/20 px-7 py-3.5 text-white transition hover:bg-white/10" onClick={() => navigate("/explore-tournament")}>
-
-                Explore Tournaments
-
-              </button>
-
+              {/* Login Subtext */}
+              <p className="text-center sm:text-left text-xs text-slate-400 mt-1">
+                Already registered?{" "}
+                <button
+                  onClick={() => navigate("/player/login")}
+                  className="font-semibold text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                >
+                  Log In
+                </button>
+              </p>
             </div>
-
-            {/* Statistics */}
-
-            <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center lg:text-left">
-
-              <div>
-
-                <h2 className="text-3xl font-black text-white">
-
-                  500+
-
-                </h2>
-
-                <p className="mt-2 text-slate-400">
-
-                  Registered Players
-
-                </p>
-
-              </div>
-
-              <div>
-
-                <h2 className="text-4xl font-black text-white">
-
-                  40+
-
-                </h2>
-
-                <p className="mt-2 text-slate-400">
-
-                  Medals
-
-                </p>
-
-              </div>
-
-              <div>
-
-                <h2 className="text-4xl font-black text-white">
-
-                  20+
-
-                </h2>
-
-                <p className="mt-2 text-slate-400">
-
-                  Events
-
-                </p>
-
-              </div>
-
-            </div>
-
           </motion.div>
-          {/* RIGHT */}
 
+          {/* VISUAL HERO CARD WITH INTEGRATED STATS */}
           <motion.div
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="relative mt-8 lg:mt-0 flex items-center justify-center"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="relative mt-1 lg:mt-0"
           >
-
-            {/* Background Glow */}
-
-            <div className="absolute w-[320px] h-[320px] sm:w-[500px] sm:h-[500px] lg:w-[560px] lg:h-[560px] rounded-full bg-blue-600/20 blur-[180px]" />
-
-            {/* Decorative Ring */}
-
-            <div className="absolute w-[260px] h-[260px] sm:w-[400px] sm:h-[400px] lg:w-[520px] lg:h-[520px] rounded-full border border-blue-500/10" />
-
-            {/* Main Image */}
-
-            <div className="relative z-10 overflow-hidden rounded-[24px] lg:rounded-[32px]">
-
+            {/* Main Action Image Box */}
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/50 shadow-2xl">
               <img
                 src={fencing}
-                alt="All Star Fencing Club"
-                className="w-full max-w-sm sm:max-w-lg lg:max-w-2xl object-cover rounded-[24px] lg:rounded-[32px] shadow-[0_35px_80px_rgba(0,0,0,.45)]"
+                alt="Fencing Action"
+                className="h-56 sm:h-80 lg:h-[440px] w-full object-cover object-top"
               />
 
-              {/* Dark Overlay */}
+              {/* Vignette Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent" />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+              {/* Live Badge */}
+              <div className="absolute top-3 right-3 rounded-lg border border-white/10 bg-black/50 px-2.5 py-1 text-[10px] font-medium text-slate-300 backdrop-blur-md">
+                Fencing A Olympic Sport
+              </div>
 
+              {/* Integrated Bottom Stats Bar */}
+              <div className="absolute bottom-0 inset-x-0 p-3.5 bg-slate-950/85 backdrop-blur-md border-t border-white/10">
+                <div className="grid grid-cols-3 divide-x divide-white/10 text-center">
+                  <div>
+                    <div className="text-base sm:text-2xl font-black text-white">500+</div>
+                    <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-400">Players</div>
+                  </div>
+                  <div>
+                    <div className="text-base sm:text-2xl font-black text-white">40+</div>
+                    <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-400">Medals</div>
+                  </div>
+                  <div>
+                    <div className="text-base sm:text-2xl font-black text-white">20+</div>
+                    <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-400">Events</div>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            {/* Decorative Elements */}
-
-            <div className="hidden lg:block absolute -top-6 -right-6 w-28 h-28 rounded-full border border-blue-500/20" />
-
-            <div className="hidden lg:block absolute -bottom-8 -left-8 w-16 h-16 rounded-full bg-blue-500/20 blur-md" />
-
           </motion.div>
 
         </div>
-
       </div>
-
-      {/* ================= Scroll Indicator ================= */}
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          y: [0, 12, 0],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-        }}
-        className="hidden lg:flex absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex-col items-center"
-      >
-
-        <span className="mb-4 text-xs uppercase tracking-[6px] text-slate-400">
-
-          Scroll
-
-        </span>
-
-        <div className="flex h-14 w-8 justify-center rounded-full border-2 border-white/30">
-
-          <motion.div
-            animate={{
-              y: [6, 24, 6],
-            }}
-            transition={{
-              repeat: Infinity,
-              duration: 1.8,
-            }}
-            className="mt-2 h-3 w-3 rounded-full bg-blue-500"
-          />
-
-        </div>
-
-      </motion.div>
-
-      {/* ================= Bottom Fade ================= */}
-
-      <div className="absolute bottom-0 left-0 h-40 w-full bg-gradient-to-t from-[#020617] to-transparent" />
-
     </section>
   );
 }
