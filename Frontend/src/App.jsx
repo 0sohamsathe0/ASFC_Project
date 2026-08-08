@@ -27,6 +27,7 @@ const EditPlayerProfile = lazy(() =>
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 const Maintenance = lazy(() => import("./pages/Maintenance.jsx"));
+const ClubMedalRecord = lazy(() => import("./components/homepage/ClubMedalRecord.jsx"));
 
 // Admin Dashboard Components
 // Admin Dashboard Components
@@ -96,6 +97,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/explore-tournament" element={<ExploreTournament />} />
           <Route path="/maintenance" element={<Maintenance />} />
+          <Route path="/club-medal-record" element={<ClubMedalRecord />}/>
 
           {/* Player Routes */}
           <Route path="/player/login" element={<Login />} />

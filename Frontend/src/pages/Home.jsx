@@ -8,8 +8,8 @@ function Home() {
   return (
     <>
       <Hero />
-      <AboutPreview />
       <Achievements/>
+      <AboutPreview />
       <CTA />
     </>
   )

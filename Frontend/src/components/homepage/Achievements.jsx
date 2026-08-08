@@ -5,28 +5,35 @@ import {
     Globe2,
     Flag,
     ArrowUpRight,
+    ArrowRight
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import fencing from "../../assets/fencing.avif";
+import KIYG from "../../assets/KIYG-Gold.avif"
+import KIUG from "../../assets/KIUG.avif"
+import NavyOpen from "../../assets/Navy-Open-2025.avif"
+import SchoolNational from "../../assets/School-Nation.avif"
+import StateChamps from "../../assets/State-Champions.avif"
 
 const achievements = [
     {
         id: 1,
         icon: Trophy,
         category: "Khelo India Youth Games",
-        title: "3 Gold Medalists",
+        title: "KIYG Gold Medalists",
         description:
             "ASFC players have achieved gold medals at the Khelo India Youth Games.",
-        image: fencing,
+        image: KIYG,
         size: "large",
     },
     {
         id: 2,
         icon: Medal,
         category: "Khelo India University Games",
-        title: "2-Time Participation",
+        title: "KIUG Participation",
         description:
             "Our players have represented at the Khelo India University Games.",
-        image: fencing,
+        image: KIUG,
         size: "normal",
     },
     {
@@ -36,7 +43,7 @@ const achievements = [
         title: "International Participants",
         description:
             "ASFC players have represented the club at international competitions.",
-        image: fencing,
+        image: NavyOpen,
         size: "normal",
     },
     {
@@ -46,7 +53,7 @@ const achievements = [
         title: "National Medalists",
         description:
             "Our athletes have earned medals at national-level fencing competitions.",
-        image: fencing,
+        image: SchoolNational,
         size: "normal",
     },
     {
@@ -56,14 +63,14 @@ const achievements = [
         title: "State Champions",
         description:
             "ASFC players have achieved championship-level results at state competitions.",
-        image: fencing,
+        image: StateChamps,
         size: "normal",
     },
 ];
 
 export default function Achievements() {
     return (
-        <section className="relative overflow-hidden bg-[#020617] py-16 sm:py-20 lg:py-24">      {/* Ambient Background Glow */}
+        <section className="relative overflow-hidden bg-[#020617] py-10 sm:py-20 lg:py-16">      {/* Ambient Background Glow */}
             <div className="pointer-events-none absolute left-1/2 top-20 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-600/10 blur-[120px]" />
 
             <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -147,11 +154,6 @@ export default function Achievements() {
                                             <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-300">
                                                 {achievement.description}
                                             </p>
-
-                                            <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400">
-                                                <span>ASFC Achievement</span>
-                                                <ArrowUpRight size={14} />
-                                            </div>
                                         </div>
                                     </div>
                                 </motion.article>
@@ -188,10 +190,6 @@ export default function Achievements() {
 
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/30 to-transparent" />
 
-                                        <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-slate-200 backdrop-blur-xl">
-                                            <Icon size={12} className="text-blue-400" />
-                                            {achievement.category}
-                                        </div>
                                     </div>
 
                                     {/* Content */}
@@ -207,7 +205,25 @@ export default function Achievements() {
                                 </motion.article>
                             );
                         })}
+
+                    <div className="mt-8 flex justify-center">
+                        <Link
+                            to="/club-medal-record"
+                            className="group inline-flex items-center gap-2 rounded-xl border border-blue-500/20 bg-blue-500/10 px-5 py-3 text-sm font-semibold text-blue-400 transition hover:bg-blue-500/15"
+                        >
+                            <Trophy size={16} />
+
+                            <span>View 2026 Competition Results</span>
+
+                            <ArrowRight
+                                size={16}
+                                className="transition-transform group-hover:translate-x-1"
+                            />
+                        </Link>
+                    </div>
                 </div>
+
+
             </div>
         </section>
     );
