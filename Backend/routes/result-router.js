@@ -12,6 +12,6 @@ resultRouter.post('/team',verifyJWT,authorizeRoles("admin"), addTeamResult)
 resultRouter.get("/player/individual/:playerId",getPlayerIndividualResults)
 resultRouter.get("/player/team/:playerId",getPlayerTeamResults)
 
-resultRouter.get("/club",verifyJWT,authorizeRoles("admin"),getClubResults);
+resultRouter.get("/club",getClubResults);
 
 export default resultRouter

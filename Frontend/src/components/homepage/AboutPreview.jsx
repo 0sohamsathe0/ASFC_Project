@@ -1,21 +1,19 @@
 import { ArrowRight, ShieldCheck, Target, Award } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function AboutPreview() {
-  const navigate = useNavigate();
-
   return (
     <section className="relative bg-[#020617] py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        
+
         {/* Glass Container */}
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 p-6 sm:p-10 backdrop-blur-xl">
-          
+
           {/* Subtle Ambient Light */}
           <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-blue-600/15 blur-[100px] pointer-events-none" />
 
           <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
-            
+
             {/* Left Column: Core Message */}
             <div className="lg:col-span-7">
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400">
@@ -34,13 +32,16 @@ export default function AboutPreview() {
               </p>
 
               <div className="mt-6">
-                <button
-                  onClick={() => navigate("/about")}
+                <Link
+                  to="/about"
                   className="inline-flex items-center gap-2 text-sm font-semibold text-blue-400 hover:text-blue-300 transition group"
                 >
                   <span>Learn More About Our Academy</span>
-                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                </button>
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </Link>
               </div>
             </div>
 

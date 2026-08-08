@@ -1,11 +1,9 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Trophy } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 import fencing from "../../assets/fencing.avif";
 
 export default function Hero() {
-  const navigate = useNavigate();
 
   return (
     <section className="relative flex min-h-[calc(100vh-4rem)] w-full flex-col justify-between overflow-hidden bg-[#020617] pt-15 pb-6 lg:justify-center lg:py-12">
@@ -34,46 +32,47 @@ export default function Hero() {
 
             {/* Headline */}
             <h1 className="mt-3.5 text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-white leading-[1.1]">
-              Where <br className="hidden sm:block" />
+              Train, Compete,
+              <pre className="lg:hidden"></pre>
+              <br className="hidden sm:block" />
               <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent">
-                Champions
-              </span>{" "}
-              Are Forged
+                Fence In Solpaur.
+              </span>
             </h1>
 
-            {/* Paragraph */}
             <p className="mt-3 text-xs sm:text-base text-slate-300 max-w-md leading-relaxed">
-              Train with elite coaches, compete in national tournaments, and join a high-performance fencing community.
+              All Star Fencing Club offers structured fencing training and coaching in
+              Solapur, Maharashtra, helping players build their skills and prepare for
+              competition.
             </p>
 
             {/* Polished Full-Width / Stacked Button Group */}
             <div className="mt-6 flex w-full flex-col gap-3 sm:max-w-md">
               <div className="flex flex-col sm:flex-row gap-2.5 w-full">
-                <button
-                  onClick={() => navigate("/player/register")}
+                <Link
+                  to="/player/register"
                   className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-3.5 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition active:scale-[0.97]"
                 >
                   Register Now
-                  <ArrowRight size={15} />
-                </button>
+                </Link>
 
-                <button
-                  onClick={() => navigate("/explore-tournament")}
+                <Link
+                  to="/explore-tournament"
                   className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/[0.05] px-5 py-3.5 text-xs sm:text-sm font-semibold text-white transition hover:bg-white/10 active:scale-[0.97]"
                 >
                   Tournaments
-                </button>
+                </Link>
               </div>
 
               {/* Login Subtext */}
               <p className="text-center sm:text-left text-xs text-slate-400 mt-1">
                 Already registered?{" "}
-                <button
-                  onClick={() => navigate("/player/login")}
+                <Link
+                  to="/player/login"
                   className="font-semibold text-blue-400 hover:text-blue-300 underline underline-offset-2"
                 >
                   Log In
-                </button>
+                </Link>
               </p>
             </div>
           </motion.div>
@@ -90,6 +89,8 @@ export default function Hero() {
               <img
                 src={fencing}
                 alt="Fencing Action"
+                fetchPriority="high"
+                decoding="async"
                 className="h-56 sm:h-80 lg:h-[440px] w-full object-cover object-top"
               />
 
@@ -105,15 +106,15 @@ export default function Hero() {
               <div className="absolute bottom-0 inset-x-0 p-3.5 bg-slate-950/85 backdrop-blur-md border-t border-white/10">
                 <div className="grid grid-cols-3 divide-x divide-white/10 text-center">
                   <div>
-                    <div className="text-base sm:text-2xl font-black text-white">500+</div>
+                    <div className="text-base sm:text-2xl font-black text-white">350+</div>
                     <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-400">Players</div>
                   </div>
                   <div>
                     <div className="text-base sm:text-2xl font-black text-white">40+</div>
-                    <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-400">Medals</div>
+                    <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-400">National Medals</div>
                   </div>
                   <div>
-                    <div className="text-base sm:text-2xl font-black text-white">20+</div>
+                    <div className="text-base sm:text-2xl font-black text-white">15+</div>
                     <div className="text-[9px] uppercase tracking-wider font-semibold text-slate-400">Events</div>
                   </div>
                 </div>

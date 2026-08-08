@@ -401,7 +401,16 @@ const getClubResults = async (req, res) => {
                     startingDate: tournament.startingDate,
                     endDate: tournament.endDate,
                     level: tournament.level,
+
                     totalMedals: 0,
+
+                    // Medal tally includes BOTH
+                    // individual and team results
+                    medalTally: {
+                        gold: 0,
+                        silver: 0,
+                        bronze: 0,
+                    },
 
                     achievements: {
                         team: [],
@@ -411,6 +420,27 @@ const getClubResults = async (req, res) => {
             }
 
             return tournamentMap.get(tournamentId);
+        };
+
+        // ================= MEDAL TALLY HELPER =================
+
+        const incrementTournamentMedal = (tournamentData, place) => {
+            switch (place) {
+                case "First":
+                    tournamentData.medalTally.gold++;
+                    break;
+
+                case "Second":
+                    tournamentData.medalTally.silver++;
+                    break;
+
+                case "Third":
+                    tournamentData.medalTally.bronze++;
+                    break;
+
+                default:
+                    break;
+            }
         };
 
         // ================= INDIVIDUAL RESULTS =================
@@ -430,6 +460,11 @@ const getClubResults = async (req, res) => {
             });
 
             tournamentData.totalMedals++;
+
+            incrementTournamentMedal(
+                tournamentData,
+                result.place
+            );
 
             incrementMedalCount(tournament.level);
         }
@@ -457,6 +492,11 @@ const getClubResults = async (req, res) => {
 
             tournamentData.totalMedals++;
 
+            incrementTournamentMedal(
+                tournamentData,
+                result.place
+            );
+
             incrementMedalCount(tournament.level);
         }
 
@@ -476,7 +516,9 @@ const getClubResults = async (req, res) => {
 
         Object.values(groupedResults).forEach((tournaments) => {
             tournaments.sort(
-                (a, b) => new Date(b.startingDate) - new Date(a.startingDate)
+                (a, b) =>
+                    new Date(b.startingDate) -
+                    new Date(a.startingDate)
             );
         });
 
@@ -496,6 +538,7 @@ const getClubResults = async (req, res) => {
             analytics,
             data,
         });
+
     } catch (err) {
         console.error("Get Club Results Error:", err);
 

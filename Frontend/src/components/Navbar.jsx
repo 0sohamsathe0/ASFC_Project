@@ -154,7 +154,9 @@ const Navbar = () => {
           {/* Mobile Hamburger Toggle Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle Navigation"
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-navigation"
+            aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             className="relative z-[105] flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-slate-200 backdrop-blur-md transition active:scale-95 md:hidden"
           >
             <Menu
@@ -181,9 +183,10 @@ const Navbar = () => {
 
       {/* Mobile Glassmorphic Drawer */}
       <div
+        id="mobile-navigation"
         className={`fixed top-16 left-0 right-0 z-[102] max-h-[calc(100vh-4rem)] overflow-y-auto bg-[#020617]/95 border-b border-white/10 shadow-2xl backdrop-blur-2xl transition-all duration-300 ease-out md:hidden ${isMenuOpen
-            ? "translate-y-0 opacity-100 pointer-events-auto"
-            : "-translate-y-4 opacity-0 pointer-events-none"
+          ? "translate-y-0 opacity-100 pointer-events-auto"
+          : "-translate-y-4 opacity-0 pointer-events-none"
           }`}
       >
         <div className="flex flex-col p-5 gap-5">
