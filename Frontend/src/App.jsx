@@ -4,13 +4,14 @@ import "@fontsource/merriweather/900.css";
 import "@fontsource/playfair-display/700.css";
 
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import LoadingScreen from "./components/common/loadingState.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import ServerMonitor from "./components/common/ServerMonitor.jsx";
+
 
 // Lazy Loaded Pages
 const Home = lazy(() => import("./pages/Home"));
@@ -20,68 +21,41 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const PlayerProfile = lazy(() => import("./pages/PlayerProfile"));
-const EditPlayerProfile = lazy(() =>
-  import("./components/Player/EditPlayerProfile.jsx")
-);
+const EditPlayerProfile = lazy(() =>import("./components/Player/EditPlayerProfile.jsx"));
 
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 const Maintenance = lazy(() => import("./pages/Maintenance.jsx"));
 const ClubMedalRecord = lazy(() => import("./components/homepage/ClubMedalRecord.jsx"));
 
+const PublicFooter = lazy(()=>import("./components/PublicFooter.jsx"))
 // Admin Dashboard Components
-// Admin Dashboard Components
-const AnalyticsDashboard = lazy(() =>
-  import("./components/Admin/AnalyticsDashboard.jsx")
-);
+const AnalyticsDashboard = lazy(() =>import("./components/Admin/AnalyticsDashboard.jsx"));
 
-const PlayersBoard = lazy(() =>
-  import("./components/Player/PlayerBoard.jsx")
-);
-
-const PlayerRequestQueue = lazy(() =>
-  import("./components/Player/PlayerRequestQueue.jsx")
-);
-
-const RejectPlayer = lazy(() =>
-  import("./components/Admin/RejectPlayer.jsx")
-);
+const PlayersBoard = lazy(() =>import("./components/Player/PlayerBoard.jsx"));
+const PlayerRequestQueue = lazy(() =>import("./components/Player/PlayerRequestQueue.jsx"));
+const RejectPlayer = lazy(() =>import("./components/Admin/RejectPlayer.jsx"));
 
 // Tournament Components
-const AllTournaments = lazy(() =>
-  import("./components/Tournament/AllTournaments.jsx")
-);
-
-const AddTournament = lazy(() =>
-  import("./components/Tournament/AddTournament.jsx")
-);
-
-const TournamentEntry = lazy(() =>
-  import("./components/Tournament/TournamentEntry.jsx")
-);
+const AllTournaments = lazy(() =>import("./components/Tournament/AllTournaments.jsx"));
+const AddTournament = lazy(() =>import("./components/Tournament/AddTournament.jsx"));
+const TournamentEntry = lazy(() =>import("./components/Tournament/TournamentEntry.jsx"));
 
 // Result Components
-const IndividualResult = lazy(() =>
-  import("./components/Result/IndividualResult.jsx")
-);
-
-const TeamResult = lazy(() =>
-  import("./components/Result/TeamResult.jsx")
-);
+const IndividualResult = lazy(() =>import("./components/Result/IndividualResult.jsx"));
+const TeamResult = lazy(() =>import("./components/Result/TeamResult.jsx"));
 
 // Certificate Components
-const MeritCertificates = lazy(() =>
-  import("./components/Certificate/MeritCertificates.jsx")
-);
+const MeritCertificates = lazy(() =>import("./components/Certificate/MeritCertificates.jsx"));
+const ParticipationCertificates = lazy(() =>import("./components/Certificate/ParticipationCertificates.jsx"));
+const ExploreTournament = lazy(() =>import("./components/homepage/ExploreTournament.jsx"));
 
-const ParticipationCertificates = lazy(() =>
-  import("./components/Certificate/ParticipationCertificates.jsx")
-);
-
-const ExploreTournament = lazy(() =>
-  import("./components/homepage/ExploreTournament.jsx")
-);
 function App() {
+  const { pathname } = useLocation();
+  const isPublicRoute =
+  !pathname.startsWith("/player") &&
+  !pathname.startsWith("/admin") &&
+  pathname !== "/maintenance";
 
   return (
     <>
@@ -156,6 +130,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      {isPublicRoute && <PublicFooter />}
     </>
   );
 }

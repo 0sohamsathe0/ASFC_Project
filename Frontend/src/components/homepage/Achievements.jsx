@@ -213,7 +213,7 @@ export default function Achievements() {
                         >
                             <Trophy size={16} />
 
-                            <span>View 2026 Competition Results</span>
+                            <span>View Our 2026 Results</span>
 
                             <ArrowRight
                                 size={16}

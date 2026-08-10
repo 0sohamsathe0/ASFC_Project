@@ -13,14 +13,75 @@ export default function Contact() {
     subject: "",
     message: "",
   });
-
   const [loading, setLoading] = useState(false);
-
   const [snackbar, setSnackbar] = useState({
     open: false,
     severity: "success",
     message: "",
   });
+
+ const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "@id": "https://all-star-fencing-club.vercel.app/contact#contact",
+  url: "https://all-star-fencing-club.vercel.app/contact",
+  name: "Contact All Star Fencing Club",
+  description:
+    "Contact All Star Fencing Club in Solapur, Maharashtra for fencing training, player registration, tournament information, and other club enquiries.",
+
+  mainEntity: {
+    "@type": "SportsClub",
+    "@id": "https://all-star-fencing-club.vercel.app/#organization",
+    name: "All Star Fencing Club",
+    url: "https://all-star-fencing-club.vercel.app/",
+    sport: "Fencing",
+
+    sameAs: [
+      "https://www.facebook.com/p/ALL-STAR-Fencing-CLUB-100064343851939/",
+      "https://www.instagram.com/all_star_fencing_club/",
+    ],
+
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Chh. Shivaji Night College",
+      addressLocality: "Solapur",
+      addressRegion: "Maharashtra",
+      addressCountry: "IN",
+    },
+
+    telephone: "+91 96379 63777",
+    email: "info@allstarfencingclub.com",
+
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ],
+        opens: "05:00",
+        closes: "07:00",
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ],
+        opens: "18:00",
+        closes: "20:00",
+      },
+    ],
+  },
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,6 +131,13 @@ export default function Contact() {
   };
 
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(structuredData),
+      }}
+    />
     <main className="bg-[#020617] text-white min-h-screen selection:bg-blue-500 selection:text-white">
       {/* Hero Section with Quick FAQs Content */}
       <section className="relative flex min-h-[calc(100vh-4rem)] lg:min-h-0 w-full flex-col items-center justify-center border-b border-white/10 px-4 py-12 lg:py-20 text-center overflow-hidden">
@@ -410,5 +478,7 @@ export default function Contact() {
         </Alert>
       </Snackbar>
     </main>
+    </>
+    
   );
 }

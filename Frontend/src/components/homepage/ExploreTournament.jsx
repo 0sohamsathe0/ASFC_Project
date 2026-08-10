@@ -12,6 +12,35 @@ const ExploreTournament = () => {
     const [loading, setLoading] = useState(true);
     const [tournaments, setTournaments] = useState([]);
 
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "@id": "https://all-star-fencing-club.vercel.app/explore-tournament#page",
+        url: "https://all-star-fencing-club.vercel.app/explore-tournament",
+        name: "Explore Fencing Tournaments | All Star Fencing Club",
+        description:
+            "Explore fencing tournaments in which All Star Fencing Club athletes participate, from district and state competitions to national and international events.",
+        isPartOf: {
+            "@type": "WebSite",
+            "@id": "https://all-star-fencing-club.vercel.app/#website",
+            name: "All Star Fencing Club",
+            url: "https://all-star-fencing-club.vercel.app/",
+        },
+        about: {
+            "@type": "SportsClub",
+            "@id": "https://all-star-fencing-club.vercel.app/#organization",
+            name: "All Star Fencing Club",
+            url: "https://all-star-fencing-club.vercel.app/",
+            sport: "Fencing",
+            address: {
+                "@type": "PostalAddress",
+                addressLocality: "Solapur",
+                addressRegion: "Maharashtra",
+                addressCountry: "IN",
+            },
+        },
+    };
+
     useEffect(() => {
         fetchTournaments();
     }, []);
@@ -108,92 +137,111 @@ const ExploreTournament = () => {
     );
 
     return (
-        <div className="min-h-screen bg-[#07152E] text-white">
-            {/* Hero */}
-            <section className="relative overflow-hidden border-b border-white/10">
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:80px_80px]" />
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(structuredData),
+                }}
+            />
+            <div className="min-h-screen bg-[#07152E] text-white">
+                {/* HERO */}
 
-                <div className="relative mx-auto max-w-7xl px-6 py-24">
-                    <motion.div
-                        initial={{ opacity: 0, y: 25 }}
-                        animate={{ opacity: 1, y: 0 }}
-                    >
-                        <p className="mb-4 text-sm uppercase tracking-[6px] text-blue-400">
-                            All Star Fencing Club
-                        </p>
+                <section className="relative overflow-hidden border-b border-white/10">
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:80px_80px]" />
 
-                        <h1 className="text-5xl font-black md:text-7xl">
-                            Explore
-                            <br />
-                            <span className="text-blue-500">Tournaments</span>
-                        </h1>
+                    <div className="relative mx-auto max-w-7xl px-6 pt-10 pb-14 sm:pt-12 sm:pb-16 lg:pt-14 lg:pb-20">
+                        <motion.div
+                            initial={{ opacity: 0, y: 25 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.7 }}
+                        >
+                            <p className="mb-4 text-sm uppercase tracking-[5px] text-blue-400">
+                                All Star Fencing Club
+                            </p>
 
-                        <p className="mt-8 max-w-3xl text-lg leading-8 text-slate-300">
-                            Stay updated with upcoming tournaments and revisit competitions
-                            our club has proudly participated in.
-                        </p>
-                    </motion.div>
-                </div>
-            </section>
+                            <h1 className="text-4xl font-black leading-tight sm:text-5xl md:text-6xl lg:text-7xl">
+                                Explore
+                                <br />
+                                <span className="text-blue-500">
+                                    Fencing Tournaments
+                                </span>
+                            </h1>
 
-            {loading ? (
-                <div className="flex h-[60vh] items-center justify-center">
-                    <CircularProgress color="inherit" />
-                </div>
-            ) : (
-                <>
-                    {/* Upcoming */}
-                    <section className="mx-auto max-w-7xl px-6 py-16">
-                        <div className="mb-10 flex items-center gap-3">
-                            <UpcomingRoundedIcon className="text-blue-400" />
-                            <h2 className="text-3xl font-bold">
-                                Upcoming Tournaments
-                            </h2>
-                        </div>
+                            <p className="mt-6 max-w-3xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
+                                Explore fencing tournaments in which All Star Fencing Club
+                                athletes participate, from district and state competitions
+                                to national and international events.
+                            </p>
 
-                        {upcoming.length === 0 ? (
-                            <div className="rounded-2xl border border-dashed border-white/10 py-20 text-center text-slate-400">
-                                No Upcoming Tournaments
+                            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-400 sm:text-base">
+                                View upcoming competitions and explore completed tournaments,
+                                including tournament dates, locations, and competition levels.
+                            </p>
+                        </motion.div>
+                    </div>
+                </section>
+
+                {loading ? (
+                    <div className="flex h-[60vh] items-center justify-center">
+                        <CircularProgress color="inherit" />
+                    </div>
+                ) : (
+                    <>
+                        {/* Upcoming */}
+                        <section className="mx-auto max-w-7xl px-6 py-16">
+                            <div className="mb-10 flex items-center gap-3">
+                                <UpcomingRoundedIcon className="text-blue-400" />
+                                <h2 className="text-3xl font-bold">
+                                    Upcoming Tournaments
+                                </h2>
                             </div>
-                        ) : (
-                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                                {upcoming.map((tournament) => (
-                                    <TournamentCard
-                                        key={tournament._id}
-                                        tournament={tournament}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </section>
 
-                    {/* Completed */}
-                    <section className="mx-auto max-w-7xl px-6 pb-24">
-                        <div className="mb-10 flex items-center gap-3">
-                            <HistoryRoundedIcon className="text-blue-400" />
-                            <h2 className="text-3xl font-bold">
-                                Completed Tournaments
-                            </h2>
-                        </div>
+                            {upcoming.length === 0 ? (
+                                <div className="rounded-2xl border border-dashed border-white/10 py-20 text-center text-slate-400">
+                                    No Upcoming Tournaments
+                                </div>
+                            ) : (
+                                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                    {upcoming.map((tournament) => (
+                                        <TournamentCard
+                                            key={tournament._id}
+                                            tournament={tournament}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </section>
 
-                        {completed.length === 0 ? (
-                            <div className="rounded-2xl border border-dashed border-white/10 py-20 text-center text-slate-400">
-                                No Completed Tournaments
+                        {/* Completed */}
+                        <section className="mx-auto max-w-7xl px-6 pb-24">
+                            <div className="mb-10 flex items-center gap-3">
+                                <HistoryRoundedIcon className="text-blue-400" />
+                                <h2 className="text-3xl font-bold">
+                                    Completed Tournaments
+                                </h2>
                             </div>
-                        ) : (
-                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                                {completed.map((tournament) => (
-                                    <TournamentCard
-                                        key={tournament._id}
-                                        tournament={tournament}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </section>
-                </>
-            )}
-        </div>
+
+                            {completed.length === 0 ? (
+                                <div className="rounded-2xl border border-dashed border-white/10 py-20 text-center text-slate-400">
+                                    No Completed Tournaments
+                                </div>
+                            ) : (
+                                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                    {completed.map((tournament) => (
+                                        <TournamentCard
+                                            key={tournament._id}
+                                            tournament={tournament}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </section>
+                    </>
+                )}
+            </div>
+        </>
+
     );
 };
 
