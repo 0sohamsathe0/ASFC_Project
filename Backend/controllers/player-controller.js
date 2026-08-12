@@ -5,6 +5,8 @@ import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js
 const addPlayer = async (req, res) => {
   let photoUpload = null;
   let aadhaarUpload = null;
+  const startTime = Date.now();
+console.log("[REGISTER] Start");
 
   try {
     const fullName = req.body.fullName?.trim();
@@ -82,14 +84,32 @@ const addPlayer = async (req, res) => {
       });
     }
 
+    const cloudinaryStart = Date.now();
     // Upload player photo
-    photoUpload = await uploadOnCloudinary(photo);
+    // Upload both documents to Cloudinary in parallel
+    const [photoResult, aadhaarResult] = await Promise.allSettled([
+      uploadOnCloudinary(photo),
+      uploadOnCloudinary(aadharCardPhoto),
+    ]);
 
-    // Upload Aadhaar
-    try {
-      aadhaarUpload = await uploadOnCloudinary(aadharCardPhoto);
-    } catch (error) {
-      await deleteFromCloudinary(photoUpload.public_id);
+    // Store successful uploads for cleanup / database use
+    if (photoResult.status === "fulfilled") {
+      photoUpload = photoResult.value;
+    }
+
+    if (aadhaarResult.status === "fulfilled") {
+      aadhaarUpload = aadhaarResult.value;
+    }
+
+    // If either upload failed, clean up the successful upload
+    if (
+      photoResult.status === "rejected" ||
+      aadhaarResult.status === "rejected"
+    ) {
+      await Promise.all([
+        deleteFromCloudinary(photoUpload?.public_id),
+        deleteFromCloudinary(aadhaarUpload?.public_id),
+      ]);
 
       return res.status(503).json({
         success: false,
@@ -97,6 +117,13 @@ const addPlayer = async (req, res) => {
           "We're unable to upload your documents at the moment. Please try again later.",
       });
     }
+
+    console.log(
+  `[REGISTER] Cloudinary uploads: ${Date.now() - cloudinaryStart}ms`
+);
+
+const dbStart = Date.now();
+
 
     let newPlayer;
 
@@ -124,7 +151,9 @@ const addPlayer = async (req, res) => {
 
       throw dbError;
     }
-
+console.log(
+  `[REGISTER] MongoDB create: ${Date.now() - dbStart}ms`
+);
     const token = jwt.sign(
       {
         id: newPlayer._id,
@@ -143,6 +172,9 @@ const addPlayer = async (req, res) => {
       sameSite: isProduction ? "None" : "Lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
+     console.log(
+  `[REGISTER] Total: ${Date.now() - startTime}ms`
+);
 
     return res.status(201).json({
       success: true,
@@ -152,6 +184,8 @@ const addPlayer = async (req, res) => {
         role: "player",
       },
     });
+
+   
   } catch (error) {
     console.error("Player Registration Error:", error);
 
@@ -318,7 +352,7 @@ const updatePlayer = async (req, res) => {
     const playerId = req.params.pid;
     const data = req.body;
     const updates = {};
-    const restrictedFields = ["_id", "password","role", "isAdmin", "createdAt", "updatedAt",];
+    const restrictedFields = ["_id", "password", "role", "isAdmin", "createdAt", "updatedAt",];
 
 
     for (let key in data) {

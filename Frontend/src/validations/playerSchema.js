@@ -1,5 +1,23 @@
 import { z } from "zod";
 
+const calculateAge = (dateOfBirth) => {
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  const monthDifference = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDifference < 0 ||
+    (monthDifference === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
+};
+
 export const playerSchema = z.object({
   fullName: z
     .string()
@@ -8,10 +26,16 @@ export const playerSchema = z.object({
 
   gender: z.string().min(1, "Please select gender"),
 
-  dob: z.string().refine((date) => {
-    const age =
-      new Date().getFullYear() -
-      new Date(date).getFullYear();
+  dob: z.string()
+  .min(1, "Date of birth is required")
+  .refine((date) => {
+    const birthDate = new Date(date);
+    const today = new Date();
+
+    return birthDate <= today;
+  }, "Date of birth cannot be in the future")
+  .refine((date) => {
+    const age = calculateAge(date);
 
     return age >= 5 && age <= 60;
   }, "Age should be between 5 and 60"),

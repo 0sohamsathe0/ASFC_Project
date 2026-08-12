@@ -7,7 +7,6 @@ import {
   Button,
   Grid,
   CircularProgress,
-  LinearProgress,
 } from "@mui/material";
 import { Controller } from "react-hook-form";
 
@@ -21,7 +20,13 @@ import { api } from "./api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 
+const formatDateForInput = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
+  return `${year}-${month}-${day}`;
+};
 
 function RegistrationForm() {
   const { login } = useAuth();
@@ -31,7 +36,6 @@ function RegistrationForm() {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [photoError, setPhotoError] = useState("");
   const [aadhaarError, setAadhaarError] = useState("");
 
@@ -62,6 +66,18 @@ function RegistrationForm() {
       mfaId: "",
     },
   });
+
+  const today = new Date();
+
+  const minDobDate = new Date(today);
+  minDobDate.setFullYear(today.getFullYear() - 60);
+
+  const maxDobDate = new Date(today);
+  maxDobDate.setFullYear(today.getFullYear() - 5);
+
+  const minDob = formatDateForInput(minDobDate);
+  const maxDob = formatDateForInput(maxDobDate);
+
   const aadhaarValue = watch("aadharCard") || "";
   const formatAadhaar = (value) => {
     return value
@@ -149,7 +165,6 @@ function RegistrationForm() {
       setLoading(true);
       setServerError("");
       setSuccessMessage("");
-      setUploadProgress(0);
 
       // Validate uploads
       if (!photo) {
@@ -228,7 +243,6 @@ function RegistrationForm() {
       }
     } finally {
       setLoading(false);
-      setUploadProgress(0);
     }
   };
 
@@ -550,6 +564,8 @@ function RegistrationForm() {
 
                   <TextField
                     label="Full Name"
+                    autoComplete="name"
+                    required
                     fullWidth
                     {...register("fullName")}
                     error={!!errors.fullName}
@@ -565,6 +581,7 @@ function RegistrationForm() {
                       <TextField
                         label="Aadhaar Number"
                         fullWidth
+                        required
                         value={formatAadhaar(field.value || "")}
                         onChange={(e) => {
                           const value = e.target.value
@@ -588,6 +605,7 @@ function RegistrationForm() {
                   <TextField
                     select
                     label="Gender"
+                    required
                     fullWidth
                     defaultValue=""
                     {...register("gender")}
@@ -609,9 +627,14 @@ function RegistrationForm() {
                     label="Date of Birth"
                     type="date"
                     fullWidth
+                    required
                     size="small"
                     InputLabelProps={{
                       shrink: true,
+                    }}
+                    inputProps={{
+                      min: minDob,
+                      max: maxDob,
                     }}
                     {...register("dob")}
                     error={!!errors.dob}
@@ -624,6 +647,7 @@ function RegistrationForm() {
                     select
                     label="Weapon"
                     fullWidth
+                    required
                     defaultValue=""
                     {...register("event")}
                     error={!!errors.event}
@@ -651,6 +675,8 @@ function RegistrationForm() {
                       <TextField
                         {...field}
                         label="Phone Number"
+                        autoComplete="tel"
+                        required
                         fullWidth
                         value={field.value || ""}
                         onChange={(e) => {
@@ -683,6 +709,8 @@ function RegistrationForm() {
                       <TextField
                         {...field}
                         label="Email Address"
+                        autoComplete="email"
+                        required
                         fullWidth
                         value={field.value || ""}
                         onChange={(e) => {
@@ -703,6 +731,7 @@ function RegistrationForm() {
                   <TextField
                     label="School / College / Institute"
                     fullWidth
+                    required
                     {...register("institute")}
                     error={!!errors.institute}
                     helperText={errors.institute?.message}
@@ -736,12 +765,14 @@ function RegistrationForm() {
 
                 </div>
 
-                <div className="space-y-5">
+                <div className="flex flex-col gap-5">
 
                   {/* Address Line 1 */}
 
                   <TextField
                     label="Address Line 1"
+                    autoComplete="street-address"
+                    required
                     placeholder="House No., Building, Street"
                     fullWidth
                     {...register("addressLine1")}
@@ -752,11 +783,12 @@ function RegistrationForm() {
                   {/* Address Line 2 */}
 
                   <TextField
-                    className="mt-5"
-                    label="Address Line 2"
+                    label="Address Line 2(Optional)"
                     placeholder="Area, Landmark (Optional)"
                     fullWidth
                     {...register("addressLine2")}
+                    error={!!errors.addressLine2}
+                    helperText={errors.addressLine2?.message}
                   />
 
                   {/* Pincode */}
@@ -765,16 +797,21 @@ function RegistrationForm() {
 
                     <TextField
                       label="Pincode"
-                      className="mt-5"
+                      autoComplete="postal-code"
+                      required
                       fullWidth
-                      {...register("pincode")}
+                      inputProps={{
+                        inputMode: "numeric",
+                        maxLength: 6,
+                      }}
+                      {...register("pincode", {
+                        onChange: (e) => {
+                          e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        },
+                      })}
                       error={!!errors.pincode}
                       helperText={errors.pincode?.message}
                     />
-
-                    {/* Empty space on desktop for better balance */}
-
-                    <div className="hidden md:block"></div>
 
                   </div>
 
@@ -806,6 +843,7 @@ function RegistrationForm() {
                   <TextField
                     label="FAI ID"
                     fullWidth
+                    required
                     {...register("faiId")}
                     error={!!errors.faiId}
                     helperText={errors.faiId?.message}
@@ -814,6 +852,7 @@ function RegistrationForm() {
                   <TextField
                     label="MFA ID"
                     fullWidth
+                    required
                     {...register("mfaId")}
                     error={!!errors.mfaId}
                     helperText={errors.mfaId?.message}
@@ -879,7 +918,8 @@ function RegistrationForm() {
                       <input
                         hidden
                         type="file"
-                        accept="image/*"
+                        required
+                        accept="image/jpeg,image/png"
                         disabled={loading}
                         onChange={handlePhotoChange}
                       />
@@ -940,7 +980,8 @@ function RegistrationForm() {
                       <input
                         hidden
                         type="file"
-                        accept=".jpg,.jpeg,.png,.pdf"
+                        required
+                        accept="image/jpeg,image/png,application/pdf"
                         disabled={loading}
                         onChange={handleAadhaarChange}
                       />
@@ -970,38 +1011,18 @@ function RegistrationForm() {
 
                   </div>
 
+
                 </div>
-
-                {/* Upload Progress */}
-
-                {loading && uploadProgress > 0 && (
-
-                  <div className="mt-8">
-
-                    <div className="flex justify-between text-sm font-medium mb-2">
-
-                      <span>
-                        Uploading Files...
-                      </span>
-
-                      <span>
-                        {uploadProgress}%
-                      </span>
-
-                    </div>
-
-                    <LinearProgress
-                      variant="determinate"
-                      value={uploadProgress}
-                      sx={{
-                        height: 10,
-                        borderRadius: 5,
-                      }}
-                    />
-
-                  </div>
-
-                )}
+                <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-sm leading-6 text-gray-600">
+                    <span className="font-semibold text-gray-800">
+                      Privacy:
+                    </span>{" "}
+                    Your registration details and uploaded documents are used for
+                    player registration and club administration. Please make sure
+                    the information and documents you provide are accurate.
+                  </p>
+                </div>
 
               </Paper>
               {/* ================= ALERTS ================= */}
