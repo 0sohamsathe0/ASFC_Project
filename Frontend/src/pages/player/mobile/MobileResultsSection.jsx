@@ -10,7 +10,7 @@ import MobileResultCard from "./MobileResultCard";
 
 const MobileResultsSection = ({
   title,
-  results
+  results,
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -18,51 +18,74 @@ const MobileResultsSection = ({
     <motion.section
       initial={{ opacity: 0, y: 25 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-3xl bg-white shadow-lg overflow-hidden"
+      className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg shadow-slate-200/50"
     >
+
       {/* Header */}
 
       <button
+        type="button"
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-5 flex justify-between items-center"
+        aria-expanded={expanded}
+        className="flex w-full items-center justify-between p-5 text-left transition-colors hover:bg-blue-50/40 focus:outline-none focus:ring-4 focus:ring-blue-500/10"
       >
-        <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+
+        <div className="flex min-w-0 items-center gap-4">
+
+          {/* Trophy Icon */}
+
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50">
+
             <Trophy
               size={22}
-              className="text-purple-700"
+              className="text-blue-600"
             />
+
           </div>
 
-          <div className="text-left">
-            <h2 className="text-lg font-bold text-gray-900">
+          {/* Title */}
+
+          <div className="min-w-0">
+
+            <h2 className="break-words text-lg font-bold text-slate-900">
               {title}
             </h2>
 
-            <p className="text-sm text-gray-500">
+            <p className="mt-0.5 text-xs text-slate-500">
               {results.length} Result
               {results.length !== 1 && "s"}
             </p>
+
           </div>
+
         </div>
 
-        <div className="rounded-xl bg-gray-100 p-2">
+        {/* Expand Button */}
+
+        <div
+          className={`ml-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors ${
+            expanded
+              ? "bg-blue-100 text-blue-600"
+              : "bg-slate-100 text-slate-600"
+          }`}
+        >
+
           {expanded ? (
-            <ChevronUp
-              size={20}
-              className="text-gray-700"
-            />
+            <ChevronUp size={19} />
           ) : (
-            <ChevronDown
-              size={20}
-              className="text-gray-700"
-            />
+            <ChevronDown size={19} />
           )}
+
         </div>
+
       </button>
 
-      <AnimatePresence>
+      {/* Results */}
+
+      <AnimatePresence initial={false}>
+
         {expanded && (
+
           <motion.div
             initial={{
               height: 0,
@@ -81,40 +104,58 @@ const MobileResultsSection = ({
             }}
             className="overflow-hidden"
           >
-            <div className="px-5 pb-5">
+
+            <div className="border-t border-slate-100 px-5 pb-5 pt-4">
+
               {results.length > 0 ? (
+
                 <div className="space-y-5">
+
                   {results.map((result) => (
                     <MobileResultCard
                       key={result._id}
                       result={result}
                     />
                   ))}
+
                 </div>
+
               ) : (
-                <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-purple-100">
+
+                /* Empty State */
+
+                <div className="rounded-2xl border border-dashed border-blue-200 bg-blue-50/50 p-8 text-center">
+
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+
                     <Trophy
-                      size={28}
-                      className="text-purple-700"
+                      size={27}
+                      className="text-blue-600"
                     />
+
                   </div>
 
-                  <h3 className="mt-4 text-lg font-semibold text-gray-800">
+                  <h3 className="mt-4 text-lg font-semibold text-slate-800">
                     No Results Yet
                   </h3>
 
-                  <p className="mt-2 text-sm leading-6 text-gray-500">
-                    Your tournament results will
-                    appear here once competitions
-                    are completed.
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    Your tournament results will appear here once
+                    competitions are completed.
                   </p>
+
                 </div>
+
               )}
+
             </div>
+
           </motion.div>
+
         )}
+
       </AnimatePresence>
+
     </motion.section>
   );
 };

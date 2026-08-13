@@ -11,6 +11,7 @@ import LoadingScreen from "./components/common/loadingState.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import ServerMonitor from "./components/common/ServerMonitor.jsx";
+import PlayerRoute from "./pages/player/PlayerRoute.jsx";
 
 
 // Lazy Loaded Pages
@@ -76,7 +77,12 @@ function App() {
           {/* Player Routes */}
           <Route path="/player/login" element={<Login />} />
           <Route path="/player/register" element={<Register />} />
-          <Route path="/player/profile" element={<PlayerProfile />} />
+
+          <Route path="/player/profile" element={
+            <PlayerRoute>
+            <PlayerProfile />
+            </PlayerRoute>
+            } />
           <Route
             path="/player/edit/:playerId"
             element={<EditPlayerProfile />}

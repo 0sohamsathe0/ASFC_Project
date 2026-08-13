@@ -12,6 +12,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
+    alert("logout Sucessfully")
     setIsMenuOpen(false);
     navigate("/");
   };
