@@ -12,13 +12,18 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-transporter.verify((error, success) => {
+console.log("🔥 NODEMAILER SERVICE LOADED");
+console.log("EMAIL_ID exists:", !!process.env.EMAIL_ID);
+console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+
+transporter.verify((error) => {
     if (error) {
-        console.error("Transporter error:", error);
+        console.error("❌ NODEMAILER VERIFY FAILED:", error);
     } else {
-        console.log("transponder is ready to send mail")
+        console.log("✅ NODEMAILER SMTP CONNECTION READY");
     }
 });
+
 
 
 const sendAcceptedMail = async (recipientName, recipientEmail) => {
