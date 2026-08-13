@@ -1,5 +1,8 @@
 import nodemailer from 'nodemailer';
 import dotenv from "dotenv";
+import dns from "node:dns/promises";
+import net from "node:net";
+
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
@@ -36,7 +39,44 @@ transporter.verify()
         console.error("Message:", error.message);
     });
 
+const testSMTPConnection = async () => {
+    try {
+        const addresses = await dns.resolve4("smtp.gmail.com");
 
+        console.log("🌐 Gmail IPv4 addresses:", addresses);
+
+        const socket = net.createConnection({
+            host: addresses[0],
+            port: 587,
+            family: 4,
+            timeout: 10000,
+        });
+
+        socket.on("connect", () => {
+            console.log("✅ TCP CONNECTION TO GMAIL:587 SUCCESS");
+            socket.destroy();
+        });
+
+        socket.on("timeout", () => {
+            console.error("❌ TCP CONNECTION TIMEOUT");
+            socket.destroy();
+        });
+
+        socket.on("error", (err) => {
+            console.error("❌ TCP CONNECTION FAILED");
+            console.error("Code:", err.code);
+            console.error("Message:", err.message);
+            console.error("Address:", err.address);
+            console.error("Port:", err.port);
+        });
+
+    } catch (error) {
+        console.error("❌ DNS LOOKUP FAILED");
+        console.error(error);
+    }
+};
+
+testSMTPConnection();
 
 const sendAcceptedMail = async (recipientName, recipientEmail) => {
     try {
