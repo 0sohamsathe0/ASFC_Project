@@ -114,23 +114,52 @@ const rejectPlayer = async (req, res) => {
     const { playerId, reason } = req.body;
 
     const player = await Player.findById(playerId);
+
     if (!player) {
       return res.status(404).json({
         success: false,
         message: "Player not found",
       });
     }
-    await Player.findByIdAndUpdate(playerId, { requestStatus: "Rejected", rejectionReason: reason, isEditable: true });
 
-    await sendRejectionMail(player.fullName, player.email, reason)
+    await Player.findByIdAndUpdate(
+      playerId,
+      {
+        requestStatus: "Rejected",
+        rejectionReason: reason,
+        isEditable: true,
+      }
+    );
 
-    res.status(200).json({
+    let emailStatus = true;
+
+    try {
+      const mailResult = await sendRejectionMail(
+        player.fullName,
+        player.email,
+        reason
+      );
+
+      if (!mailResult?.success) {
+        emailStatus = false;
+      }
+    } catch (mailError) {
+      console.error("Rejection email sending failed:", mailError);
+      emailStatus = false;
+    }
+
+    return res.status(200).json({
       success: true,
-      message: "Player rejected successfully",
+      emailSent: emailStatus,
+      message: emailStatus
+        ? "Player rejected successfully and notification email sent."
+        : "Player rejected successfully, but notification email could not be delivered.",
     });
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+
+    return res.status(500).json({
       success: false,
       message: "Server Error",
     });

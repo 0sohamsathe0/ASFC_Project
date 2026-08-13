@@ -43,7 +43,7 @@ const sendAcceptedMail = async (recipientName, recipientEmail) => {
                         <p>Congratulations! You have been <b>accepted</b> into the <b>All-Star Fencing Club</b>. 🏆</p>
                         <p>We are excited to have you on board and look forward to seeing you in action!</p>
                         <p><b>For login use you AadharCardNumber and birth date as id password </b></p>
-                        <a href="https://yourwebsite.com/dashboard" style="display: inline-block; padding: 12px 25px; margin-top: 20px; background: #0051a8; color: white; text-decoration: none; font-size: 18px; border-radius: 5px; font-weight: bold;">Go to Dashboard</a>
+                        <a href="https://all-star-fencing-club.vercel.app/" style="display: inline-block; padding: 12px 25px; margin-top: 20px; background: #0051a8; color: white; text-decoration: none; font-size: 18px; border-radius: 5px; font-weight: bold;">Go to Dashboard</a>
                     </div>
                     <div style="text-align: center; padding: 10px; font-size: 14px; color: #777;">
                         <p>📍 All-Star Fencing Club | ⚔️ Train with the Best</p>
@@ -53,100 +53,130 @@ const sendAcceptedMail = async (recipientName, recipientEmail) => {
             </div>
         `,
         });
-        if(info.rejected.length > 0) { return { success: false,};}
 
         return {
             success: true,
         };
 
     } catch (err) {
+    console.error("❌ EMAIL SEND FAILED");
+    console.error("Error code:", err.code);
+    console.error("Error command:", err.command);
+    console.error("Error response:", err.response);
+    console.error("Error message:", err.message);
 
     return {
-      success: false,
-      error: err.message,
+        success: false,
+        error: err.message,
     };
-  }
+}
 
 };
 
-const sendRejectionMail = async ( recipientName,recipientEmail,rejectionReason) => {
-    const info = await transporter.sendMail({
-        from: process.env.EMAIL_ID,
-        to: recipientEmail,
-        subject: "⚔️ Thank You for Applying – Keep Training!",
-        html: `
-            <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-                <div style="max-width: 600px; background: #ffffff; margin: auto; padding: 20px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+const sendRejectionMail = async (
+    recipientName,
+    recipientEmail,
+    rejectionReason
+) => {
+    try {
+        const info = await transporter.sendMail({
+            from: process.env.EMAIL_ID,
+            to: recipientEmail,
+            subject: "⚔️ Thank You for Applying – Keep Training!",
+            html: `
+                <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                    <div style="max-width: 600px; background: #ffffff; margin: auto; padding: 20px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
 
-                    <div style="text-align: center; padding: 20px; background: #d9534f; color: white; border-radius: 8px 8px 0 0;">
-                        <h1>⚔️ Thank You for Applying</h1>
-                    </div>
+                        <div style="text-align: center; padding: 20px; background: #d9534f; color: white; border-radius: 8px 8px 0 0;">
+                            <h1>⚔️ Thank You for Applying</h1>
+                        </div>
 
-                    <div style="padding: 20px; text-align: center; color: #333;">
-                        <p>Dear <b>${recipientName}</b>,</p>
+                        <div style="padding: 20px; text-align: center; color: #333;">
+                            <p>Dear <b>${recipientName}</b>,</p>
 
-                        <p>
-                            We sincerely appreciate your interest in joining the
-                            <b>All-Star Fencing Club</b>.
-                        </p>
+                            <p>
+                                We sincerely appreciate your interest in joining the
+                                <b>All-Star Fencing Club</b>.
+                            </p>
 
-                        <p>
-                            Unfortunately, after careful consideration, we are unable
-                            to offer you a spot at this time.
-                        </p>
+                            <p>
+                                Unfortunately, after careful consideration, we are unable
+                                to offer you a spot at this time.
+                            </p>
 
-                        <p style="margin-top:20px;">
-                            <span style="font-size:16px;">Reason for rejection:</span>
-                        </p>
+                            <p style="margin-top:20px;">
+                                <span style="font-size:16px;">Reason for rejection:</span>
+                            </p>
 
-                        <p style="
-                            font-size:18px;
-                            font-weight:bold;
-                            color:#d9534f;
-                            background:#fff3f3;
-                            padding:12px;
-                            border-radius:6px;
-                            border-left:5px solid #d9534f;
-                        ">
-                            ${rejectionReason}
-                        </p>
+                            <p style="
+                                font-size:18px;
+                                font-weight:bold;
+                                color:#d9534f;
+                                background:#fff3f3;
+                                padding:12px;
+                                border-radius:6px;
+                                border-left:5px solid #d9534f;
+                            ">
+                                ${rejectionReason}
+                            </p>
 
-                        <p>
-                            This does not reflect your potential, and we encourage
-                            you to keep training and apply again in the future.
-                        </p>
+                            <p>
+                                This does not reflect your potential, and we encourage
+                                you to keep training and apply again in the future.
+                            </p>
 
-                        <a href="https://yourwebsite.com/training-resources"
-                           style="
-                               display:inline-block;
-                               padding:12px 25px;
-                               margin-top:20px;
-                               background:#5bc0de;
-                               color:white;
-                               text-decoration:none;
-                               font-size:18px;
-                               border-radius:5px;
-                               font-weight:bold;
-                           ">
-                           Edit Profile
-                        </a>
-                    </div>
-
-                    <div style="text-align: center; padding: 10px; font-size: 14px; color: #777;">
-                        <p>📍 All-Star Fencing Club | ⚔️ Keep Pushing Forward</p>
-                        <p>
-                            Have questions? Contact us at
-                            <a href="mailto:support@allstarfencingclub.com">
-                                support@allstarfencingclub.com
+                            <a href="https://all-star-fencing-club.vercel.app/"
+                               style="
+                                   display:inline-block;
+                                   padding:12px 25px;
+                                   margin-top:20px;
+                                   background:#5bc0de;
+                                   color:white;
+                                   text-decoration:none;
+                                   font-size:18px;
+                                   border-radius:5px;
+                                   font-weight:bold;
+                               ">
+                               Visit Club Website
                             </a>
-                        </p>
+                        </div>
+
+                        <div style="text-align: center; padding: 10px; font-size: 14px; color: #777;">
+                            <p>📍 All-Star Fencing Club | ⚔️ Keep Pushing Forward</p>
+                            <p>
+                                Have questions? Contact us at
+                                <a href="mailto:support@allstarfencingclub.com">
+                                    support@allstarfencingclub.com
+                                </a>
+                            </p>
+                        </div>
+
                     </div>
-
                 </div>
-            </div>
-        `,
-    });
+            `,
+        });
 
+        console.log("✅ REJECTION EMAIL SENT SUCCESSFULLY");
+        console.log("Message ID:", info.messageId);
+        console.log("Rejected recipient:", recipientEmail);
+
+        return {
+            success: true,
+            messageId: info.messageId,
+        };
+
+    } catch (err) {
+        console.error("❌ REJECTION EMAIL SEND FAILED");
+        console.error("Code:", err.code);
+        console.error("Command:", err.command);
+        console.error("Response:", err.response);
+        console.error("Message:", err.message);
+
+        return {
+            success: false,
+            error: err.message,
+        };
+    }
 };
 
 export { sendAcceptedMail, sendRejectionMail }

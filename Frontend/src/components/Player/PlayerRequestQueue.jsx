@@ -32,36 +32,39 @@ function PlayerRequestQueue() {
         `/admin/acceptPlayer/${playerId}`
       );
 
+      // Remove immediately from pending list
+      setPlayers((prev) =>
+        prev.filter((player) => player._id !== playerId)
+      );
+
       setSnackbar({
         open: true,
         severity: res.data.emailSent ? "success" : "warning",
-        message: res.data.message,
+        message:
+          res.data.message ||
+          (res.data.emailSent
+            ? "Player accepted and confirmation email sent."
+            : "Player accepted, but confirmation email could not be sent."),
       });
 
-      await fetchRequests();
-
     } catch (err) {
-
       setSnackbar({
         open: true,
         severity: "error",
         message:
           err.response?.data?.message ||
-          "Something went wrong",
+          "Unable to approve player.",
       });
-
     } finally {
-
       setLoadingPlayerId(null);
       setLoadingAction("");
-
     }
   };
 
   const handleReject = async () => {
+    if (!selectedPlayer) return;
 
     try {
-
       setLoadingPlayerId(selectedPlayer._id);
       setLoadingAction("reject");
 
@@ -73,32 +76,38 @@ function PlayerRequestQueue() {
         }
       );
 
+      // Remove immediately from pending list
+      setPlayers((prev) =>
+        prev.filter(
+          (player) => player._id !== selectedPlayer._id
+        )
+      );
+
       setSnackbar({
         open: true,
-        severity: "success",
-        message: res.data.message,
+        severity: res.data.emailSent ? "success" : "warning",
+        message:
+          res.data.message ||
+          (res.data.emailSent
+            ? "Player rejected and notification email sent."
+            : "Player rejected, but notification email could not be sent."),
       });
 
       setShowModal(false);
       setRejectReason("");
-
-      await fetchRequests();
+      setSelectedPlayer(null);
 
     } catch (err) {
-
       setSnackbar({
         open: true,
         severity: "error",
         message:
           err.response?.data?.message ||
-          "Something went wrong",
+          "Unable to reject player.",
       });
-
     } finally {
-
       setLoadingPlayerId(null);
       setLoadingAction("");
-
     }
   };
 
@@ -172,15 +181,18 @@ function PlayerRequestQueue() {
                 <td className="p-4 flex gap-3">
                   <button
                     disabled={loadingPlayerId === player._id}
-                    className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-4 py-1 rounded-md text-sm flex items-center justify-center min-w-[100px]"
+                    className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-1 rounded-md text-sm flex items-center justify-center min-w-[110px]"
                     onClick={handleApprove(player._id)}
                   >
                     {loadingPlayerId === player._id &&
                       loadingAction === "approve" ? (
-                      <CircularProgress
-                        size={18}
-                        sx={{ color: "white" }}
-                      />
+                      <>
+                        <CircularProgress
+                          size={16}
+                          sx={{ color: "white", mr: 1 }}
+                        />
+                        Approving...
+                      </>
                     ) : (
                       "Approve"
                     )}
@@ -188,7 +200,7 @@ function PlayerRequestQueue() {
 
                   <button
                     disabled={loadingPlayerId === player._id}
-                    className=" bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-4 py-1 rounded-md text-sm flex items-center justify-center min-w-[100px]"
+                    className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-1 rounded-md text-sm flex items-center justify-center min-w-[110px]"
                     onClick={() => {
                       setSelectedPlayer(player);
                       setShowModal(true);
@@ -196,10 +208,13 @@ function PlayerRequestQueue() {
                   >
                     {loadingPlayerId === player._id &&
                       loadingAction === "reject" ? (
-                      <CircularProgress
-                        size={18}
-                        sx={{ color: "white" }}
-                      />
+                      <>
+                        <CircularProgress
+                          size={16}
+                          sx={{ color: "white", mr: 1 }}
+                        />
+                        Rejecting...
+                      </>
                     ) : (
                       "Reject"
                     )}
