@@ -19,13 +19,22 @@ console.log("🔥 NODEMAILER SERVICE LOADED");
 console.log("EMAIL_ID exists:", !!process.env.EMAIL_ID);
 console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
 
-transporter.verify((error) => {
-    if (error) {
-        console.error("❌ NODEMAILER VERIFY FAILED:", error);
-    } else {
+console.log("🔥 NODEMAILER SERVICE LOADED");
+console.log("EMAIL_ID exists:", !!process.env.EMAIL_ID);
+console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+
+transporter.verify()
+    .then(() => {
         console.log("✅ NODEMAILER SMTP CONNECTION READY");
-    }
-});
+    })
+    .catch((error) => {
+        console.error("❌ NODEMAILER VERIFY FAILED");
+        console.error("Code:", error.code);
+        console.error("Command:", error.command);
+        console.error("Address:", error.address);
+        console.error("Port:", error.port);
+        console.error("Message:", error.message);
+    });
 
 
 
