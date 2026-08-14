@@ -1,6 +1,6 @@
 import Player from "../models/player-model.js";
 import jwt from "jsonwebtoken";
-import { sendAcceptedMail, sendRejectionMail } from "../utils/nodemailer.js";
+import { sendAcceptedMail, sendRejectionMail } from "../utils/emailService.js";
 
 const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
@@ -74,7 +74,7 @@ const acceptPlayer = async (req, res) => {
     }
 
     await Player.findByIdAndUpdate(playerId, { $set: { requestStatus: "Accepted", isEditable: true, rejectionReason: "" } });
-    let emailStatus = true;
+    let emailStatus = false;
 
     try {
       const mailResult = await sendAcceptedMail(
@@ -82,8 +82,8 @@ const acceptPlayer = async (req, res) => {
         player.email
       );
 
-      if (!mailResult.success) {
-        emailStatus = false;
+      if (mailResult.success) {
+        emailStatus = true;
       }
 
     } catch (mailError) {
@@ -131,7 +131,7 @@ const rejectPlayer = async (req, res) => {
       }
     );
 
-    let emailStatus = true;
+    let emailStatus = false;
 
     try {
       const mailResult = await sendRejectionMail(
@@ -140,8 +140,8 @@ const rejectPlayer = async (req, res) => {
         reason
       );
 
-      if (!mailResult?.success) {
-        emailStatus = false;
+      if (mailResult?.success) {
+        emailStatus = true;
       }
     } catch (mailError) {
       console.error("Rejection email sending failed:", mailError);
