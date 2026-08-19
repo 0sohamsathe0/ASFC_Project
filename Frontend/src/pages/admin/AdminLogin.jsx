@@ -4,10 +4,12 @@ import { ShieldCheck, ArrowRight, LockKeyhole } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../components/api";
+import useIsDesktop from "../../hooks/useIsDesktop";
 
 const AdminLogin = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const isDesktop = useIsDesktop();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -48,7 +50,7 @@ const AdminLogin = () => {
 
       login(res.data.user);
 
-      navigate("/admin/dashboard");
+      navigate(isDesktop ? "/admin/dashboard" : "/admin/attendance/mark");
     } catch (error) {
       console.error("Admin Login Error:", error);
 

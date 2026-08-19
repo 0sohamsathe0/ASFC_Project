@@ -8,6 +8,7 @@ import MobileIdentity from "./MobileIdentity";
 import MobileResults from "./MobileResults";
 import MobileLogout from "./MobileLogout";
 import AadhaarPreview from "../AadhaarPreview";
+import PlayerAttendance from "../../../components/Attendance/PlayerAttendance";
 
 const MobileProfile = ({
   player,
@@ -43,6 +44,8 @@ const MobileProfile = ({
           />
 
           <MobilePersonalInfo player={player} />
+
+          <PlayerAttendance />
 
           <MobileUpcoming upcomingTournaments={upcomingTournaments} />
 

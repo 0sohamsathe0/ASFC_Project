@@ -3,6 +3,7 @@ import { upload } from "../middlewares/multer-middleware.js";
 import  verifyJWT  from "../middlewares/auth-middleware.js";
 import authorizeRoles from "../middlewares/authorizeRoles.js"
 import { addPlayer , getPlayers, loginPlayer,getPlayerProfile, logoutPlayer, updatePlayer} from "../controllers/player-controller.js";
+import { getPlayerAttendance } from "../controllers/attendance-controller.js";
 
 const playerRouter = Router();
 
@@ -14,6 +15,7 @@ playerRouter.post("/login", loginPlayer);
 playerRouter.post("/logout",verifyJWT,authorizeRoles("player","admin"), logoutPlayer);
 
 playerRouter.get("/profile", verifyJWT,authorizeRoles('player'),getPlayerProfile);
+playerRouter.get("/attendance", verifyJWT, authorizeRoles("player"), getPlayerAttendance);
 
 
 export default playerRouter;

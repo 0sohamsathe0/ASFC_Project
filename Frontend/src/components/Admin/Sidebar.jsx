@@ -5,7 +5,7 @@ const Sidebar = () => {
   const [openPlayers, setOpenPlayers] = useState(false);
   const [openTournament, setOpenTournament] = useState(false);
   const [openResults, setOpenResults] = useState(false);
-  const [openCertificates, setOpenCertificates] = useState(false);
+  const [openAttendance, setOpenAttendance] = useState(false);
 
   const linkStyle = ({ isActive }) =>
     `p-3 rounded block hover:bg-slate-700 ${
@@ -91,6 +91,27 @@ const Sidebar = () => {
 
             <NavLink to="/admin/dashboard/team-results" className={linkStyle}>
               Team Results
+            </NavLink>
+          </div>
+        )}
+
+        {/* ATTENDANCE */}
+        <button
+          onClick={() => setOpenAttendance(!openAttendance)}
+          className="p-3 rounded hover:bg-slate-700 flex justify-between items-center"
+        >
+          Attendance
+          <span>{openAttendance ? "▲" : "▼"}</span>
+        </button>
+
+        {openAttendance && (
+          <div className="flex flex-col ml-4 space-y-2 text-sm">
+            <NavLink to="/admin/attendance/mark" className={linkStyle}>
+              Mark Attendance
+            </NavLink>
+
+            <NavLink to="/admin/attendance/records" className={linkStyle}>
+              Attendance Records
             </NavLink>
           </div>
         )}
