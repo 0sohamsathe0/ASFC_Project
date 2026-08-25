@@ -6,6 +6,7 @@ import {
   deleteAttendance,
   getAdminAttendance,
   getMarkingState,
+  getMonthlyAttendance,
   markAttendance,
   updateAttendance,
 } from "../controllers/attendance-controller.js";
@@ -21,6 +22,7 @@ adminRouter.patch("/rejectPlayer",verifyJWT,authorizeRoles('admin'),rejectPlayer
 adminRouter.patch("/makePending",verifyJWT,authorizeRoles('admin'),makeEveryonePending)
 
 adminRouter.get("/attendance/marking-state", verifyJWT, authorizeRoles("admin"), getMarkingState);
+adminRouter.get("/attendance/monthly", verifyJWT, authorizeRoles("admin"), getMonthlyAttendance);
 adminRouter.post("/attendance", verifyJWT, authorizeRoles("admin"), markAttendance);
 adminRouter.get("/attendance", verifyJWT, authorizeRoles("admin"), getAdminAttendance);
 adminRouter.patch("/attendance/:id", verifyJWT, authorizeRoles("admin"), updateAttendance);
