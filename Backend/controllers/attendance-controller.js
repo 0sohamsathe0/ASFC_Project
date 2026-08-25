@@ -369,6 +369,13 @@ const getPlayerAttendance = async (req, res) => {
       });
     }
 
+    if (month === undefined && (startDate === undefined || endDate === undefined)) {
+      return res.status(400).json({
+        success: false,
+        message: "A month or a complete startDate and endDate range is required.",
+      });
+    }
+
     if (month !== undefined && !isValidAttendanceMonth(month)) {
       return res.status(400).json({
         success: false,
@@ -415,14 +422,8 @@ const getPlayerAttendance = async (req, res) => {
 
     const attendanceRecords = await Attendance.find(filter)
       .select("date session status markedAt createdAt updatedAt")
+      .sort({ date: -1, session: 1 })
       .lean();
-
-    const sessionOrder = { Morning: 0, Evening: 1 };
-    attendanceRecords.sort((first, second) => {
-      const dateDifference = second.date.localeCompare(first.date);
-      if (dateDifference !== 0) return dateDifference;
-      return sessionOrder[first.session] - sessionOrder[second.session];
-    });
 
     const presentCount = attendanceRecords.filter(
       (record) => record.status === "Present"
