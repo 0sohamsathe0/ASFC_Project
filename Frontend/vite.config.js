@@ -10,7 +10,7 @@ export default defineConfig({
 
     visualizer({
       filename: "dist/stats.html",
-      open: true,
+      open: process.env.ANALYZE === "true",
       gzipSize: true,
       brotliSize: true,
       template: "treemap",

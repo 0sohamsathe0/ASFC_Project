@@ -4,11 +4,12 @@ import "@fontsource/merriweather/900.css";
 import "@fontsource/playfair-display/700.css";
 
 import { lazy, Suspense } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Navigate, Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import LoadingScreen from "./components/common/loadingState.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
+import AdminAttendanceRoute from "./pages/admin/AdminAttendanceRoute.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import ServerMonitor from "./components/common/ServerMonitor.jsx";
 import PlayerRoute from "./pages/player/PlayerRoute.jsx";
@@ -45,6 +46,11 @@ const TournamentEntry = lazy(() =>import("./components/Tournament/TournamentEntr
 // Result Components
 const IndividualResult = lazy(() =>import("./components/Result/IndividualResult.jsx"));
 const TeamResult = lazy(() =>import("./components/Result/TeamResult.jsx"));
+
+// Attendance Components
+const MarkAttendance = lazy(() =>import("./components/Attendance/MarkAttendance.jsx"));
+const AttendanceRecords = lazy(() =>import("./components/Attendance/AttendanceRecords.jsx"));
+const AttendanceLayout = lazy(() =>import("./components/Attendance/AttendanceLayout.jsx"));
 
 // Certificate Components
 const MeritCertificates = lazy(() =>import("./components/Certificate/MeritCertificates.jsx"));
@@ -90,6 +96,20 @@ function App() {
 
           {/* Admin Login */}
           <Route path="/admin/login" element={<AdminLogin />} />
+
+          {/* Mobile and desktop attendance workspace */}
+          <Route
+            path="/admin/attendance"
+            element={
+              <AdminAttendanceRoute>
+                <AttendanceLayout />
+              </AdminAttendanceRoute>
+            }
+          >
+            <Route index element={<Navigate to="mark" replace />} />
+            <Route path="mark" element={<MarkAttendance />} />
+            <Route path="records" element={<AttendanceRecords />} />
+          </Route>
 
           {/* Protected Admin Routes */}
           <Route

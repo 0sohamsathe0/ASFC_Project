@@ -2,6 +2,7 @@ import React from "react";
 import MeritCertificates from "../../components/Certificate/MeritCertificates.jsx";
 import ResultsSection from "../../components/Player/ResultsSection.jsx";
 import { FileBadge2, Eye, LogOut, CalendarDays, Trophy, ShieldCheck } from "lucide-react";
+import PlayerAttendance from "../../components/Attendance/PlayerAttendance.jsx";
 
 const DesktopProfile = ({
   player,
@@ -483,6 +484,12 @@ const DesktopProfile = ({
                 </div>
 
               </div>
+
+              {/* =================================================
+                  ATTENDANCE
+              ================================================== */}
+
+              <PlayerAttendance />
 
               {/* =================================================
                   RESULTS
