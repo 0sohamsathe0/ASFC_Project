@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Attendance from "../models/attendance-model.js";
 import Player from "../models/player-model.js";
 import {
+  getAttendanceMonthDetails,
   getMonthDateRange,
   isValidAttendanceDate,
   isValidAttendanceMonth,
@@ -265,6 +266,67 @@ const getAdminAttendance = async (req, res) => {
   }
 };
 
+const getMonthlyAttendance = async (req, res) => {
+  try {
+    const monthDetails = getAttendanceMonthDetails(req.query.year, req.query.month);
+
+    if (!monthDetails) {
+      return res.status(400).json({
+        success: false,
+        message: "year must be between 1 and 9999 and month must be between 1 and 12.",
+      });
+    }
+
+    const { year, month, daysInMonth, startDate, endDate } = monthDetails;
+    const players = await Player.find({ requestStatus: "Accepted" })
+      .select("fullName event gender")
+      .sort({ fullName: 1 })
+      .collation({ locale: "en", strength: 2 })
+      .lean();
+    const playerIds = players.map((player) => player._id);
+    const attendanceRecords = playerIds.length
+      ? await Attendance.find({
+        playerId: { $in: playerIds },
+        date: { $gte: startDate, $lte: endDate },
+      })
+        .select("playerId date session status")
+        .lean()
+      : [];
+
+    const attendanceByPlayer = new Map();
+    attendanceRecords.forEach((record) => {
+      const playerId = record.playerId.toString();
+      const playerAttendance = attendanceByPlayer.get(playerId) || {};
+      const dayAttendance = playerAttendance[record.date] || {};
+
+      dayAttendance[record.session] = record.status;
+      playerAttendance[record.date] = dayAttendance;
+      attendanceByPlayer.set(playerId, playerAttendance);
+    });
+
+    return res.status(200).json({
+      success: true,
+      year,
+      month,
+      daysInMonth,
+      count: players.length,
+      players: players.map((player) => ({
+        _id: player._id,
+        fullName: player.fullName,
+        event: player.event,
+        gender: player.gender,
+        attendance: attendanceByPlayer.get(player._id.toString()) || {},
+      })),
+    });
+  } catch (error) {
+    console.error("Get Monthly Attendance Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error while retrieving the monthly attendance register.",
+    });
+  }
+};
+
 const updateAttendance = async (req, res) => {
   try {
     const { id } = req.params;
@@ -458,6 +520,7 @@ export {
   deleteAttendance,
   getAdminAttendance,
   getMarkingState,
+  getMonthlyAttendance,
   getPlayerAttendance,
   markAttendance,
   updateAttendance,

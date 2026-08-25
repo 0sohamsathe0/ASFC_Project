@@ -64,6 +64,34 @@ const getMonthDateRange = (monthValue) => {
   };
 };
 
+const getAttendanceMonthDetails = (yearValue, monthValue) => {
+  const year = Number(yearValue);
+  const month = Number(monthValue);
+
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    year < 1 ||
+    year > 9999 ||
+    month < 1 ||
+    month > 12 ||
+    String(yearValue).trim() !== String(year) ||
+    String(monthValue).trim() !== String(month)
+  ) {
+    return null;
+  }
+
+  const monthKey = `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}`;
+  const range = getMonthDateRange(monthKey);
+
+  return {
+    year,
+    month,
+    daysInMonth: daysInMonth(year, month),
+    ...range,
+  };
+};
+
 const isValidAttendanceSession = (value) =>
   ATTENDANCE_SESSIONS.includes(value);
 
@@ -73,6 +101,7 @@ const isValidAttendanceStatus = (value) =>
 export {
   ATTENDANCE_SESSIONS,
   ATTENDANCE_STATUSES,
+  getAttendanceMonthDetails,
   getMonthDateRange,
   isValidAttendanceDate,
   isValidAttendanceMonth,

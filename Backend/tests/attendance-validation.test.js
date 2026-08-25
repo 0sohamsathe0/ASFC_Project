@@ -2,12 +2,30 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  getAttendanceMonthDetails,
   getMonthDateRange,
   isValidAttendanceDate,
   isValidAttendanceMonth,
   isValidAttendanceSession,
   isValidAttendanceStatus,
 } from "../utils/attendance-validation.js";
+
+test("validates numeric monthly register parameters and month lengths", () => {
+  assert.deepEqual(getAttendanceMonthDetails("2026", "1"), {
+    year: 2026,
+    month: 1,
+    daysInMonth: 31,
+    startDate: "2026-01-01",
+    endDate: "2026-01-31",
+  });
+  assert.equal(getAttendanceMonthDetails("2026", "2").daysInMonth, 28);
+  assert.equal(getAttendanceMonthDetails("2024", "2").daysInMonth, 29);
+  assert.equal(getAttendanceMonthDetails("2026", "4").daysInMonth, 30);
+  assert.equal(getAttendanceMonthDetails("2026", "13"), null);
+  assert.equal(getAttendanceMonthDetails("0", "1"), null);
+  assert.equal(getAttendanceMonthDetails("2026.5", "8"), null);
+  assert.equal(getAttendanceMonthDetails(undefined, undefined), null);
+});
 
 test("accepts real calendar dates, including leap day", () => {
   assert.equal(isValidAttendanceDate("2026-08-19"), true);

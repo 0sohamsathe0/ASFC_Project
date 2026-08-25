@@ -1,4 +1,4 @@
-import { ClipboardCheck, LayoutDashboard, ListChecks, LogOut } from "lucide-react";
+import { CalendarRange, ClipboardCheck, LayoutDashboard, ListChecks, LogOut } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
@@ -46,6 +46,10 @@ const AttendanceLayout = () => {
               <ListChecks size={17} />
               <span>Records</span>
             </NavLink>
+            <NavLink to="/admin/attendance/monthly" className={linkClass}>
+              <CalendarRange size={17} />
+              <span className="hidden xs:inline sm:inline">Monthly</span>
+            </NavLink>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -69,7 +73,7 @@ const AttendanceLayout = () => {
         </div>
       </header>
 
-      <main>
+      <main className="min-w-0 overflow-x-hidden">
         <Outlet />
       </main>
     </div>

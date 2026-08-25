@@ -51,6 +51,7 @@ const TeamResult = lazy(() =>import("./components/Result/TeamResult.jsx"));
 const MarkAttendance = lazy(() =>import("./components/Attendance/MarkAttendance.jsx"));
 const AttendanceRecords = lazy(() =>import("./components/Attendance/AttendanceRecords.jsx"));
 const AttendanceLayout = lazy(() =>import("./components/Attendance/AttendanceLayout.jsx"));
+const MonthlyAttendance = lazy(() =>import("./components/Attendance/monthly/MonthlyAttendance.jsx"));
 
 // Certificate Components
 const MeritCertificates = lazy(() =>import("./components/Certificate/MeritCertificates.jsx"));
@@ -109,6 +110,7 @@ function App() {
             <Route index element={<Navigate to="mark" replace />} />
             <Route path="mark" element={<MarkAttendance />} />
             <Route path="records" element={<AttendanceRecords />} />
+            <Route path="monthly" element={<MonthlyAttendance />} />
           </Route>
 
           {/* Protected Admin Routes */}

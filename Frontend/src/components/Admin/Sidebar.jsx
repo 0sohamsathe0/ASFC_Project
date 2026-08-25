@@ -113,6 +113,10 @@ const Sidebar = () => {
             <NavLink to="/admin/attendance/records" className={linkStyle}>
               Attendance Records
             </NavLink>
+
+            <NavLink to="/admin/attendance/monthly" className={linkStyle}>
+              Monthly Register
+            </NavLink>
           </div>
         )}
 
