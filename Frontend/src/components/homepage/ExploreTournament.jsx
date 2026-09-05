@@ -1,248 +1,232 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
-import UpcomingRoundedIcon from "@mui/icons-material/UpcomingRounded";
-import HistoryRoundedIcon from "@mui/icons-material/HistoryRounded";
-import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
-import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
-import { CircularProgress } from "@mui/material";
+import { ArrowRight, MapPin } from "lucide-react";
 import { api } from "../api";
+import {
+  PublicPageIntro,
+  PublicButton,
+  PublicDataState,
+} from "../public/PublicUI";
 
-const ExploreTournament = () => {
-    const [loading, setLoading] = useState(true);
-    const [tournaments, setTournaments] = useState([]);
+export default function ExploreTournament() {
+  const [loading, setLoading] = useState(true);
+  const [tournaments, setTournaments] = useState([]);
+  const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": "https://all-star-fencing-club.vercel.app/explore-tournament#page",
+    url: "https://all-star-fencing-club.vercel.app/explore-tournament",
+    name: "Explore Fencing Tournaments | All Star Fencing Club",
+    description:
+      "Explore fencing tournaments in which All Star Fencing Club athletes participate, from district and state competitions to national and international events.",
+    isPartOf: {
+      "@type": "WebSite",
+      "@id": "https://all-star-fencing-club.vercel.app/#website",
+      name: "All Star Fencing Club",
+      url: "https://all-star-fencing-club.vercel.app/",
+    },
+    about: {
+      "@type": "SportsClub",
+      "@id": "https://all-star-fencing-club.vercel.app/#organization",
+      name: "All Star Fencing Club",
+      url: "https://all-star-fencing-club.vercel.app/",
+      sport: "Fencing",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Solapur",
+        addressRegion: "Maharashtra",
+        addressCountry: "IN",
+      },
+    },
+  };
 
-    const structuredData = {
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        "@id": "https://all-star-fencing-club.vercel.app/explore-tournament#page",
-        url: "https://all-star-fencing-club.vercel.app/explore-tournament",
-        name: "Explore Fencing Tournaments | All Star Fencing Club",
-        description:
-            "Explore fencing tournaments in which All Star Fencing Club athletes participate, from district and state competitions to national and international events.",
-        isPartOf: {
-            "@type": "WebSite",
-            "@id": "https://all-star-fencing-club.vercel.app/#website",
-            name: "All Star Fencing Club",
-            url: "https://all-star-fencing-club.vercel.app/",
-        },
-        about: {
-            "@type": "SportsClub",
-            "@id": "https://all-star-fencing-club.vercel.app/#organization",
-            name: "All Star Fencing Club",
-            url: "https://all-star-fencing-club.vercel.app/",
-            sport: "Fencing",
-            address: {
-                "@type": "PostalAddress",
-                addressLocality: "Solapur",
-                addressRegion: "Maharashtra",
-                addressCountry: "IN",
-            },
-        },
+  useEffect(() => {
+    let active = true;
+    api
+      .get("/tournament/all")
+      .then((response) => {
+        if (active) setTournaments(response.data.data || []);
+      })
+      .catch(() => {
+        if (active)
+          setError(
+            "We couldn't load the competition calendar. Please try again.",
+          );
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [attempt]);
+  const retry = () => {
+    setLoading(true);
+    setError("");
+    setAttempt((value) => value + 1);
+  };
+  const { upcoming, completed } = useMemo(() => {
+    const now = new Date();
+
+    const upcoming = [];
+    const completed = [];
+
+    tournaments.forEach((tournament) => {
+      if (new Date(tournament.endDate) >= now) {
+        upcoming.push(tournament);
+      } else {
+        completed.push(tournament);
+      }
+    });
+    const levelOrder = {
+      International: 0,
+      National: 1,
+      State: 2,
+      District: 3,
     };
 
-    useEffect(() => {
-        fetchTournaments();
-    }, []);
+    upcoming.sort((a, b) => {
+      const levelDiff = levelOrder[a.level] - levelOrder[b.level];
 
-    const fetchTournaments = async () => {
-        try {
-            const res = await api.get("/tournament/all");
-            setTournaments(res.data.data || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
+      if (levelDiff !== 0) return levelDiff;
+
+      // Same level → earliest tournament first
+      return new Date(a.startingDate) - new Date(b.startingDate);
+    });
+
+    completed.sort((a, b) => {
+      const levelDiff = levelOrder[a.level] - levelOrder[b.level];
+
+      if (levelDiff !== 0) return levelDiff;
+
+      // Same level → latest tournament first
+      return new Date(b.startingDate) - new Date(a.startingDate);
+    });
+
+    return { upcoming, completed };
+  }, [tournaments]);
+
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
+  const tournamentRow = (tournament) => (
+    <article className="public-tournament-row" key={tournament._id}>
+      <div className="public-date">
+        <p>{formatDate(tournament.startingDate)}</p>
+        <p className="public-small">to {formatDate(tournament.endDate)}</p>
+      </div>
+      <div>
+        <span className="public-pill mb-3">{tournament.level}</span>
+        <h3 className="public-h3">{tournament.title}</h3>
+        <p className="public-small mt-3 flex items-start gap-2">
+          <MapPin size={16} className="shrink-0 mt-0.5" />
+          {[tournament.locationCity, tournament.locationState]
+            .filter(Boolean)
+            .join(", ")}
+        </p>
+      </div>
+    </article>
+  );
+  return (
+    <main id="public-content" className="public-site">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <PublicPageIntro
+        label="Competition calendar"
+        title={
+          <>
+            The next stage.
+            <br />
+            The next challenge.
+          </>
         }
-    };
-
-    const { upcoming, completed } = useMemo(() => {
-        const now = new Date();
-
-        const upcoming = [];
-        const completed = [];
-
-        tournaments.forEach((tournament) => {
-            if (new Date(tournament.endDate) >= now) {
-                upcoming.push(tournament);
-            } else {
-                completed.push(tournament);
-            }
-        });
-        const levelOrder = {
-            International: 0,
-            National: 1,
-            State: 2,
-            District: 3,
-        };
-
-        upcoming.sort((a, b) => {
-            const levelDiff = levelOrder[a.level] - levelOrder[b.level];
-
-            if (levelDiff !== 0) return levelDiff;
-
-            // Same level → earliest tournament first
-            return new Date(a.startingDate) - new Date(b.startingDate);
-        });
-
-        completed.sort((a, b) => {
-            const levelDiff = levelOrder[a.level] - levelOrder[b.level];
-
-            if (levelDiff !== 0) return levelDiff;
-
-            // Same level → latest tournament first
-            return new Date(b.startingDate) - new Date(a.startingDate);
-        });
-
-        return { upcoming, completed };
-    }, [tournaments]);
-
-    const formatDate = (date) =>
-        new Date(date).toLocaleDateString("en-IN", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-        });
-
-    const TournamentCard = ({ tournament }) => (
-        <motion.div
-            whileHover={{ y: -4 }}
-            className="rounded-2xl border border-white/10 bg-white/5 p-6 transition-all"
-        >
-            <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold">{tournament.title}</h3>
-
-                <span className="rounded-full bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-300">
-                    {tournament.level}
-                </span>
-            </div>
-
-            <div className="mt-6 space-y-3 text-slate-300">
-                <div className="flex items-center gap-2">
-                    <LocationOnRoundedIcon fontSize="small" />
-                    <span>
-                        {tournament.locationCity}, {tournament.locationState}
-                    </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <CalendarMonthRoundedIcon fontSize="small" />
-                    <span>
-                        {formatDate(tournament.startingDate)} -{" "}
-                        {formatDate(tournament.endDate)}
-                    </span>
-                </div>
-            </div>
-        </motion.div>
-    );
-
-    return (
+      >
+        <p>
+          Explore fencing tournaments in which All Star Fencing Club athletes
+          participate, from district and state competitions to national and
+          international events.
+        </p>
+      </PublicPageIntro>
+      {loading || error ? (
+        <section className="public-section">
+          <div className="public-container">
+            <PublicDataState
+              kind={loading ? "loading" : "error"}
+              title={loading ? "Loading tournaments…" : "Calendar unavailable"}
+              onRetry={loading ? undefined : retry}
+            >
+              {loading ? "Getting the latest competition information." : error}
+            </PublicDataState>
+          </div>
+        </section>
+      ) : (
         <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(structuredData),
-                }}
-            />
-            <div className="min-h-screen bg-[#07152E] text-white">
-                {/* HERO */}
-
-                <section className="relative overflow-hidden border-b border-white/10">
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:80px_80px]" />
-
-                    <div className="relative mx-auto max-w-7xl px-6 pt-10 pb-14 sm:pt-12 sm:pb-16 lg:pt-14 lg:pb-20">
-                        <motion.div
-                            initial={{ opacity: 0, y: 25 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.7 }}
-                        >
-                            <p className="mb-4 text-sm uppercase tracking-[5px] text-blue-400">
-                                All Star Fencing Club
-                            </p>
-
-                            <h1 className="text-4xl font-black leading-tight sm:text-5xl md:text-6xl lg:text-7xl">
-                                Explore
-                                <br />
-                                <span className="text-blue-500">
-                                    Fencing Tournaments
-                                </span>
-                            </h1>
-
-                            <p className="mt-6 max-w-3xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
-                                Explore fencing tournaments in which All Star Fencing Club
-                                athletes participate, from district and state competitions
-                                to national and international events.
-                            </p>
-
-                            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-400 sm:text-base">
-                                View upcoming competitions and explore completed tournaments,
-                                including tournament dates, locations, and competition levels.
-                            </p>
-                        </motion.div>
-                    </div>
-                </section>
-
-                {loading ? (
-                    <div className="flex h-[60vh] items-center justify-center">
-                        <CircularProgress color="inherit" />
-                    </div>
-                ) : (
-                    <>
-                        {/* Upcoming */}
-                        <section className="mx-auto max-w-7xl px-6 py-16">
-                            <div className="mb-10 flex items-center gap-3">
-                                <UpcomingRoundedIcon className="text-blue-400" />
-                                <h2 className="text-3xl font-bold">
-                                    Upcoming Tournaments
-                                </h2>
-                            </div>
-
-                            {upcoming.length === 0 ? (
-                                <div className="rounded-2xl border border-dashed border-white/10 py-20 text-center text-slate-400">
-                                    No Upcoming Tournaments
-                                </div>
-                            ) : (
-                                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                                    {upcoming.map((tournament) => (
-                                        <TournamentCard
-                                            key={tournament._id}
-                                            tournament={tournament}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </section>
-
-                        {/* Completed */}
-                        <section className="mx-auto max-w-7xl px-6 pb-24">
-                            <div className="mb-10 flex items-center gap-3">
-                                <HistoryRoundedIcon className="text-blue-400" />
-                                <h2 className="text-3xl font-bold">
-                                    Completed Tournaments
-                                </h2>
-                            </div>
-
-                            {completed.length === 0 ? (
-                                <div className="rounded-2xl border border-dashed border-white/10 py-20 text-center text-slate-400">
-                                    No Completed Tournaments
-                                </div>
-                            ) : (
-                                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                                    {completed.map((tournament) => (
-                                        <TournamentCard
-                                            key={tournament._id}
-                                            tournament={tournament}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </section>
-                    </>
-                )}
+          <section className="public-section public-light">
+            <div className="public-container">
+              <div className="public-archive-heading">
+                <h2 className="public-heading">On the horizon.</h2>
+                <span className="public-small">
+                  Upcoming & current tournaments
+                </span>
+              </div>
+              {upcoming.length ? (
+                upcoming.map(tournamentRow)
+              ) : (
+                <PublicDataState title="The next challenge is on its way.">
+                  No upcoming tournaments are listed yet. Check back for the
+                  next competition.
+                </PublicDataState>
+              )}
             </div>
+          </section>
+          <section className="public-section public-white">
+            <div className="public-container">
+              <div className="public-archive-heading">
+                <h2 className="public-heading">On the record.</h2>
+                <span className="public-small">Completed tournaments</span>
+              </div>
+              {completed.length ? (
+                completed.map(tournamentRow)
+              ) : (
+                <PublicDataState title="No completed tournaments yet.">
+                  Past competitions will appear here as the season progresses.
+                </PublicDataState>
+              )}
+            </div>
+          </section>
         </>
-
-    );
-};
-
-export default ExploreTournament;
+      )}
+      <section className="public-section public-dark">
+        <div className="public-container public-split">
+          <div>
+            <p className="public-eyebrow">Beyond the final bout</p>
+            <h2 className="public-heading">
+              The effort.
+              <br />
+              The achievement.
+            </h2>
+          </div>
+          <div>
+            <p className="public-copy">
+              Explore the club medal record and the athletes behind the results.
+            </p>
+            <PublicButton
+              to="/club-medal-record"
+              variant="secondary"
+              className="mt-6"
+            >
+              See Our Results <ArrowRight size={17} />
+            </PublicButton>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

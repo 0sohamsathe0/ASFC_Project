@@ -1,7 +1,14 @@
 # All Star Fencing Club (ASFC) - Project Context & Architecture
 
 ## Overview
-This document provides essential context for developing the attendance management system feature for the All Star Fencing Club MERN stack application. The system manages fencing club activities including player registration, admin approvals, tournament management, and now attendance tracking.
+This document provides project context and development conventions for the All Star Fencing Club MERN stack application. The system manages fencing club activities including player registration, admin approvals, tournament management, and attendance tracking.
+
+## Current Branch and Scope
+
+- **Branch**: `UI-Changes` (renamed from `fees-management` to reflect the broader UI work).
+- **Focus**: Public website and homepage updates, navigation, responsive admin layouts, and UI improvements across player management, tournaments, results, and Attendance integration.
+- **Planning reference**: [ADMIN_RESPONSIVE_ARCHITECTURE_PLAN.md](ADMIN_RESPONSIVE_ARCHITECTURE_PLAN.md) records the original admin responsiveness inspection and plan.
+- The attendance implementation recommendations below are historical feature guidance, not a statement that Attendance is missing or the sole focus of this branch. Check the current code before applying those recommendations.
 
 ## Technology Stack
 - **Frontend**: React 18+, Vite, React Router DOM, Lucide Icons, TailwindCSS

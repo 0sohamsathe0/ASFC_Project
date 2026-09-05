@@ -1,4 +1,5 @@
 import "./App.css";
+import "./styles/public.css";
 import "@fontsource/merriweather/700.css";
 import "@fontsource/merriweather/900.css";
 import "@fontsource/playfair-display/700.css";
@@ -7,12 +8,13 @@ import { lazy, Suspense } from "react";
 import { Navigate, Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import { PublicDataState } from "./components/public/PublicUI";
 import LoadingScreen from "./components/common/loadingState.jsx";
 import AdminRoute from "./pages/admin/AdminRoute.jsx";
-import AdminAttendanceRoute from "./pages/admin/AdminAttendanceRoute.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import ServerMonitor from "./components/common/ServerMonitor.jsx";
 import PlayerRoute from "./pages/player/PlayerRoute.jsx";
+import ScrollToTop from "./components/common/ScrollToTop.jsx";
 
 
 // Lazy Loaded Pages
@@ -33,6 +35,7 @@ const ClubMedalRecord = lazy(() => import("./components/homepage/ClubMedalRecord
 const PublicFooter = lazy(()=>import("./components/PublicFooter.jsx"))
 // Admin Dashboard Components
 const AnalyticsDashboard = lazy(() =>import("./components/Admin/AnalyticsDashboard.jsx"));
+const AdminDashboardHome = lazy(() =>import("./components/Admin/AdminDashboardHome.jsx"));
 
 const PlayersBoard = lazy(() =>import("./components/Player/PlayerBoard.jsx"));
 const PlayerRequestQueue = lazy(() =>import("./components/Player/PlayerRequestQueue.jsx"));
@@ -67,11 +70,12 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <ServerMonitor/>
 
-      <Navbar />
+      {!pathname.startsWith("/admin") && <Navbar />}
 
-      <Suspense fallback={<LoadingScreen />}>
+      <Suspense fallback={isPublicRoute || pathname === "/maintenance" ? <main id="public-content" className="public-site public-section public-utility"><div className="public-container"><PublicDataState kind="loading" title="Getting ready…">Loading All Star Fencing Club.</PublicDataState></div></main> : <LoadingScreen />}>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
@@ -98,62 +102,44 @@ function App() {
           {/* Admin Login */}
           <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* Mobile and desktop attendance workspace */}
-          <Route
-            path="/admin/attendance"
-            element={
-              <AdminAttendanceRoute>
-                <AttendanceLayout />
-              </AdminAttendanceRoute>
-            }
-          >
-            <Route index element={<Navigate to="mark" replace />} />
-            <Route path="mark" element={<MarkAttendance />} />
-            <Route path="records" element={<AttendanceRecords />} />
-            <Route path="monthly" element={<MonthlyAttendance />} />
-          </Route>
-
           {/* Protected Admin Routes */}
-          <Route
-            path="/admin/dashboard/*"
-            element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            }
-          >
-            {/* Dashboard */}
-            <Route index element={<AnalyticsDashboard />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminDashboard />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="attendance" element={<AttendanceLayout />}>
+                <Route index element={<Navigate to="mark" replace />} />
+                <Route path="mark" element={<MarkAttendance />} />
+                <Route path="records" element={<AttendanceRecords />} />
+                <Route path="monthly" element={<MonthlyAttendance />} />
+              </Route>
+
+              <Route path="dashboard">
+                {/* Dashboard */}
+                <Route index element={<AdminDashboardHome />} />
 
             {/* Players */}
-            <Route path="players" element={<PlayersBoard />} />
-            <Route path="requests" element={<PlayerRequestQueue />}>
-              <Route path="reject" element={<RejectPlayer />} />
-            </Route>
+                <Route path="players" element={<PlayersBoard />} />
+                <Route path="requests" element={<PlayerRequestQueue />}>
+                  <Route path="reject" element={<RejectPlayer />} />
+                </Route>
 
             {/* Tournaments */}
-            <Route path="tournaments" element={<AllTournaments />} />
-            <Route path="add-tournament" element={<AddTournament />} />
+                <Route path="tournaments" element={<AllTournaments />} />
+                <Route path="add-tournament" element={<AddTournament />} />
 
             {/* Tournament Entries */}
-            <Route path="entries" element={<TournamentEntry />} />
+                <Route path="entries" element={<TournamentEntry />} />
 
             {/* Results */}
-            <Route
-              path="individual-results"
-              element={<IndividualResult />}
-            />
-            <Route path="team-results" element={<TeamResult />} />
+                <Route path="club-results" element={<AnalyticsDashboard />} />
+                <Route path="individual-results" element={<IndividualResult />} />
+                <Route path="team-results" element={<TeamResult />} />
 
             {/* Certificates */}
-            <Route
-              path="merit-certificates"
-              element={<MeritCertificates />}
-            />
-            <Route
-              path="participation-certificates"
-              element={<ParticipationCertificates />}
-            />
+                <Route path="merit-certificates" element={<MeritCertificates />} />
+                <Route path="participation-certificates" element={<ParticipationCertificates />} />
+              </Route>
+            </Route>
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
