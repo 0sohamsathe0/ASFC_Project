@@ -1,25 +1,18 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+
 import { useAuth } from "../../context/AuthContext";
-import AdminDesktopOnly from "../../components/common/AdminDesktopOnly";
-import useIsDesktop from "../../hooks/useIsDesktop";
 
-const AdminRoute = ({ children }) => {
-const { user, loading } = useAuth();
-const isDesktop = useIsDesktop();
+const AdminRoute = () => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
-if (loading) {
-return null;
-}
+  if (loading) return null;
 
-if (!user || user.role !== "admin") {
-return <Navigate to="/admin/login" replace />;
-}
+  if (!user || user.role !== "admin") {
+    return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
+  }
 
-if (!isDesktop) {
-return <AdminDesktopOnly />;
-}
-
-return children;
+  return <Outlet />;
 };
 
 export default AdminRoute;

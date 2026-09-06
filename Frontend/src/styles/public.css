@@ -1,0 +1,1098 @@
+/* Public-only visual system. Never target unscoped headings or controls. */
+.public-site,
+.public-nav,
+.public-footer {
+  --public-navy: #020817;
+  --public-light: #f7f7f5;
+  --public-blue: #2563eb;
+  --public-ink: #101b2c;
+  --public-muted: #556174;
+  --public-line: #d9dde3;
+  --public-radius: 12px;
+  color: var(--public-ink);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-wrap: break-word;
+}
+.public-site {
+  background: var(--public-light);
+  min-width: 0;
+}
+.public-container {
+  width: 100%;
+  max-width: 1360px;
+  padding-inline: 20px;
+  margin-inline: auto;
+}
+.public-section {
+  padding-block: 64px;
+  scroll-margin-top: 92px;
+}
+.public-light {
+  background: var(--public-light);
+  color: var(--public-ink);
+}
+.public-white {
+  background: #fff;
+  color: var(--public-ink);
+}
+.public-dark {
+  background: var(--public-navy);
+  color: #fff;
+  --public-muted: #b3bdcd;
+  --public-line: #2c3544;
+}
+.public-eyebrow {
+  margin-bottom: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: #2459c8;
+}
+.public-dark .public-eyebrow {
+  color: #92d9ef;
+}
+.public-display {
+  font-size: clamp(36px, 5.3vw, 72px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.05em;
+  text-wrap: balance;
+}
+.public-heading {
+  font-size: clamp(32px, 4vw, 54px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.public-h3 {
+  font-size: clamp(22px, 2.1vw, 28px);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+.public-copy {
+  color: var(--public-muted);
+  font-size: 16px;
+  line-height: 1.8;
+  max-width: 620px;
+}
+.public-small {
+  font-size: 13px;
+  color: var(--public-muted);
+}
+.public-accent {
+  color: #74a5ff;
+}
+.public-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+.public-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.public-button--primary {
+  background: var(--public-blue);
+  color: white;
+}
+.public-button--primary:hover {
+  background: #1d4ed8;
+}
+.public-button--secondary {
+  border-color: var(--public-line);
+  color: inherit;
+  background: transparent;
+}
+.public-button--secondary:hover {
+  background: #8291a315;
+}
+.public-button--text {
+  padding-inline: 0;
+  color: inherit;
+}
+.public-button--text svg {
+  transition: transform 0.2s;
+}
+.public-button--text:hover svg {
+  transform: translateX(4px);
+}
+.public-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.public-inline-link {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  color: inherit;
+}
+:is(.public-site, .public-nav, .public-footer)
+  :is(a, button, input, textarea, summary):focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 4px;
+}
+.public-split {
+  display: grid;
+  gap: 40px;
+}
+.public-section-head {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+.public-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--public-radius);
+  aspect-ratio: 4/3;
+  background: #d9dde3;
+}
+.public-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+.public-image:hover img {
+  transform: scale(1.025);
+}
+.public-image figcaption {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  padding: 6px 12px;
+  background: #020817d9;
+  color: white;
+  border-radius: 6px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.public-image--portrait {
+  aspect-ratio: 4/5;
+}
+.public-image--wide {
+  aspect-ratio: 3/2;
+}
+.public-image--square {
+  aspect-ratio: 1;
+}
+.public-intro {
+  padding-block: 56px 64px;
+}
+.public-intro .public-eyebrow span {
+  margin-inline: 12px;
+  color: #657187;
+}
+.public-intro-grid {
+  display: grid;
+  gap: 28px;
+}
+.public-data-state {
+  padding: 48px 0;
+  border-block: 1px solid var(--public-line);
+}
+.public-data-state .public-copy {
+  margin-block: 16px 24px;
+}
+.public-data-state--loading {
+  min-height: 280px;
+}
+.public-data-state--error {
+  border-top-color: #bc5961;
+}
+.public-utility {
+  min-height: calc(100svh - 80px);
+  display: grid;
+  align-content: center;
+}
+.public-hero {
+  overflow: hidden;
+}
+.public-hero-grid {
+  display: grid;
+}
+.public-hero-copy {
+  padding: 52px 20px 44px;
+}
+.public-hero-copy .public-copy {
+  margin-top: 26px;
+}
+.public-hero-photo {
+  position: relative;
+  min-height: 380px;
+}
+.public-hero-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 28%;
+}
+.public-hero-photo > p {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  background: #020817d9;
+  border-radius: 6px;
+  width: fit-content;
+}
+.public-progression {
+  padding-block: 22px;
+  border-block: 1px solid var(--public-line);
+}
+.public-progression .public-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 20px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.public-benefit {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 16px;
+  padding-block: 22px;
+  border-top: 1px solid var(--public-line);
+}
+.public-benefit:last-child {
+  border-bottom: 1px solid var(--public-line);
+}
+.public-benefit > span {
+  color: #2563eb;
+  font-size: 12px;
+}
+.public-benefit .public-copy {
+  margin-top: 8px;
+  font-size: 15px;
+}
+.public-gallery {
+  display: grid;
+  gap: 16px;
+}
+.public-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px;
+  margin-top: 36px;
+}
+.public-values > div {
+  border-top: 1px solid var(--public-line);
+  padding-top: 18px;
+}
+.public-values h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.public-values p {
+  font-size: 14px;
+  color: var(--public-muted);
+}
+.public-stories {
+  display: grid;
+  gap: 36px;
+}
+.public-story h3 {
+  margin-top: 20px;
+}
+.public-story .public-small {
+  margin-top: 10px;
+}
+.public-proof-labels {
+  margin-top: 36px;
+  padding-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  border-top: 1px solid var(--public-line);
+  font-size: 13px;
+  color: var(--public-muted);
+}
+.public-pathway {
+  display: grid;
+  margin-top: 44px;
+}
+.public-pathway article {
+  border-left: 1px solid var(--public-line);
+  padding: 0 0 32px 24px;
+  position: relative;
+}
+.public-pathway article::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: -4px;
+  width: 7px;
+  height: 7px;
+  background: #2563eb;
+  border-radius: 50%;
+}
+.public-pathway h3 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-block: 14px 8px;
+}
+.public-pathway p {
+  font-size: 14px;
+  color: var(--public-muted);
+}
+.public-community-gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 40px;
+  align-items: start;
+}
+.public-community-gallery > :first-child {
+  grid-column: span 2;
+}
+.public-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #020817;
+  color: white;
+  --public-line: #364052;
+  --public-blue: #2563eb;
+}
+.public-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  height: 80px;
+}
+.public-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  line-height: 1.1;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+}
+.public-brand img {
+  width: 38px;
+  height: 42px;
+  object-fit: contain;
+}
+.public-brand small {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  font-weight: 400;
+  color: #b3bdcd;
+}
+.public-nav-desktop {
+  display: none;
+  align-items: center;
+  gap: 24px;
+}
+.public-nav-link {
+  font-size: 13px;
+  color: #bec8d7;
+  padding-block: 12px;
+}
+.public-nav-link:hover,
+.public-nav-link[aria-current="page"] {
+  color: white;
+  text-decoration: underline;
+  text-underline-offset: 8px;
+}
+.public-nav-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.public-menu-toggle {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #364052;
+  border-radius: 8px;
+}
+.public-menu-backdrop {
+  position: fixed;
+  inset: 80px 0 0;
+  background: #020817a6;
+  z-index: 98;
+}
+.public-mobile-menu {
+  position: fixed;
+  top: 80px;
+  inset-inline: 0;
+  max-height: calc(100dvh - 80px);
+  overflow-y: auto;
+  background: #020817;
+  z-index: 99;
+  padding: 20px;
+  border-top: 1px solid #364052;
+}
+.public-mobile-menu nav {
+  display: grid;
+}
+.public-mobile-menu .public-nav-link {
+  font-size: 22px;
+  border-bottom: 1px solid #263040;
+}
+.public-mobile-menu .public-nav-actions {
+  margin-block: 24px 12px;
+  flex-wrap: wrap;
+}
+.public-footer {
+  background: #020817;
+  color: #fff;
+  --public-muted: #a6b2c4;
+  --public-line: #2c3544;
+  padding-block: 64px 24px;
+}
+.public-footer-grid {
+  display: grid;
+  gap: 36px;
+}
+.public-footer h2 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 20px;
+}
+.public-footer ul {
+  display: grid;
+  gap: 9px;
+  font-size: 14px;
+  color: var(--public-muted);
+}
+.public-footer a:hover {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.public-footer-bottom {
+  border-top: 1px solid var(--public-line);
+  margin-top: 48px;
+  padding-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--public-muted);
+}
+.public-contact-list > div {
+  padding-block: 22px;
+  border-bottom: 1px solid var(--public-line);
+}
+.public-contact-list dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--public-muted);
+  margin-bottom: 8px;
+}
+.public-contact-list dd {
+  font-size: 17px;
+}
+.public-form {
+  border-top: 2px solid var(--public-ink);
+  padding-top: 26px;
+}
+.public-form-grid {
+  display: grid;
+  gap: 22px;
+  margin-top: 28px;
+}
+.public-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.public-field :is(input, textarea) {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid #a5afbe;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: white;
+  font-size: 16px;
+  color: #101b2c;
+}
+.public-field textarea {
+  resize: vertical;
+}
+.public-form-message {
+  margin-top: 20px;
+  padding: 16px;
+  border-left: 3px solid #237350;
+  background: #edf6ee;
+  color: #19513a;
+}
+.public-form-message--error {
+  border-color: #b42338;
+  color: #8d1f30;
+  background: #fff0f1;
+}
+.public-map {
+  width: 100%;
+  height: 340px;
+  border: 0;
+  border-radius: 12px;
+  margin-top: 32px;
+}
+.public-faq details {
+  border-bottom: 1px solid var(--public-line);
+  padding-block: 22px;
+}
+.public-faq summary {
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+}
+.public-faq .public-copy {
+  margin-top: 16px;
+}
+.public-tournament-row {
+  display: grid;
+  gap: 20px;
+  padding-block: 28px;
+  border-bottom: 1px solid var(--public-line);
+}
+.public-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--public-muted);
+}
+.public-pill {
+  display: inline-flex;
+  padding: 4px 10px;
+  border: 1px solid var(--public-line);
+  border-radius: 6px;
+  font-size: 11px;
+  width: fit-content;
+}
+.public-archive-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--public-line);
+  padding-bottom: 24px;
+}
+.public-stat-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 44px;
+  gap: 24px;
+}
+.public-stat {
+  border-top: 1px solid var(--public-line);
+  padding-top: 20px;
+}
+.public-stat strong {
+  display: block;
+  font-weight: 500;
+  font-size: clamp(36px, 4vw, 56px);
+  letter-spacing: -0.04em;
+}
+.public-results-list {
+  display: grid;
+  gap: 56px;
+}
+.public-result-tournament {
+  border-bottom: 1px solid var(--public-line);
+  padding-block: 28px;
+}
+.public-medal-box {
+  min-width: 0;
+  padding: 6px;
+  text-align: center;
+}
+.public-medal-box span {
+  display: block;
+  font-size: 11px;
+}
+.public-result-details {
+  margin-top: 24px;
+  padding: 24px 0;
+  border-top: 1px solid var(--public-line);
+}
+.public-result-row {
+  padding-block: 14px;
+  border-bottom: 1px solid var(--public-line);
+}
+.public-skip {
+  position: absolute;
+  left: 20px;
+  top: -100px;
+  background: white;
+  color: #020817;
+  padding: 12px;
+  z-index: 110;
+}
+.public-skip:focus {
+  top: 10px;
+}
+@media (min-width: 640px) {
+  .public-container {
+    padding-inline: 32px;
+  }
+  .public-section {
+    padding-block: 80px;
+  }
+  .public-hero-copy {
+    padding: 64px 32px;
+  }
+  .public-hero-photo {
+    min-height: 520px;
+  }
+  .public-gallery {
+    grid-template-columns: 1fr 1fr;
+  }
+  .public-gallery > :first-child {
+    grid-column: span 2;
+  }
+  .public-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .public-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .public-stat-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .public-tournament-row {
+    grid-template-columns: 160px 1fr;
+  }
+}
+@media (min-width: 1024px) {
+  .public-container {
+    padding-inline: 48px;
+  }
+  .public-section {
+    padding-block: 112px;
+  }
+  .public-copy {
+    font-size: 17px;
+  }
+  .public-split {
+    grid-template-columns: 1fr 1fr;
+    gap: 72px;
+    align-items: center;
+  }
+  .public-section-head {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: end;
+    gap: 72px;
+    margin-bottom: 48px;
+  }
+  .public-intro {
+    padding-block: 72px 88px;
+  }
+  .public-intro-grid {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 72px;
+    align-items: end;
+  }
+  .public-hero-grid {
+    max-width: 1600px;
+    margin-inline: auto;
+    grid-template-columns: 1fr 1.05fr;
+    min-height: 700px;
+  }
+  .public-hero-copy {
+    padding: 80px 40px 80px max(48px, calc((100vw - 1360px) / 2 + 48px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .public-hero-photo {
+    min-height: 700px;
+  }
+  .public-hero-photo img {
+    object-position: 48% center;
+  }
+  .public-gallery {
+    grid-template-columns: 1.3fr 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+  .public-gallery > :first-child {
+    grid-column: auto;
+    grid-row: span 2;
+    aspect-ratio: auto;
+  }
+  .public-gallery > :not(:first-child) {
+    aspect-ratio: 16/9;
+  }
+  .public-stories {
+    grid-template-columns: 1.3fr 1fr 1fr;
+    align-items: start;
+    gap: 28px;
+  }
+  .public-stories > :nth-child(2) {
+    padding-top: 64px;
+  }
+  .public-stories > :nth-child(3) {
+    padding-top: 128px;
+  }
+  .public-pathway {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .public-pathway article {
+    border-left: 0;
+    border-top: 1px solid var(--public-line);
+    padding: 28px 24px 0 0;
+  }
+  .public-pathway article::before {
+    top: -4px;
+    left: 0;
+  }
+  .public-community-gallery {
+    grid-template-columns: 1.4fr 0.8fr 1fr;
+    align-items: center;
+  }
+  .public-community-gallery > :first-child {
+    grid-column: auto;
+  }
+  .public-footer-grid {
+    grid-template-columns: 1.6fr 0.8fr 0.8fr 1.2fr;
+    gap: 48px;
+  }
+}
+@media (min-width: 1200px) {
+  .public-nav-desktop {
+    display: flex;
+  }
+  .public-menu-toggle,
+  .public-mobile-menu,
+  .public-menu-backdrop {
+    display: none;
+  }
+}
+@media (max-width: 639px) {
+  .public-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .public-hero .public-display {
+    max-width: 400px;
+  }
+  .public-values {
+    gap: 20px;
+  }
+  .public-join .public-heading {
+    max-width: 360px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.public-site, .public-nav, .public-footer) *,
+  :is(.public-site, .public-nav, .public-footer) *::before {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Keep mobile navigation links compact without stretching the footer. */
+@media (max-width: 639px) {
+  .public-footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .public-footer-grid > :first-child, .public-footer-grid > :last-child { grid-column: span 2; }
+}
+
+/* Club medal record: compact public competition archive. */
+.club-medal-page {
+  --medal-gold: #b88a18;
+  --medal-silver: #8793a1;
+  --medal-bronze: #a8683a;
+  --medal-total: #2563eb;
+}
+.results-home-bar {
+  display: block;
+}
+.results-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: #c7d0de;
+  font-size: 13px;
+  font-weight: 600;
+}
+.results-home-link:hover {
+  color: white;
+}
+.club-medal-page .public-intro {
+  padding-block: 40px 52px;
+}
+.club-medal-page .results-summary {
+  padding-block: 48px;
+}
+.results-summary .public-eyebrow {
+  margin-bottom: 12px;
+}
+.results-summary .public-heading {
+  font-size: clamp(30px, 3.5vw, 46px);
+}
+.results-summary .public-stat-row {
+  gap: 12px;
+  margin-top: 28px;
+}
+.results-summary .public-stat {
+  --medal-accent: var(--medal-total);
+  position: relative;
+  padding: 14px 12px 10px;
+  border-top: 2px solid var(--medal-accent);
+  background: color-mix(in srgb, var(--medal-accent) 5%, transparent);
+}
+.results-summary .public-stat--gold { --medal-accent: var(--medal-gold); }
+.results-summary .public-stat--silver { --medal-accent: var(--medal-silver); }
+.results-summary .public-stat--bronze { --medal-accent: var(--medal-bronze); }
+.results-summary .public-stat--total { --medal-accent: var(--medal-total); }
+.results-medal-marker {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--medal-accent);
+}
+.results-summary .public-stat strong {
+  margin-top: 3px;
+  color: var(--medal-accent);
+  font-size: clamp(30px, 3vw, 44px);
+  line-height: 1.1;
+}
+.club-medal-page .results-archive {
+  padding-block: 48px 64px;
+}
+.club-medal-page .public-results-list {
+  gap: 32px;
+}
+.results-level {
+  --level-accent: #737f8d;
+  --level-surface: #f8f9fa;
+  padding: 24px 24px 0;
+  border-left: 3px solid var(--level-accent);
+  background: var(--level-surface);
+}
+.results-level--international {
+  --level-accent: #24354b;
+  --level-surface: #f5f6f8;
+}
+.results-level--national {
+  --level-accent: #2563eb;
+  --level-surface: #f4f7fd;
+}
+.results-level--state {
+  --level-accent: #788696;
+  --level-surface: #f7f8f9;
+}
+.results-level--district {
+  --level-accent: #9b9488;
+  --level-surface: #faf9f7;
+}
+.results-level-heading {
+  padding-bottom: 18px;
+  border-bottom: 1px solid color-mix(in srgb, var(--level-accent) 24%, #d9dde3);
+}
+.results-level-label {
+  margin-bottom: 5px;
+  color: var(--level-accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.results-level-heading h2 {
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -.04em;
+}
+.results-level-heading > p:last-child {
+  margin-top: 5px;
+  color: var(--public-muted);
+  font-size: 13px;
+}
+.results-tournament-list {
+  display: grid;
+}
+.club-medal-page .public-result-tournament {
+  padding-block: 22px;
+}
+.results-tournament-header {
+  display: grid;
+  gap: 18px;
+}
+.results-tournament-info {
+  min-width: 0;
+}
+.results-tournament-info .public-h3 {
+  font-size: clamp(20px, 2vw, 24px);
+}
+.results-tournament-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 8px;
+}
+.results-tournament-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.results-tournament-meta svg {
+  flex: 0 0 auto;
+}
+.results-medal-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+}
+.club-medal-page .public-medal-box {
+  --medal-accent: var(--medal-total);
+  padding: 8px 4px 7px;
+  border-top: 2px solid var(--medal-accent);
+  background: color-mix(in srgb, var(--medal-accent) 5%, white);
+}
+.club-medal-page .public-medal-box--gold { --medal-accent: var(--medal-gold); }
+.club-medal-page .public-medal-box--silver { --medal-accent: var(--medal-silver); }
+.club-medal-page .public-medal-box--bronze { --medal-accent: var(--medal-bronze); }
+.club-medal-page .public-medal-box--total { --medal-accent: var(--medal-total); }
+.club-medal-page .public-medal-box strong {
+  display: block;
+  color: var(--medal-accent);
+  font-size: 18px;
+  line-height: 1.2;
+}
+.club-medal-page .public-medal-box span {
+  margin-top: 2px;
+}
+.club-medal-page .results-toggle {
+  min-height: 44px;
+  margin-top: 6px;
+}
+.results-toggle-chevron {
+  transition: transform .2s ease;
+}
+.results-toggle-chevron.is-expanded {
+  transform: rotate(180deg);
+}
+.club-medal-page .public-result-details {
+  margin-top: 6px;
+  padding: 16px 0 0;
+}
+.results-expanded {
+  animation: results-reveal .22s ease-out;
+}
+@keyframes results-reveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.results-groups {
+  display: grid;
+  gap: 22px;
+}
+.results-group h4 {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--public-line);
+  font-size: 14px;
+  font-weight: 700;
+}
+.club-medal-page .public-result-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  padding-block: 10px;
+}
+.results-result-medal {
+  --medal-accent: #667085;
+  padding-left: 8px;
+  border-left: 2px solid var(--medal-accent);
+  color: var(--medal-accent);
+  font-weight: 700;
+}
+.results-result-medal--gold { --medal-accent: var(--medal-gold); }
+.results-result-medal--silver { --medal-accent: var(--medal-silver); }
+.results-result-medal--bronze { --medal-accent: var(--medal-bronze); }
+
+@media (min-width: 480px) {
+  .results-summary .public-stat-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (min-width: 768px) {
+  .results-groups--split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .results-tournament-header {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+    align-items: center;
+    gap: 28px;
+  }
+}
+@media (min-width: 1024px) {
+  .results-home-bar {
+    display: none;
+  }
+  .club-medal-page .public-intro {
+    padding-block: 54px 62px;
+  }
+  .club-medal-page .results-summary {
+    padding-block: 56px;
+  }
+  .club-medal-page .results-archive {
+    padding-block: 56px 72px;
+  }
+  .results-level {
+    padding-inline: 28px;
+  }
+  .results-level-heading {
+    display: grid;
+    grid-template-columns: minmax(190px, .55fr) 1fr;
+    align-items: end;
+    column-gap: 32px;
+  }
+  .results-level-label {
+    grid-column: 1 / -1;
+  }
+  .results-level-heading > p:last-child {
+    margin: 0 0 3px;
+  }
+}

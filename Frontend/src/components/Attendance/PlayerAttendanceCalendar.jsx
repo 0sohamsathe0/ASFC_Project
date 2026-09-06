@@ -97,13 +97,13 @@ const PlayerAttendanceCalendar = ({ month, records }) => {
   const selectedSessions = activeDate ? recordsByDate.get(activeDate) || {} : null;
 
   return (
-    <div className="rounded-2xl border border-blue-900/70 bg-gradient-to-br from-[#07111F] via-[#0B1D35] to-blue-900 text-white shadow-xl shadow-blue-950/20">
+    <div className="-mx-3 rounded-2xl border border-blue-900/70 bg-gradient-to-br from-[#07111F] via-[#0B1D35] to-blue-900 text-white shadow-xl shadow-blue-950/20 min-[360px]:-mx-4 sm:mx-0">
       <div className="border-b border-blue-900/60 px-4 py-4 sm:px-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="font-bold text-white">Monthly activity</h3>
             <p className="mt-1 text-xs text-blue-300/60">
-              Hover or tap a day to inspect both sessions.
+              Select a day to inspect both sessions.
             </p>
           </div>
 
@@ -124,23 +124,23 @@ const PlayerAttendanceCalendar = ({ month, records }) => {
         </div>
       </div>
 
-      <div className="px-4 py-5 sm:px-6">
+      <div className="px-1 py-4 min-[360px]:px-2 sm:px-6 sm:py-5">
         <div className="mx-auto w-fit">
-          <div className="mb-1.5 grid grid-cols-7 gap-1.5 sm:gap-2">
+          <div className="mb-1.5 grid grid-cols-7 gap-0 sm:gap-2">
             {WEEKDAYS.map((weekday, index) => (
               <div
                 key={`${weekday}-${index}`}
-                className="w-8 text-center text-[9px] font-bold text-blue-300/50 sm:w-9 sm:text-[10px]"
+                className="w-10 text-center text-[9px] font-bold text-blue-300/50 min-[360px]:w-11 sm:text-[10px]"
               >
                 {weekday}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+          <div className="grid grid-cols-7 gap-0 sm:gap-2">
             {calendarCells.map((cell, index) => {
               if (!cell) {
-                return <div key={`empty-${index}`} className="h-8 w-8 sm:h-9 sm:w-9" />;
+                return <div key={`empty-${index}`} className="h-10 w-10 min-[360px]:h-11 min-[360px]:w-11" />;
               }
 
               const dayState = getDayState(cell.sessions);
@@ -153,7 +153,7 @@ const PlayerAttendanceCalendar = ({ month, records }) => {
                     type="button"
                     onClick={() => setSelectedDate(cell.date)}
                     aria-label={`${formatPlayerAttendanceDate(cell.date)}. ${dayState.label}. Morning ${cell.sessions.Morning?.status || "not marked"}. Evening ${cell.sessions.Evening?.status || "not marked"}.`}
-                    className={`flex h-8 w-8 items-center justify-center rounded-[5px] border text-[10px] font-bold transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:h-9 sm:w-9 sm:text-xs ${dayState.style} ${
+                    className={`flex h-10 w-10 items-center justify-center rounded-[5px] border text-[10px] font-bold transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 motion-reduce:transition-none motion-reduce:hover:translate-y-0 min-[360px]:h-11 min-[360px]:w-11 sm:text-xs ${dayState.style} ${
                       isSelected
                         ? "ring-2 ring-blue-400 ring-offset-2 ring-offset-[#07111F]"
                         : isToday

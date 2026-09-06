@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://all-star-fencing-club.vercel.app/sitemap.xml

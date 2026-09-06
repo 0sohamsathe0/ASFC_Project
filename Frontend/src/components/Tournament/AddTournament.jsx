@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../api";
 
 import Calendar from "react-calendar";
@@ -40,6 +40,8 @@ const AddTournament = () => {
   const [selectedTournament, setSelectedTournament] = useState(null);
 
   const [upcomingTournaments, setUpcomingTournaments] = useState([]);
+  const [upcomingLoading, setUpcomingLoading] = useState(true);
+  const [upcomingError, setUpcomingError] = useState("");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -56,48 +58,50 @@ const AddTournament = () => {
   // ============================
 
   const fetchUpcomingTournaments = async () => {
+    setUpcomingLoading(true);
+    setUpcomingError("");
+
     try {
       const res = await api.get("/tournament?type=upcoming");
 
       const tournaments = res.data.data || [];
 
       setUpcomingTournaments(tournaments);
-
-      if (tournaments.length > 0) {
-        setSelectedTournament(tournaments[0]);
-      }
+      setSelectedTournament(tournaments[0] || null);
     } catch (error) {
       console.error(error);
-
+      setUpcomingError("Unable to load upcoming tournaments.");
       toast.error("Unable to load tournaments.");
+    } finally {
+      setUpcomingLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUpcomingTournaments();
-  }, []);
+    let active = true;
 
-  // ============================
-  // STATS
-  // ============================
+    api.get("/tournament?type=upcoming")
+      .then((res) => {
+        if (!active) return;
+        const tournaments = res.data.data || [];
+        setUpcomingTournaments(tournaments);
+        setUpcomingError("");
+        setSelectedTournament(tournaments[0] || null);
+      })
+      .catch((error) => {
+        if (!active) return;
+        console.error(error);
+        setUpcomingError("Unable to load upcoming tournaments.");
+        toast.error("Unable to load tournaments.");
+      })
+      .finally(() => {
+        if (active) setUpcomingLoading(false);
+      });
 
-  const stats = useMemo(() => {
-    return {
-      upcoming: upcomingTournaments.length,
-
-      national: upcomingTournaments.filter(
-        (t) => t.level === "National"
-      ).length,
-
-      state: upcomingTournaments.filter(
-        (t) => t.level === "State"
-      ).length,
-
-      district: upcomingTournaments.filter(
-        (t) => t.level === "District"
-      ).length,
+    return () => {
+      active = false;
     };
-  }, [upcomingTournaments]);
+  }, []);
 
   // ============================
   // INPUT CHANGE
@@ -268,62 +272,6 @@ const AddTournament = () => {
             </p>
 
           </div>
-
-        </div>
-
-      </div>
-
-      {/* ========================================= */}
-      {/* STATS */}
-      {/* ========================================= */}
-
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
-
-        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-lg hover:border-blue-500 transition">
-
-          <p className="text-slate-400 text-sm">
-            Upcoming
-          </p>
-
-          <h2 className="text-4xl font-bold mt-3 text-blue-500">
-            {stats.upcoming}
-          </h2>
-
-        </div>
-
-        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-lg hover:border-green-500 transition">
-
-          <p className="text-slate-400 text-sm">
-            National
-          </p>
-
-          <h2 className="text-4xl font-bold mt-3 text-green-400">
-            {stats.national}
-          </h2>
-
-        </div>
-
-        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-lg hover:border-orange-500 transition">
-
-          <p className="text-slate-400 text-sm">
-            State
-          </p>
-
-          <h2 className="text-4xl font-bold mt-3 text-orange-400">
-            {stats.state}
-          </h2>
-
-        </div>
-
-        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-lg hover:border-purple-500 transition">
-
-          <p className="text-slate-400 text-sm">
-            District
-          </p>
-
-          <h2 className="text-4xl font-bold mt-3 text-purple-400">
-            {stats.district}
-          </h2>
 
         </div>
 
@@ -785,16 +733,57 @@ const AddTournament = () => {
                 Upcoming Tournaments
               </h2>
 
-              <p className="text-sm text-slate-400">
-                {upcomingTournaments.length} Tournament
-                {upcomingTournaments.length !== 1 && "s"}
-              </p>
+              {!upcomingLoading &&
+                !upcomingError &&
+                upcomingTournaments.length > 0 && (
+                  <p className="text-sm text-slate-400">
+                    {upcomingTournaments.length} Tournament
+                    {upcomingTournaments.length !== 1 && "s"}
+                  </p>
+                )}
 
             </div>
 
           </div>
 
-          {upcomingTournaments.length === 0 ? (
+          {upcomingLoading ? (
+
+            <div className="flex flex-col items-center justify-center py-16 text-center" role="status">
+
+              <Loader2
+                size={38}
+                className="mb-4 animate-spin text-blue-500"
+              />
+
+              <p className="font-medium text-slate-300">
+                Loading upcoming tournaments...
+              </p>
+
+            </div>
+
+          ) : upcomingError ? (
+
+            <div className="rounded-2xl border border-rose-900 bg-rose-950/30 p-6 text-center">
+
+              <h3 className="font-semibold text-rose-300">
+                Unable to load upcoming tournaments.
+              </h3>
+
+              <p className="mt-2 text-sm text-rose-400">
+                Please check your connection and try again.
+              </p>
+
+              <button
+                type="button"
+                onClick={fetchUpcomingTournaments}
+                className="mt-4 min-h-11 rounded-xl border border-rose-800 bg-rose-900/40 px-4 py-2 font-semibold text-rose-200 transition hover:bg-rose-900/70"
+              >
+                Try Again
+              </button>
+
+            </div>
+
+          ) : upcomingTournaments.length === 0 ? (
 
             <div className="flex flex-col items-center justify-center py-20">
 
@@ -808,8 +797,11 @@ const AddTournament = () => {
               </h3>
 
               <p className="text-slate-500 mt-2 text-center">
-                Create your first tournament to
-                populate the calendar.
+                There are currently no upcoming tournaments scheduled.
+              </p>
+
+              <p className="mt-1 text-center text-sm text-slate-500">
+                Create a new tournament using the form.
               </p>
 
             </div>

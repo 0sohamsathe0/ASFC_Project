@@ -1,37 +1,32 @@
-import { useEffect, useState } from "react";
-import {
-  Award,
-  CalendarDays,
-  ChevronDown,
-  MapPin,
-  Medal,
-  Trophy,
-  Users,
-} from "lucide-react";
-
+import { useEffect, useId, useState } from "react";
+import { ArrowLeft, ChevronDown, MapPin, CalendarDays } from "lucide-react";
+import { Link } from "react-router-dom";
 import { api } from "../api.js";
+import {
+  PublicPageIntro,
+  PublicButton,
+  PublicDataState,
+} from "../public/PublicUI";
 
-const LEVEL_ORDER = [
-  "International",
-  "National",
-  "State",
-  "District",
-];
+const LEVEL_ORDER = ["International", "National", "State", "District"];
 
 const MEDAL_CONFIG = {
   First: {
     label: "Gold",
-    icon: "🥇",
+    tone: "gold",
   },
   Second: {
     label: "Silver",
-    icon: "🥈",
+    tone: "silver",
   },
   Third: {
     label: "Bronze",
-    icon: "🥉",
+    tone: "bronze",
   },
 };
+
+const getLevelSlug = (level = "") =>
+  level.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 const formatDate = (date) => {
   if (!date) return "";
@@ -54,52 +49,43 @@ const formatCategory = (category) => {
 export default function ClubMedalRecord() {
   const [groups, setGroups] = useState([]);
   const [analytics, setAnalytics] = useState(null);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // =========================================================
-  // FETCH CLUB RESULTS
-  // =========================================================
-
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    const fetchClubResults = async () => {
+    let active = true;
+    const fetchResults = async () => {
       try {
-        setLoading(true);
-        setError("");
-
         const response = await api.get("/result/club");
-
-        if (!response.data?.success) {
+        if (!response.data?.success)
           throw new Error("Failed to load club results");
+        if (active) {
+          setGroups(response.data.data || []);
+          setAnalytics(response.data.analytics || null);
         }
-
-        setGroups(response.data.data || []);
-        setAnalytics(response.data.analytics || null);
-      } catch (err) {
-        console.error("Club medal record error:", err);
-
-        setError(
-          err.response?.data?.message ||
-            "Unable to load the club medal record."
-        );
+      } catch (error) {
+        if (active)
+          setError(
+            error.response?.data?.message ||
+              "Unable to load the club medal record.",
+          );
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
-
-    fetchClubResults();
-  }, []);
-
-  // =========================================================
-  // ORDER LEVELS
-  // =========================================================
-
-  const orderedGroups = LEVEL_ORDER
-    .map((level) =>
-      groups.find((group) => group.level === level)
-    )
-    .filter(Boolean);
+    fetchResults();
+    return () => {
+      active = false;
+    };
+  }, [attempt]);
+  const retry = () => {
+    setLoading(true);
+    setError("");
+    setAttempt((value) => value + 1);
+  };
+  const orderedGroups = LEVEL_ORDER.map((level) =>
+    groups.find((group) => group.level === level),
+  ).filter(Boolean);
 
   // =========================================================
   // CALCULATE OVERALL MEDAL TALLY
@@ -119,676 +105,234 @@ export default function ClubMedalRecord() {
       gold: 0,
       silver: 0,
       bronze: 0,
-    }
+    },
   );
 
   const totalMedals =
-    medalTotals.gold +
-    medalTotals.silver +
-    medalTotals.bronze;
-
-  // =========================================================
-  // LOADING
-  // =========================================================
-
-  if (loading) {
-    return <LoadingState />;
-  }
-
-  // =========================================================
-  // ERROR
-  // =========================================================
-
-  if (error) {
-    return <ErrorState message={error} />;
-  }
-
-  // =========================================================
-  // PAGE
-  // =========================================================
+    medalTotals.gold + medalTotals.silver + medalTotals.bronze;
 
   return (
-    <main className="min-h-screen bg-[#020617] text-white">
-
-      {/* =====================================================
-          HERO
-      ===================================================== */}
-
-      <section className="relative overflow-hidden px-4 pb-12 pt-28 sm:px-6 lg:px-8">
-
-        {/* Ambient Glow */}
-
-        <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-blue-600/10 blur-[120px]" />
-
-        <div className="relative mx-auto max-w-7xl">
-
-          <div className="max-w-3xl">
-
-            {/* Badge */}
-
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-400">
-              <Trophy size={13} />
-              All Star Fencing Club
-            </div>
-
-            {/* Heading */}
-
-            <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-              Club{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent">
-                Medal Record
-              </span>
-            </h1>
-
-            {/* Description */}
-
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
-              Explore the competitive medal record of All Star
-              Fencing Club across district, state, national and
-              international competitions.
-            </p>
-
-          </div>
-
-          {/* =================================================
-              OVERALL MEDAL STATS
-          ================================================= */}
-
-          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-
-            <MedalStat
-              icon="🥇"
-              label="Gold"
-              value={medalTotals.gold}
-            />
-
-            <MedalStat
-              icon="🥈"
-              label="Silver"
-              value={medalTotals.silver}
-            />
-
-            <MedalStat
-              icon="🥉"
-              label="Bronze"
-              value={medalTotals.bronze}
-            />
-
-            <MedalStat
-              icon="🏆"
-              label="Total Medals"
-              value={
-                analytics?.totalMedals ?? totalMedals
-              }
-              highlighted
-            />
-
-          </div>
-
+    <main id="public-content" className="public-site club-medal-page">
+      <div className="results-home-bar public-dark">
+        <div className="public-container">
+          <Link className="results-home-link" to="/">
+            <ArrowLeft size={17} aria-hidden="true" />
+            Home
+          </Link>
         </div>
-      </section>
-
-      {/* =====================================================
-          MEDAL HISTORY
-      ===================================================== */}
-
-      <section className="px-4 pb-24 sm:px-6 lg:px-8">
-
-        <div className="mx-auto max-w-7xl">
-
-          {orderedGroups.length === 0 ? (
-            <EmptyState />
+      </div>
+      <PublicPageIntro
+        label="Club medal record"
+        title={
+          <>
+            Earned on the piste.
+            <br />
+            Remembered here.
+          </>
+        }
+      >
+        <p>
+          The competitive record of All Star Fencing Club. Explore medals,
+          tournaments and the athletes representing Solapur.
+        </p>
+      </PublicPageIntro>
+      <section className="public-section public-light results-summary">
+        <div className="public-container">
+          {loading || error ? (
+            <PublicDataState
+              kind={loading ? "loading" : "error"}
+              title={loading ? "Loading club results…" : "Results unavailable"}
+              onRetry={loading ? undefined : retry}
+            >
+              {loading ? "Getting the latest medal record." : error}
+            </PublicDataState>
           ) : (
-            <div className="space-y-12">
-
-              {orderedGroups.map((group) => (
-                <LevelSection
-                  key={group.level}
-                  group={group}
-                />
-              ))}
-
-            </div>
+            <>
+              <p className="public-eyebrow">The club record</p>
+              <h2 className="public-heading">Every medal tells a story.</h2>
+              <div className="public-stat-row">
+                {[
+                  ["Gold", medalTotals.gold],
+                  ["Silver", medalTotals.silver],
+                  ["Bronze", medalTotals.bronze],
+                  ["Total medals", analytics?.totalMedals ?? totalMedals],
+                ].map(([label, value]) => {
+                  const tone = label.toLowerCase().split(" ")[0];
+                  return (
+                  <div className={`public-stat public-stat--${tone}`} key={label}>
+                    <span className="results-medal-marker" aria-hidden="true" />
+                    <span className="public-small">{label}</span>
+                    <strong>{value}</strong>
+                  </div>
+                  );
+                })}
+              </div>
+            </>
           )}
-
         </div>
-
       </section>
-
+      {!loading && !error && (
+        <section className="public-section public-white results-archive">
+          <div className="public-container public-results-list">
+            {orderedGroups.length === 0 ? (
+              <PublicDataState title="No medal records yet.">
+                Club results will appear here as tournament results are
+                recorded.
+              </PublicDataState>
+            ) : (
+              orderedGroups.map((group) => {
+                const levelSlug = getLevelSlug(group.level);
+                return (
+                <section
+                  className={`results-level results-level--${levelSlug}`}
+                  key={group.level}
+                >
+                  <div className="results-level-heading">
+                    <p className="results-level-label">{group.level} level</p>
+                    <h2>{group.level}</h2>
+                    <p>{group.level}-level competition archive</p>
+                  </div>
+                  <div className="results-tournament-list">
+                    {group.tournaments?.map((tournament) => (
+                      <TournamentRecord
+                        key={tournament._id}
+                        tournament={tournament}
+                      />
+                    ))}
+                  </div>
+                </section>
+                );
+              })
+            )}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
 
-
-// =============================================================
-// LEVEL SECTION
-// =============================================================
-
-function LevelSection({ group }) {
-  return (
-    <section>
-
-      {/* Level Heading */}
-
-      <div className="mb-5 flex items-center gap-3">
-
-        <div className="h-px flex-1 bg-white/10" />
-
-        <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5">
-
-          <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">
-            {group.level}
-          </span>
-
-        </div>
-
-        <div className="h-px flex-1 bg-white/10" />
-
-      </div>
-
-      {/* Tournament List */}
-
-      <div className="space-y-4">
-
-        {group.tournaments?.map((tournament) => (
-          <TournamentCard
-            key={tournament._id}
-            tournament={tournament}
-          />
-        ))}
-
-      </div>
-
-    </section>
-  );
-}
-
-
-// =============================================================
-// TOURNAMENT CARD
-// =============================================================
-
-function TournamentCard({ tournament }) {
+function TournamentRecord({ tournament }) {
   const [expanded, setExpanded] = useState(false);
-
-  const individual =
-    tournament.achievements?.individual || [];
-
-  const team =
-    tournament.achievements?.team || [];
-
-  const achievementCount =
-    individual.length + team.length;
-
+  const detailsId = useId();
+  const individual = tournament.achievements?.individual || [];
+  const team = tournament.achievements?.team || [];
+  const achievementCount = individual.length + team.length;
   return (
-    <article className="overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl">
-
-      {/* =====================================================
-          TOURNAMENT HEADER
-      ===================================================== */}
-
-      <div className="p-5 sm:p-6">
-
-        <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
-
-          {/* Tournament Information */}
-
-          <div className="min-w-0">
-
-            <h2 className="text-lg font-bold text-white sm:text-xl">
-              {tournament.title}
-            </h2>
-
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500">
-
-              {/* Location */}
-
-              {(tournament.locationCity ||
-                tournament.locationState) && (
-                <span className="inline-flex items-center gap-1.5">
-                  <MapPin size={13} />
-
-                  {[
-                    tournament.locationCity,
-                    tournament.locationState,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
-                </span>
-              )}
-
-              {/* Date */}
-
-              {tournament.startingDate && (
-                <span className="inline-flex items-center gap-1.5">
-                  <CalendarDays size={13} />
-
-                  {formatDate(
-                    tournament.startingDate
-                  )}
-
+    <article className="public-result-tournament">
+      <div className="results-tournament-header">
+        <div className="results-tournament-info">
+          <h3 className="public-h3">{tournament.title}</h3>
+          <div className="public-small results-tournament-meta">
+            {(tournament.locationCity || tournament.locationState) && (
+              <span>
+                <MapPin size={15} aria-hidden="true" />
+                {[tournament.locationCity, tournament.locationState]
+                  .filter(Boolean)
+                  .join(", ")}
+              </span>
+            )}
+            {tournament.startingDate && (
+              <span>
+                <CalendarDays size={15} aria-hidden="true" />
+                <span>
+                  {formatDate(tournament.startingDate)}
                   {tournament.endDate &&
-                    new Date(
-                      tournament.endDate
-                    ).getTime() !==
-                      new Date(
-                        tournament.startingDate
-                      ).getTime() && (
-                      <>
-                        {" – "}
-                        {formatDate(
-                          tournament.endDate
-                        )}
-                      </>
+                    new Date(tournament.endDate).getTime() !==
+                      new Date(tournament.startingDate).getTime() && (
+                      <> – {formatDate(tournament.endDate)}</>
                     )}
                 </span>
-              )}
-
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="results-medal-summary" aria-label="Tournament medal totals">
+          {[
+            ["Gold", tournament.medalTally?.gold || 0],
+            ["Silver", tournament.medalTally?.silver || 0],
+            ["Bronze", tournament.medalTally?.bronze || 0],
+            ["Total", tournament.totalMedals || 0],
+          ].map(([label, value]) => {
+            const tone = label.toLowerCase();
+            return (
+            <div className={`public-medal-box public-medal-box--${tone}`} key={label}>
+              <strong>{value}</strong>
+              <span className="public-small">{label}</span>
             </div>
-
-          </div>
-
-          {/* =================================================
-              MEDAL TALLY
-          ================================================= */}
-
-          <div className="grid grid-cols-4 gap-2 sm:flex">
-
-            <MedalBox
-              icon="🥇"
-              label="Gold"
-              value={
-                tournament.medalTally?.gold || 0
-              }
-            />
-
-            <MedalBox
-              icon="🥈"
-              label="Silver"
-              value={
-                tournament.medalTally?.silver || 0
-              }
-            />
-
-            <MedalBox
-              icon="🥉"
-              label="Bronze"
-              value={
-                tournament.medalTally?.bronze || 0
-              }
-            />
-
-            <MedalBox
-              icon="🏆"
-              label="Total"
-              value={tournament.totalMedals || 0}
-              highlighted
-            />
-
-          </div>
-
+            );
+          })}
         </div>
-
-        {/* =================================================
-            VIEW RESULTS BUTTON
-        ================================================= */}
-
-        {achievementCount > 0 && (
-          <button
-            type="button"
-            onClick={() =>
-              setExpanded((prev) => !prev)
-            }
-            className="mt-5 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
-          >
-
-            <Award size={14} />
-
-            {expanded
-              ? "Hide Results"
-              : "View Results"}
-
-            <span className="text-slate-500">
-              ({achievementCount})
-            </span>
-
-            <ChevronDown
-              size={14}
-              className={`transition-transform ${
-                expanded
-                  ? "rotate-180"
-                  : ""
-              }`}
-            />
-
-          </button>
-        )}
-
       </div>
-
-      {/* =====================================================
-          RESULTS DETAILS
-      ===================================================== */}
-
-      {expanded && (
-        <div className="border-t border-white/10 bg-black/10 p-5 sm:p-6">
-
-          <div className="grid gap-8 lg:grid-cols-2">
-
-            {/* =================================================
-                INDIVIDUAL RESULTS
-            ================================================= */}
-
-            {individual.length > 0 && (
-              <ResultGroup
-                title="Individual Results"
-                icon={<Award size={16} />}
-              >
-
-                {individual.map(
-                  (result, index) => (
-                    <ResultRow
-                      key={`individual-${index}`}
-                      medal={result.medal}
-                      name={result.name}
-                      category={result.category}
-                    />
-                  )
-                )}
-
-              </ResultGroup>
-            )}
-
-            {/* =================================================
-                TEAM RESULTS
-            ================================================= */}
-
-            {team.length > 0 && (
-              <ResultGroup
-                title="Team Results"
-                icon={<Users size={16} />}
-              >
-
-                {team.map(
-                  (result, index) => (
-                    <ResultRow
-                      key={`team-${index}`}
-                      medal={result.medal}
-                      name={
-                        result.players?.join(", ")
-                      }
-                      category={result.category}
-                    />
-                  )
-                )}
-
-              </ResultGroup>
-            )}
-
-          </div>
-
-        </div>
+      {achievementCount > 0 && (
+        <PublicButton
+          variant="text"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          aria-controls={detailsId}
+          className="results-toggle"
+        >
+          {expanded ? "Hide results" : "View results"} ({achievementCount})
+          <ChevronDown
+            size={16}
+            className={`results-toggle-chevron${expanded ? " is-expanded" : ""}`}
+            aria-hidden="true"
+          />
+        </PublicButton>
       )}
-
+      <div id={detailsId} hidden={!expanded}>
+        {expanded && (
+          <div
+            className={`public-result-details results-expanded results-groups${
+              individual.length > 0 && team.length > 0
+                ? " results-groups--split"
+                : ""
+            }`}
+          >
+            {individual.length > 0 && (
+              <div className="results-group">
+                <h4>Individual results</h4>
+                {individual.map((result, index) => (
+                  <ResultRow
+                    key={index}
+                    medal={result.medal}
+                    name={result.name}
+                    category={result.category}
+                  />
+                ))}
+              </div>
+            )}
+            {team.length > 0 && (
+              <div className="results-group">
+                <h4>Team results</h4>
+                {team.map((result, index) => (
+                  <ResultRow
+                    key={index}
+                    medal={result.medal}
+                    name={result.players?.join(", ")}
+                    category={result.category}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </article>
   );
 }
 
-
-// =============================================================
-// MEDAL STAT
-// =============================================================
-
-function MedalStat({
-  icon,
-  label,
-  value,
-  highlighted = false,
-}) {
-  return (
-    <div
-      className={`rounded-2xl border p-4 backdrop-blur-xl ${
-        highlighted
-          ? "border-blue-500/20 bg-blue-500/[0.06]"
-          : "border-white/10 bg-white/[0.035]"
-      }`}
-    >
-
-      <div className="flex items-center gap-2">
-
-        <span className="text-lg">
-          {icon}
-        </span>
-
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          {label}
-        </span>
-
-      </div>
-
-      <div
-        className={`mt-3 text-3xl font-black ${
-          highlighted
-            ? "text-blue-400"
-            : "text-white"
-        }`}
-      >
-        {value}
-      </div>
-
-    </div>
-  );
-}
-
-
-// =============================================================
-// MEDAL BOX
-// =============================================================
-
-function MedalBox({
-  icon,
-  label,
-  value,
-  highlighted = false,
-}) {
-  return (
-    <div
-      className={`min-w-[68px] rounded-xl border px-3 py-2 text-center ${
-        highlighted
-          ? "border-blue-500/20 bg-blue-500/[0.06]"
-          : "border-white/10 bg-white/[0.025]"
-      }`}
-    >
-
-      <div className="text-sm">
-        {icon}
-      </div>
-
-      <div
-        className={`mt-0.5 text-sm font-black ${
-          highlighted
-            ? "text-blue-400"
-            : "text-white"
-        }`}
-      >
-        {value}
-      </div>
-
-      <div className="text-[8px] font-bold uppercase tracking-wider text-slate-500">
-        {label}
-      </div>
-
-    </div>
-  );
-}
-
-
-// =============================================================
-// RESULT GROUP
-// =============================================================
-
-function ResultGroup({
-  title,
-  icon,
-  children,
-}) {
-  return (
-    <div>
-
-      <div className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
-
-        <span className="text-blue-400">
-          {icon}
-        </span>
-
-        {title}
-
-      </div>
-
-      <div className="space-y-2">
-        {children}
-      </div>
-
-    </div>
-  );
-}
-
-
-// =============================================================
-// RESULT ROW
-// =============================================================
-
-function ResultRow({
-  medal,
-  name,
-  category,
-}) {
+function ResultRow({ medal, name, category }) {
   const config = MEDAL_CONFIG[medal];
-
+  const tone = config?.tone || "result";
   return (
-    <div className="rounded-2xl border border-white/5 bg-white/[0.025] p-3">
-
-      <div className="flex items-start gap-3">
-
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-lg">
-          {config?.icon || "🏅"}
-        </div>
-
-        <div className="min-w-0">
-
-          <p className="text-sm font-semibold text-slate-200">
-            {name}
-          </p>
-
-          {category && (
-            <p className="mt-0.5 text-xs text-slate-500">
-              {formatCategory(category)}
-            </p>
-          )}
-
-        </div>
-
+    <div className="public-result-row">
+      <span className={`public-small results-result-medal results-result-medal--${tone}`}>
+        {config?.label || medal || "Result"}
+      </span>
+      <div className="min-w-0">
+        <p className="font-medium">{name}</p>
+        {category && <p className="public-small">{formatCategory(category)}</p>}
       </div>
-
-    </div>
-  );
-}
-
-
-// =============================================================
-// LOADING STATE
-// =============================================================
-
-function LoadingState() {
-  return (
-    <main className="min-h-screen bg-[#020617] px-4 pb-24 pt-28 sm:px-6 lg:px-8">
-
-      <div className="mx-auto max-w-7xl">
-
-        <div className="animate-pulse space-y-6">
-
-          <div className="h-8 w-56 rounded-xl bg-white/10" />
-
-          <div className="h-5 w-96 max-w-full rounded-lg bg-white/5" />
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-
-            {[1, 2, 3, 4].map((item) => (
-              <div
-                key={item}
-                className="h-28 rounded-2xl bg-white/5"
-              />
-            ))}
-
-          </div>
-
-          {[1, 2, 3].map((item) => (
-            <div
-              key={item}
-              className="h-52 rounded-3xl bg-white/5"
-            />
-          ))}
-
-        </div>
-
-      </div>
-
-    </main>
-  );
-}
-
-
-// =============================================================
-// ERROR STATE
-// =============================================================
-
-function ErrorState({ message }) {
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-[#020617] px-4 text-white">
-
-      <div className="w-full max-w-md rounded-3xl border border-red-500/20 bg-red-500/[0.05] p-10 text-center">
-
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 text-red-400">
-          <Trophy size={28} />
-        </div>
-
-        <h1 className="mt-5 text-xl font-bold">
-          Unable to load medal record
-        </h1>
-
-        <p className="mt-2 text-sm text-slate-500">
-          {message}
-        </p>
-
-      </div>
-
-    </main>
-  );
-}
-
-
-// =============================================================
-// EMPTY STATE
-// =============================================================
-
-function EmptyState() {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-12 text-center">
-
-      <Medal
-        size={34}
-        className="mx-auto text-slate-600"
-      />
-
-      <h2 className="mt-4 text-lg font-bold">
-        No medal records yet
-      </h2>
-
-      <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-        Club results will appear here as tournament
-        results are recorded.
-      </p>
-
     </div>
   );
 }

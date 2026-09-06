@@ -1,9 +1,7 @@
-import React from 'react'
 import Hero from '../components/homepage/Hero.jsx'
-import AboutPreview from '../components/homepage/AboutPreview.jsx'
-import CTA from '../components/homepage/CTA.jsx'
 import Achievements from '../components/homepage/Achievements.jsx'
-import ClubExperience from '../components/homepage/ClubExperience.jsx'
+import HomeStorySections from '../components/homepage/HomeStorySections.jsx'
+import '../components/homepage/home.css'
 
 function Home() {
   const structuredData = {
@@ -13,10 +11,17 @@ function Home() {
     name: "All Star Fencing Club",
     url: "https://all-star-fencing-club.vercel.app/",
     description:
-      "All Star Fencing Club is a fencing club in Solapur, Maharashtra, offering fencing training, coaching, competition preparation and player development.",
+      "All Star Fencing Club provides professional fencing training in Solapur for children, beginners and competitive athletes through structured coaching and athlete development.",
     sport: "Fencing",
+    telephone: "+91 96379 63777",
+    email: "info@allstarfencingclub.com",
+    sameAs: [
+      "https://www.facebook.com/p/ALL-STAR-Fencing-CLUB-100064343851939/",
+      "https://www.instagram.com/all_star_fencing_club/",
+    ],
     address: {
       "@type": "PostalAddress",
+      streetAddress: "Chh. Shivaji Night College",
       addressLocality: "Solapur",
       addressRegion: "Maharashtra",
       addressCountry: "IN",
@@ -31,10 +36,10 @@ function Home() {
       }}
     />
 
-      <Hero />
-      <Achievements />
-      <AboutPreview />
-      <CTA />
+      <main id="public-content" className="public-site asfc-home">
+        <Hero />
+        <HomeStorySections achievements={<Achievements />} />
+      </main>
     </>
   )
 }

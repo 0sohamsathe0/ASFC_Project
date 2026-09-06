@@ -55,10 +55,8 @@ const getTeamResult = async (req, res) => {
 }
 
 //getting player wise result 
-const getPlayerIndividualResults = async (req, res) => {
+const sendPlayerIndividualResults = async (playerId, res) => {
     try {
-        const { playerId } = req.params;
-
         // Find all tournament entries of this player
         const entries = await TournamentEntry.find({ playerId })
             .select("_id")
@@ -81,22 +79,27 @@ const getPlayerIndividualResults = async (req, res) => {
                 path: "tournamentEntryId",
                 populate: {
                     path: "playerId",
+                    select: "fullName event",
                 },
             })
-            .populate("tournamentId")
+            .populate(
+                "tournamentId",
+                "title startingDate endDate locationCity locationState level ageCategory"
+            )
             .lean();
 
-        const formattedResults = results.map((item) => ({
+        const formattedResults = results
+          .filter((item) => item.tournamentEntryId?.playerId && item.tournamentId)
+          .map((item) => ({
             _id: item._id,
 
             player: {
                 fullName: item.tournamentEntryId.playerId.fullName,
-                institute: item.tournamentEntryId.playerId.institute,
                 event: item.tournamentEntryId.playerId.event,
-                photoURL: item.tournamentEntryId.playerId.photoURL,
             },
 
             tournament: {
+                _id: item.tournamentId._id,
                 title: item.tournamentId.title,
                 startingDate: item.tournamentId.startingDate,
                 endDate: item.tournamentId.endDate,
@@ -111,7 +114,12 @@ const getPlayerIndividualResults = async (req, res) => {
                 category: item.category,
                 certificateType: "Individual"
             },
-        }));
+          }))
+          .sort(
+            (first, second) =>
+              new Date(second.tournament.startingDate) -
+              new Date(first.tournament.startingDate)
+          );
 
         return res.status(200).json({
             success: true,
@@ -127,18 +135,25 @@ const getPlayerIndividualResults = async (req, res) => {
     }
 };
 
-const getPlayerTeamResults = async (req, res) => {
-    try {
-        const { playerId } = req.params;
+const getPlayerIndividualResults = (req, res) =>
+    sendPlayerIndividualResults(req.params.playerId, res);
 
+const getOwnPlayerIndividualResults = (req, res) =>
+    sendPlayerIndividualResults(req.user.id, res);
+
+const sendPlayerTeamResults = async (playerId, res) => {
+    try {
         const results = await TeamResult.find({
             "players.playerId": playerId,
         })
-            .populate("tournamentId")
-            .populate("players.playerId")
+            .populate(
+                "tournamentId",
+                "title startingDate endDate locationCity locationState level ageCategory"
+            )
+            .populate("players.playerId", "fullName event")
             .lean();
 
-        const formattedResults = results.map((item) => {
+        const formattedResults = results.filter((item) => item.tournamentId).map((item) => {
             // Find the logged-in player's record in the team
             const currentPlayer = item.players.find(
                 (player) => player.playerId?._id.toString() === playerId
@@ -149,12 +164,11 @@ const getPlayerTeamResults = async (req, res) => {
 
                 player: {
                     fullName: currentPlayer?.playerId?.fullName || currentPlayer?.name,
-                    institute: currentPlayer?.playerId?.institute || "",
                     event: currentPlayer?.playerId?.event || "",
-                    photoURL: currentPlayer?.playerId?.photoURL || "",
                 },
 
                 tournament: {
+                    _id: item.tournamentId._id,
                     title: item.tournamentId.title,
                     startingDate: item.tournamentId.startingDate,
                     endDate: item.tournamentId.endDate,
@@ -170,7 +184,11 @@ const getPlayerTeamResults = async (req, res) => {
                     certificateType: "Team"
                 },
             };
-        });
+        }).sort(
+            (first, second) =>
+              new Date(second.tournament.startingDate) -
+              new Date(first.tournament.startingDate)
+        );
 
         return res.status(200).json({
             success: true,
@@ -185,6 +203,12 @@ const getPlayerTeamResults = async (req, res) => {
         });
     }
 };
+
+const getPlayerTeamResults = (req, res) =>
+    sendPlayerTeamResults(req.params.playerId, res);
+
+const getOwnPlayerTeamResults = (req, res) =>
+    sendPlayerTeamResults(req.user.id, res);
 
 
 //Adding result 
@@ -552,5 +576,5 @@ const getClubResults = async (req, res) => {
 
 export {
     getIndividualResult, addIndividualResult, getTeamResult, addTeamResult, getPlayerIndividualResults, getPlayerTeamResults,
-    getClubResults
+    getClubResults, getOwnPlayerIndividualResults, getOwnPlayerTeamResults
 }

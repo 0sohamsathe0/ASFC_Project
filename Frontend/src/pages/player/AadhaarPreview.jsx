@@ -1,18 +1,36 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { AnimatePresence, motion as Motion } from "framer-motion";
 import { X, ShieldCheck } from "lucide-react";
 
 const AadhaarPreview = ({ open, image, onClose }) => {
+  const closeButtonRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    closeButtonRef.current?.focus();
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose, open]);
+
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="aadhaar-preview-title"
           className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
         >
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -31,7 +49,7 @@ const AadhaarPreview = ({ open, image, onClose }) => {
                 </div>
 
                 <div>
-                  <h2 className="text-lg font-bold">
+                  <h2 id="aadhaar-preview-title" className="text-lg font-bold">
                     Aadhaar Card
                   </h2>
 
@@ -42,7 +60,10 @@ const AadhaarPreview = ({ open, image, onClose }) => {
               </div>
 
               <button
+                ref={closeButtonRef}
+                type="button"
                 onClick={onClose}
+                aria-label="Close identity document preview"
                 className="rounded-xl p-2 transition hover:bg-white/20"
               >
                 <X size={22} />
@@ -60,8 +81,8 @@ const AadhaarPreview = ({ open, image, onClose }) => {
                 />
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );

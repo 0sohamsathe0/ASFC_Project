@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const EditPlayerProfile = () => {
-  const { playerId } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -27,42 +26,40 @@ const EditPlayerProfile = () => {
   const [originalData, setOriginalData] = useState(null);
 
   useEffect(() => {
-    fetchPlayer();
-  }, []);
+    const controller = new AbortController();
 
-  const fetchPlayer = async () => {
-  try {
-    const response = await api.get("/player/profile");
+    api.get("/player/profile", { signal: controller.signal })
+      .then((response) => {
+        const player = response.data.player;
+        const playerData = {
+          fullName: player.fullName,
+          gender: player.gender,
+          dob: player.dob?.split("T")[0],
+          event: player.event,
+          email: player.email,
+          phone: player.phone,
+          institute: player.institute,
+          address: {
+            addressLine1: player.address?.addressLine1 || "",
+            addressLine2: player.address?.addressLine2 || "",
+            pincode: player.address?.pincode || "",
+          },
+        };
 
-    const player = response.data.player;
+        setFormData(playerData);
+        setOriginalData(playerData);
+      })
+      .catch((error) => {
+        if (error.code === "ERR_CANCELED") return;
+        if ([401, 403].includes(error.response?.status)) {
+          navigate("/player/login", { replace: true });
+          return;
+        }
+        alert(error.response?.data?.message || "Unable to load profile details.");
+      });
 
-    const playerData = {
-      fullName: player.fullName,
-      gender: player.gender,
-      dob: player.dob?.split("T")[0],
-      event: player.event,
-      email: player.email,
-      phone: player.phone,
-      institute: player.institute,
-
-      address: {
-        addressLine1:
-          player.address?.addressLine1 || "",
-
-        addressLine2:
-          player.address?.addressLine2 || "",
-
-        pincode:
-          player.address?.pincode || "",
-      },
-    };
-
-    setFormData(playerData);
-    setOriginalData(playerData);
-
-  } catch (error) {
-  }
-};
+    return () => controller.abort();
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,6 +86,11 @@ const EditPlayerProfile = () => {
   e.preventDefault();
 
   try {
+    if (!originalData) {
+      alert("Profile details are still loading. Please try again.");
+      return;
+    }
+
     setLoading(true);
     const payload = {};
 
@@ -130,13 +132,7 @@ const EditPlayerProfile = () => {
       return;
     }
 
-    // Resubmission settings
-    payload.requestStatus = "Pending";
-    payload.rejectionReason = "";
-    payload.isEditable = false;
-
-
-    await api.put(`/player/${playerId}`,payload);
+    await api.patch("/player/profile", payload);
     alert(
       "Profile updated successfully and sent for review"
     );

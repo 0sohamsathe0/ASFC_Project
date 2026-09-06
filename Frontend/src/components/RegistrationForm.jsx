@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Container,
   Paper,
   TextField,
   MenuItem,
   Button,
+  Checkbox,
+  FormControlLabel,
   Grid,
   CircularProgress,
 } from "@mui/material";
@@ -19,6 +21,8 @@ import "@fontsource/roboto/400.css";
 import { api } from "./api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
+import AadhaarDocumentPreview from "./common/AadhaarDocumentPreview.jsx";
+import PlayerPhotoCropper from "./common/PlayerPhotoCropper.jsx";
 
 const formatDateForInput = (date) => {
   const year = date.getFullYear();
@@ -32,18 +36,27 @@ function RegistrationForm() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [photo, setPhoto] = useState(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
+  const [originalPhoto, setOriginalPhoto] = useState(null);
+  const [cropSource, setCropSource] = useState(null);
   const [aadharCardPhoto, setAadharCardPhoto] = useState(null);
+  const [aadhaarPreviewUrl, setAadhaarPreviewUrl] = useState("");
+  const [showAadhaarPreview, setShowAadhaarPreview] = useState(false);
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [photoError, setPhotoError] = useState("");
   const [aadhaarError, setAadhaarError] = useState("");
+  const photoInputRef = useRef(null);
+  const photoUrlsRef = useRef(new Set());
+  const aadhaarPreviewUrlRef = useRef("");
 
   const {
     control,
     register,
     handleSubmit,
     setError,
+    clearErrors,
     reset,
     setValue,
     watch,
@@ -64,6 +77,8 @@ function RegistrationForm() {
       pincode: "",
       faiId: "",
       mfaId: "",
+      hasFaiRegistration: true,
+      hasMfaRegistration: true,
     },
   });
 
@@ -78,7 +93,8 @@ function RegistrationForm() {
   const minDob = formatDateForInput(minDobDate);
   const maxDob = formatDateForInput(maxDobDate);
 
-  const aadhaarValue = watch("aadharCard") || "";
+  const hasFaiRegistration = watch("hasFaiRegistration");
+  const hasMfaRegistration = watch("hasMfaRegistration");
   const formatAadhaar = (value) => {
     return value
       .replace(/\D/g, "")
@@ -95,6 +111,18 @@ function RegistrationForm() {
     }
   }, [successMessage]);
 
+  useEffect(() => {
+    const photoUrls = photoUrlsRef.current;
+
+    return () => {
+      photoUrls.forEach((url) => URL.revokeObjectURL(url));
+      photoUrls.clear();
+      if (aadhaarPreviewUrlRef.current) {
+        URL.revokeObjectURL(aadhaarPreviewUrlRef.current);
+      }
+    };
+  }, []);
+
   const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   const PHOTO_TYPES = [
@@ -108,20 +136,94 @@ function RegistrationForm() {
     "application/pdf",
   ];
 
+  const createPhotoUrl = (file) => {
+    const url = URL.createObjectURL(file);
+    photoUrlsRef.current.add(url);
+    return url;
+  };
+
+  const revokePhotoUrl = (url) => {
+    if (!url || !photoUrlsRef.current.has(url)) return;
+    URL.revokeObjectURL(url);
+    photoUrlsRef.current.delete(url);
+  };
+
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
+    // Allow the same image to be selected again after canceling or replacing.
+    e.target.value = "";
 
     const error = validateFile(file, PHOTO_TYPES);
 
     if (error) {
       setPhotoError(error);
-      e.target.value = "";
-      setPhoto(null);
       return;
     }
 
     setPhotoError("");
-    setPhoto(file);
+    if (cropSource && !cropSource.isConfirmedOriginal) {
+      revokePhotoUrl(cropSource.url);
+    }
+
+    setCropSource({
+      file,
+      url: createPhotoUrl(file),
+      isConfirmedOriginal: false,
+      initialCrop: null,
+      initialZoom: 1,
+    });
+  };
+
+  const handleCropCancel = () => {
+    if (cropSource && !cropSource.isConfirmedOriginal) {
+      revokePhotoUrl(cropSource.url);
+    }
+
+    setCropSource(null);
+    setPhotoError("");
+  };
+
+  const handleCropConfirm = async (croppedFile, cropSettings) => {
+    const error = validateFile(croppedFile, PHOTO_TYPES);
+
+    if (error) {
+      throw new Error(`The cropped photo is invalid. ${error}`);
+    }
+
+    const nextPreviewUrl = createPhotoUrl(croppedFile);
+
+    revokePhotoUrl(photoPreviewUrl);
+    if (originalPhoto && originalPhoto.url !== cropSource.url) {
+      revokePhotoUrl(originalPhoto.url);
+    }
+
+    setPhoto(croppedFile);
+    setPhotoPreviewUrl(nextPreviewUrl);
+    setOriginalPhoto({
+      file: cropSource.file,
+      url: cropSource.url,
+      crop: cropSettings.crop,
+      zoom: cropSettings.zoom,
+    });
+    setCropSource(null);
+    setPhotoError("");
+  };
+
+  const handleRecrop = () => {
+    if (!originalPhoto) return;
+
+    setPhotoError("");
+    setCropSource({
+      file: originalPhoto.file,
+      url: originalPhoto.url,
+      isConfirmedOriginal: true,
+      initialCrop: null,
+      initialZoom: 1,
+    });
+  };
+
+  const openPhotoPicker = () => {
+    photoInputRef.current?.click();
   };
 
   const handleAadhaarChange = (e) => {
@@ -133,11 +235,24 @@ function RegistrationForm() {
       setAadhaarError(error);
       e.target.value = "";
       setAadharCardPhoto(null);
+      setShowAadhaarPreview(false);
+      if (aadhaarPreviewUrlRef.current) {
+        URL.revokeObjectURL(aadhaarPreviewUrlRef.current);
+        aadhaarPreviewUrlRef.current = "";
+        setAadhaarPreviewUrl("");
+      }
       return;
     }
 
+    if (aadhaarPreviewUrlRef.current) {
+      URL.revokeObjectURL(aadhaarPreviewUrlRef.current);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    aadhaarPreviewUrlRef.current = previewUrl;
     setAadhaarError("");
     setAadharCardPhoto(file);
+    setAadhaarPreviewUrl(previewUrl);
   };
 
   const validateFile = (file, allowedTypes) => {
@@ -181,7 +296,7 @@ function RegistrationForm() {
       const data = new FormData();
 
       Object.entries(formData).forEach(([key, value]) => {
-        data.append(key, value);
+        data.append(key, typeof value === "boolean" ? String(value) : value);
       });
 
       data.append("photo", photo);
@@ -197,10 +312,19 @@ function RegistrationForm() {
 
       reset();
       setPhoto(null);
+      setPhotoPreviewUrl("");
+      setOriginalPhoto(null);
+      setCropSource(null);
       setAadharCardPhoto(null);
+      setAadhaarPreviewUrl("");
+      setShowAadhaarPreview(false);
+      if (aadhaarPreviewUrlRef.current) {
+        URL.revokeObjectURL(aadhaarPreviewUrlRef.current);
+        aadhaarPreviewUrlRef.current = "";
+      }
       setPhotoError("");
       setAadhaarError("");
-      navigate("/player/profile");
+      navigate("/player/dashboard", { replace: true });
     } catch (error) {
       console.error(error);
 
@@ -260,6 +384,26 @@ function RegistrationForm() {
           md: 2,
         },
       }}>
+      {cropSource && (
+        <PlayerPhotoCropper
+          key={cropSource.url}
+          open
+          imageSource={cropSource.url}
+          initialCrop={cropSource.initialCrop}
+          initialZoom={cropSource.initialZoom}
+          errorMessage={photoError}
+          onCancel={handleCropCancel}
+          onConfirm={handleCropConfirm}
+          onReplace={openPhotoPicker}
+        />
+      )}
+      <AadhaarDocumentPreview
+        open={showAadhaarPreview}
+        source={aadhaarPreviewUrl}
+        fileName={aadharCardPhoto?.name || "Aadhaar card"}
+        fileType={aadharCardPhoto?.type || ""}
+        onClose={() => setShowAadhaarPreview(false)}
+      />
       <Paper
         elevation={0}
         sx={{
@@ -835,28 +979,107 @@ function RegistrationForm() {
                   </h3>
 
                   <p className="text-gray-500 mt-1">
-                    Enter your FAI and MFA registration IDs.
+                    Enter your association registration IDs. If you have not
+                    registered yet, select the option below the relevant field.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <TextField
-                    label="FAI ID"
-                    fullWidth
-                    required
-                    {...register("faiId")}
-                    error={!!errors.faiId}
-                    helperText={errors.faiId?.message}
-                  />
+                  <div className="min-w-0">
+                    <TextField
+                      label="FAI ID"
+                      fullWidth
+                      required={hasFaiRegistration}
+                      disabled={!hasFaiRegistration || loading}
+                      {...register("faiId")}
+                      error={hasFaiRegistration && !!errors.faiId}
+                      helperText={
+                        hasFaiRegistration
+                          ? errors.faiId?.message
+                          : "Registration pending. You can add this ID later."
+                      }
+                    />
 
-                  <TextField
-                    label="MFA ID"
-                    fullWidth
-                    required
-                    {...register("mfaId")}
-                    error={!!errors.mfaId}
-                    helperText={errors.mfaId?.message}
-                  />
+                    <Controller
+                      name="hasFaiRegistration"
+                      control={control}
+                      render={({ field }) => (
+                        <FormControlLabel
+                          sx={{ mt: 0.5, ml: 0, alignItems: "flex-start" }}
+                          control={(
+                            <Checkbox
+                              checked={!field.value}
+                              disabled={loading}
+                              onChange={(event) => {
+                                const doesNotHaveId = event.target.checked;
+                                field.onChange(!doesNotHaveId);
+
+                                if (doesNotHaveId) {
+                                  setValue("faiId", "", {
+                                    shouldDirty: true,
+                                    shouldValidate: false,
+                                  });
+                                  clearErrors("faiId");
+                                }
+                              }}
+                              inputProps={{
+                                "aria-label": "I don't have an FAI ID yet",
+                              }}
+                            />
+                          )}
+                          label="I don't have an FAI ID yet"
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="min-w-0">
+                    <TextField
+                      label="MFA ID"
+                      fullWidth
+                      required={hasMfaRegistration}
+                      disabled={!hasMfaRegistration || loading}
+                      {...register("mfaId")}
+                      error={hasMfaRegistration && !!errors.mfaId}
+                      helperText={
+                        hasMfaRegistration
+                          ? errors.mfaId?.message
+                          : "Registration pending. You can add this ID later."
+                      }
+                    />
+
+                    <Controller
+                      name="hasMfaRegistration"
+                      control={control}
+                      render={({ field }) => (
+                        <FormControlLabel
+                          sx={{ mt: 0.5, ml: 0, alignItems: "flex-start" }}
+                          control={(
+                            <Checkbox
+                              checked={!field.value}
+                              disabled={loading}
+                              onChange={(event) => {
+                                const doesNotHaveId = event.target.checked;
+                                field.onChange(!doesNotHaveId);
+
+                                if (doesNotHaveId) {
+                                  setValue("mfaId", "", {
+                                    shouldDirty: true,
+                                    shouldValidate: false,
+                                  });
+                                  clearErrors("mfaId");
+                                }
+                              }}
+                              inputProps={{
+                                "aria-label": "I don't have an MFA ID yet",
+                              }}
+                            />
+                          )}
+                          label="I don't have an MFA ID yet"
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
               </Paper>
               {/* ================= UPLOAD DOCUMENTS ================= */}
@@ -889,71 +1112,113 @@ function RegistrationForm() {
 
                   {/* Player Photo */}
 
-                  <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center bg-gray-50 hover:border-blue-500 transition">
-
-                    <div className="text-5xl mb-4">
-                      📷
-                    </div>
-
-                    <h4 className="font-semibold text-lg">
-                      Player Photo
-                    </h4>
-
-                    <p className="text-sm text-gray-500 mt-1">
-                      JPG, JPEG or PNG
-                    </p>
-
-                    <p className="text-xs text-gray-400 mb-5">
-                      Maximum file size: 5 MB
-                    </p>
-
-                    <Button
-                      variant="contained"
-                      component="label"
-                      fullWidth
+                  <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 text-center transition hover:border-blue-500 sm:p-5">
+                    <input
+                      ref={photoInputRef}
+                      hidden
+                      type="file"
+                      accept="image/jpeg,image/png"
                       disabled={loading}
-                    >
-                      Choose Photo
+                      onChange={handlePhotoChange}
+                    />
 
-                      <input
-                        hidden
-                        type="file"
-                        required
-                        accept="image/jpeg,image/png"
-                        disabled={loading}
-                        onChange={handlePhotoChange}
-                      />
+                    {!photo ? (
+                      <>
+                        <div className="mb-3 text-5xl" aria-hidden="true">
+                          📷
+                        </div>
 
-                    </Button>
+                        <h4 className="text-lg font-semibold">
+                          Player Photo
+                        </h4>
 
-                    {photo && (
-
-                      <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
-
-                        <p className="text-sm font-medium text-green-700 truncate">
-                          ✓ {photo.name}
+                        <p className="mt-1 text-sm text-gray-500">
+                          JPG, JPEG or PNG
                         </p>
 
-                        <p className="text-xs text-green-600 mt-1">
-                          {(photo.size / (1024 * 1024)).toFixed(2)} MB
+                        <p className="mb-5 text-xs text-gray-400">
+                          Maximum file size: 5 MB
                         </p>
 
+                        <Button
+                          type="button"
+                          variant="contained"
+                          fullWidth
+                          disabled={loading}
+                          onClick={openPhotoPicker}
+                        >
+                          Choose Photo
+                        </Button>
+                      </>
+                    ) : (
+                      <div className="text-left">
+                        <h4 className="text-center text-lg font-semibold text-gray-900">
+                          Player Photo
+                        </h4>
+
+                        <div className="mt-3 grid grid-cols-[96px_minmax(0,1fr)] items-center gap-4 rounded-xl border border-green-200 bg-green-50 p-3">
+                          <img
+                            src={photoPreviewUrl}
+                            alt="Cropped player profile portrait"
+                            className="aspect-[4/5] w-24 rounded-lg border border-green-200 object-cover shadow-sm"
+                          />
+
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={photoPreviewUrl}
+                                alt="Circular player avatar preview"
+                                className="h-12 w-12 shrink-0 rounded-full border-2 border-white object-cover shadow-sm"
+                              />
+                              <div className="min-w-0">
+                                <p className="font-semibold text-green-800">
+                                  Photo ready
+                                </p>
+                                <p className="text-xs text-green-700">
+                                  4:5 portrait · 800 × 1000
+                                </p>
+                              </div>
+                            </div>
+
+                            <p className="mt-2 truncate text-xs text-green-700">
+                              {(photo.size / (1024 * 1024)).toFixed(2)} MB JPEG
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={handleRecrop}
+                            disabled={loading}
+                            className="min-h-11 rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            Re-crop
+                          </button>
+                          <button
+                            type="button"
+                            onClick={openPhotoPicker}
+                            disabled={loading}
+                            className="min-h-11 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            Change Photo
+                          </button>
+                        </div>
                       </div>
-
                     )}
-                    {photoError && (
-                      <p className="mt-2 text-sm text-red-600">
+
+                    {photoError && !cropSource && (
+                      <p role="alert" className="mt-2 text-sm text-red-600">
                         {photoError}
                       </p>
                     )}
-
                   </div>
 
                   {/* Aadhaar Card */}
 
                   <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center bg-gray-50 hover:border-blue-500 transition">
 
-                    <div className="text-5xl mb-4">
+                    <div className="text-5xl mb-4" aria-hidden="true">
                       🪪
                     </div>
 
@@ -975,7 +1240,7 @@ function RegistrationForm() {
                       fullWidth
                       disabled={loading}
                     >
-                      Choose File
+                      {aadharCardPhoto ? "Change File" : "Choose File"}
 
                       <input
                         hidden
@@ -989,19 +1254,42 @@ function RegistrationForm() {
                     </Button>
 
                     {aadharCardPhoto && (
+                      <div className="mt-4 overflow-hidden rounded-xl border border-green-200 bg-green-50 p-3">
+                        {aadharCardPhoto.type === "application/pdf" ? (
+                          <div className="flex h-28 items-center justify-center rounded-lg border border-green-200 bg-white text-center">
+                            <div>
+                              <span className="text-3xl" aria-hidden="true">📄</span>
+                              <p className="mt-1 text-xs font-bold uppercase tracking-wide text-green-800">
+                                PDF document
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <img
+                            src={aadhaarPreviewUrl}
+                            alt="Selected Aadhaar card thumbnail"
+                            className="h-28 w-full rounded-lg border border-green-200 bg-white object-contain"
+                          />
+                        )}
 
-                      <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div className="mt-3 text-left">
+                          <p className="truncate text-sm font-medium text-green-800">
+                            ✓ {aadharCardPhoto.name}
+                          </p>
+                          <p className="mt-1 text-xs text-green-700">
+                            {(aadharCardPhoto.size / (1024 * 1024)).toFixed(2)} MB
+                          </p>
+                        </div>
 
-                        <p className="text-sm font-medium text-green-700 truncate">
-                          ✓ {aadharCardPhoto.name}
-                        </p>
-
-                        <p className="text-xs text-green-600 mt-1">
-                          {(aadharCardPhoto.size / (1024 * 1024)).toFixed(2)} MB
-                        </p>
-
+                        <button
+                          type="button"
+                          onClick={() => setShowAadhaarPreview(true)}
+                          disabled={loading}
+                          className="mt-3 min-h-11 w-full rounded-lg border border-green-300 bg-white px-3 py-2 text-sm font-semibold text-green-800 transition hover:bg-green-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Preview Aadhaar Card
+                        </button>
                       </div>
-
                     )}
                     {aadhaarError && (
                       <p className="mt-2 text-sm text-red-600">
