@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import Player from "../models/player-model.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
+import { normalizeAssociationRegistration } from "../utils/association-registration.js";
 
 const addPlayer = async (req, res) => {
   let photoUpload = null;
@@ -12,8 +13,21 @@ console.log("[REGISTER] Start");
     const fullName = req.body.fullName?.trim();
     const gender = req.body.gender?.trim();
     const dob = req.body.dob?.trim();
-    const faiId = req.body.faiId?.trim();
-    const mfaId = req.body.mfaId?.trim();
+    const associationRegistration = normalizeAssociationRegistration(req.body);
+
+    if (associationRegistration.error) {
+      return res.status(400).json({
+        success: false,
+        message: associationRegistration.error,
+      });
+    }
+
+    const {
+      faiId,
+      mfaId,
+      hasFaiRegistration,
+      hasMfaRegistration,
+    } = associationRegistration.value;
 
     const aadharCard = req.body.aadharCard
       ?.replace(/\s+/g, "")
@@ -47,13 +61,6 @@ console.log("[REGISTER] Start");
       return res.status(400).json({
         success: false,
         message: "Photo and Aadhaar card images are required.",
-      });
-    }
-
-    if (!faiId || !mfaId) {
-      return res.status(400).json({
-        success: false,
-        message: "FAI ID and MFA ID are required.",
       });
     }
 
@@ -142,6 +149,8 @@ const dbStart = Date.now();
         aadharCardURL: aadhaarUpload.secure_url,
         faiId,
         mfaId,
+        hasFaiRegistration,
+        hasMfaRegistration,
       });
     } catch (dbError) {
       await Promise.all([
@@ -185,6 +194,8 @@ console.log(
         event: newPlayer.event,
         requestStatus: newPlayer.requestStatus,
         rejectionReason: newPlayer.rejectionReason,
+        hasFaiRegistration: newPlayer.hasFaiRegistration,
+        hasMfaRegistration: newPlayer.hasMfaRegistration,
         role: "player",
       },
     });
@@ -328,7 +339,7 @@ const getPlayerProfile = async (req, res) => {
   try {
     const player = await Player.findById(req.user.id)
       .select(
-        "fullName gender dob event email phone address institute photoURL aadharCardURL faiId mfaId requestStatus rejectionReason isEditable createdAt updatedAt"
+        "fullName gender dob event email phone address institute photoURL aadharCardURL faiId mfaId hasFaiRegistration hasMfaRegistration requestStatus rejectionReason isEditable createdAt updatedAt"
       )
       .lean();
 
@@ -502,7 +513,7 @@ const updateOwnPlayer = async (req, res) => {
       { $set: updates },
       { returnDocument: "after", runValidators: true }
     ).select(
-      "fullName gender dob event email phone address institute photoURL aadharCardURL faiId mfaId requestStatus rejectionReason isEditable"
+      "fullName gender dob event email phone address institute photoURL aadharCardURL faiId mfaId hasFaiRegistration hasMfaRegistration requestStatus rejectionReason isEditable"
     );
 
     return res.status(200).json({

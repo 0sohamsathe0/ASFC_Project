@@ -82,12 +82,28 @@ const playerSchema = new mongoose.Schema(
       type: String,
       default: "",
       trim: true,
+      required() {
+        return this.hasFaiRegistration;
+      },
+    },
+
+    hasFaiRegistration: {
+      type: Boolean,
+      default: true,
     },
 
     mfaId: {
       type: String,
       default: "",
       trim: true,
+      required() {
+        return this.hasMfaRegistration;
+      },
+    },
+
+    hasMfaRegistration: {
+      type: Boolean,
+      default: true,
     },
 
     //for admin approval process
@@ -104,6 +120,16 @@ const playerSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+playerSchema.pre("validate", function normalizeAssociationIds() {
+  if (this.hasFaiRegistration === false) {
+    this.faiId = "";
+  }
+
+  if (this.hasMfaRegistration === false) {
+    this.mfaId = "";
+  }
+});
 
 const Player = mongoose.model("Player", playerSchema);
 

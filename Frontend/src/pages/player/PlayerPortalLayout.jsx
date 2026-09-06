@@ -16,6 +16,8 @@ const toPlayerSummary = (player, identityLoaded = false) => ({
   photoURL: player?.photoURL || "",
   faiId: player?.faiId || "",
   mfaId: player?.mfaId || "",
+  hasFaiRegistration: player?.hasFaiRegistration ?? true,
+  hasMfaRegistration: player?.hasMfaRegistration ?? true,
   requestStatus: player?.requestStatus || "",
   rejectionReason: player?.rejectionReason || "",
   identityLoaded: player?.identityLoaded || identityLoaded,

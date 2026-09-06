@@ -68,13 +68,27 @@ export const playerSchema = z.object({
     .string()
     .regex(/^\d{6}$/, "Pincode must contain 6 digits"),
 
-  faiId: z
-  .string()
-  .trim()
-  .min(1, "FAI ID is required"),
+  faiId: z.string().trim().optional().default(""),
 
-mfaId: z
-  .string()
-  .trim()
-  .min(1, "MFA ID is required"),
+  hasFaiRegistration: z.boolean(),
+
+  mfaId: z.string().trim().optional().default(""),
+
+  hasMfaRegistration: z.boolean(),
+}).superRefine((data, context) => {
+  if (data.hasFaiRegistration && !data.faiId) {
+    context.addIssue({
+      code: "custom",
+      path: ["faiId"],
+      message: "FAI ID is required",
+    });
+  }
+
+  if (data.hasMfaRegistration && !data.mfaId) {
+    context.addIssue({
+      code: "custom",
+      path: ["mfaId"],
+      message: "MFA ID is required",
+    });
+  }
 });
