@@ -2,22 +2,12 @@ import { useEffect, useState } from "react";
 import TournamentTable from "./TournamentTable";
 import EditTournamentModal from "./EditTournamentModal";
 import { api } from "../api";
+import { getTournamentStatus } from "../../utils/tournamentDisplay";
 
 const groupTournamentsBySchedule = (data) => {
   const grouped = { upcoming: [], ongoing: [], completed: [] };
-  const today = new Date();
-
   data.forEach((tournament) => {
-    const start = new Date(tournament.startingDate);
-    const end = new Date(tournament.endDate);
-
-    if (today < start) {
-      grouped.upcoming.push(tournament);
-    } else if (today >= start && today <= end) {
-      grouped.ongoing.push(tournament);
-    } else {
-      grouped.completed.push(tournament);
-    }
+    grouped[getTournamentStatus(tournament)].push(tournament);
   });
 
   return grouped;

@@ -200,7 +200,7 @@ function RegistrationForm() {
       setAadharCardPhoto(null);
       setPhotoError("");
       setAadhaarError("");
-      navigate("/player/profile");
+      navigate("/player/dashboard", { replace: true });
     } catch (error) {
       console.error(error);
 

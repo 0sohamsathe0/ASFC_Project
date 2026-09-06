@@ -26,6 +26,11 @@ const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const PlayerProfile = lazy(() => import("./pages/PlayerProfile"));
 const EditPlayerProfile = lazy(() =>import("./components/Player/EditPlayerProfile.jsx"));
+const PlayerPortalLayout = lazy(() =>import("./pages/player/PlayerPortalLayout.jsx"));
+const PlayerDashboard = lazy(() =>import("./pages/player/PlayerDashboard.jsx"));
+const PlayerAttendancePage = lazy(() =>import("./pages/player/PlayerAttendancePage.jsx"));
+const PlayerTournamentsPage = lazy(() =>import("./pages/player/PlayerTournamentsPage.jsx"));
+const PlayerAchievementsPage = lazy(() =>import("./pages/player/PlayerAchievementsPage.jsx"));
 
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
@@ -63,6 +68,11 @@ const ExploreTournament = lazy(() =>import("./components/homepage/ExploreTournam
 
 function App() {
   const { pathname } = useLocation();
+  const isPlayerAuthRoute =
+    pathname === "/player/login" || pathname === "/player/register";
+  const isPlayerPortalRoute =
+    (pathname === "/player" || pathname.startsWith("/player/")) &&
+    !isPlayerAuthRoute;
   const isPublicRoute =
   !pathname.startsWith("/player") &&
   !pathname.startsWith("/admin") &&
@@ -73,7 +83,7 @@ function App() {
       <ScrollToTop />
       <ServerMonitor/>
 
-      {!pathname.startsWith("/admin") && <Navbar />}
+      {!pathname.startsWith("/admin") && !isPlayerPortalRoute && <Navbar />}
 
       <Suspense fallback={isPublicRoute || pathname === "/maintenance" ? <main id="public-content" className="public-site public-section public-utility"><div className="public-container"><PublicDataState kind="loading" title="Getting ready…">Loading All Star Fencing Club.</PublicDataState></div></main> : <LoadingScreen />}>
         <Routes>
@@ -89,15 +99,19 @@ function App() {
           <Route path="/player/login" element={<Login />} />
           <Route path="/player/register" element={<Register />} />
 
-          <Route path="/player/profile" element={
-            <PlayerRoute>
-            <PlayerProfile />
-            </PlayerRoute>
-            } />
-          <Route
-            path="/player/edit/:playerId"
-            element={<EditPlayerProfile />}
-          />
+          <Route element={<PlayerRoute />}>
+            <Route path="/player" element={<PlayerPortalLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<PlayerDashboard />} />
+              <Route path="attendance" element={<PlayerAttendancePage />} />
+              <Route path="tournaments" element={<PlayerTournamentsPage />} />
+              <Route path="achievements" element={<PlayerAchievementsPage />} />
+              <Route path="profile" element={<PlayerProfile />} />
+              <Route path="profile/edit" element={<EditPlayerProfile />} />
+              <Route path="edit/:playerId" element={<EditPlayerProfile />} />
+              <Route path="*" element={<Navigate to="dashboard" replace />} />
+            </Route>
+          </Route>
 
           {/* Admin Login */}
           <Route path="/admin/login" element={<AdminLogin />} />

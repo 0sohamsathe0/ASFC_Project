@@ -181,6 +181,10 @@ console.log(
       message: "Player added successfully.",
       user: {
         id: newPlayer._id,
+        fullName: newPlayer.fullName,
+        event: newPlayer.event,
+        requestStatus: newPlayer.requestStatus,
+        rejectionReason: newPlayer.rejectionReason,
         role: "player",
       },
     });
@@ -303,7 +307,12 @@ const loginPlayer = async (req, res) => {
       success: true,
       message: "Player Login Successful",
       user: {
+        id: player._id,
         role: "player",
+        fullName: player.fullName,
+        event: player.event,
+        requestStatus: player.requestStatus,
+        rejectionReason: player.rejectionReason,
       },
     });
   } catch (error) {
@@ -317,16 +326,28 @@ const loginPlayer = async (req, res) => {
 
 const getPlayerProfile = async (req, res) => {
   try {
-    const player = await Player.findById(req.user.id);
-    res.json({
+    const player = await Player.findById(req.user.id)
+      .select(
+        "fullName gender dob event email phone address institute photoURL aadharCardURL faiId mfaId requestStatus rejectionReason isEditable createdAt updatedAt"
+      )
+      .lean();
+
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        message: "Player not found",
+      });
+    }
+
+    return res.status(200).json({
       success: true,
       player,
     });
   }
   catch (err) {
-    res.json({
+    return res.status(500).json({
       success: false,
-      Error: err.message,
+      message: "Unable to retrieve player profile",
     });
   }
 };
@@ -411,4 +432,106 @@ const updatePlayer = async (req, res) => {
 
 };
 
-export { addPlayer, getPlayers, loginPlayer, getPlayerProfile, logoutPlayer, updatePlayer };
+const PLAYER_EDITABLE_FIELDS = [
+  "fullName",
+  "gender",
+  "dob",
+  "event",
+  "email",
+  "phone",
+  "institute",
+];
+const PLAYER_EDITABLE_ADDRESS_FIELDS = [
+  "addressLine1",
+  "addressLine2",
+  "pincode",
+];
+
+const updateOwnPlayer = async (req, res) => {
+  try {
+    const player = await Player.findById(req.user.id)
+      .select("requestStatus isEditable")
+      .lean();
+
+    if (!player) {
+      return res.status(404).json({
+        success: false,
+        message: "Player not found",
+      });
+    }
+
+    if (player.requestStatus !== "Rejected" || !player.isEditable) {
+      return res.status(403).json({
+        success: false,
+        message: "Profile correction is not currently available.",
+      });
+    }
+
+    const submittedData = req.body || {};
+    const updates = {};
+    PLAYER_EDITABLE_FIELDS.forEach((field) => {
+      if (Object.hasOwn(submittedData, field)) updates[field] = submittedData[field];
+    });
+
+    const submittedAddress = submittedData.address;
+    if (
+      submittedAddress &&
+      typeof submittedAddress === "object" &&
+      !Array.isArray(submittedAddress)
+    ) {
+      PLAYER_EDITABLE_ADDRESS_FIELDS.forEach((field) => {
+        if (Object.hasOwn(submittedAddress, field)) {
+          updates[`address.${field}`] = submittedAddress[field];
+        }
+      });
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid profile changes were submitted.",
+      });
+    }
+
+    updates.requestStatus = "Pending";
+    updates.rejectionReason = "";
+    updates.isEditable = false;
+
+    const updatedPlayer = await Player.findByIdAndUpdate(
+      req.user.id,
+      { $set: updates },
+      { returnDocument: "after", runValidators: true }
+    ).select(
+      "fullName gender dob event email phone address institute photoURL aadharCardURL faiId mfaId requestStatus rejectionReason isEditable"
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated and sent for review.",
+      data: updatedPlayer,
+    });
+  } catch (error) {
+    if (error?.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    console.error("Player self-update error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to update profile.",
+    });
+  }
+};
+
+export {
+  addPlayer,
+  getPlayers,
+  loginPlayer,
+  getPlayerProfile,
+  logoutPlayer,
+  updateOwnPlayer,
+  updatePlayer,
+};

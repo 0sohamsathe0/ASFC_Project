@@ -6,6 +6,7 @@ import {
   PublicButton,
   PublicDataState,
 } from "../public/PublicUI";
+import { getTournamentStatus } from "../../utils/tournamentDisplay";
 
 export default function ExploreTournament() {
   const [loading, setLoading] = useState(true);
@@ -67,13 +68,11 @@ export default function ExploreTournament() {
     setAttempt((value) => value + 1);
   };
   const { upcoming, completed } = useMemo(() => {
-    const now = new Date();
-
     const upcoming = [];
     const completed = [];
 
     tournaments.forEach((tournament) => {
-      if (new Date(tournament.endDate) >= now) {
+      if (getTournamentStatus(tournament) !== "completed") {
         upcoming.push(tournament);
       } else {
         completed.push(tournament);

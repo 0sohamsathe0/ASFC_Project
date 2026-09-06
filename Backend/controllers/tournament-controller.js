@@ -1,26 +1,19 @@
 import TournamentEntry from "../models/tournamentEntry-model.js";
 import Tournament from "../models/tournament-model.js"
 import Player from "../models/player-model.js"
+import { getTournamentScheduleQuery } from "../utils/tournament-dates.js";
+
+const PLAYER_TOURNAMENT_FIELDS =
+  "title startingDate endDate locationState locationCity level ageCategory";
 
 const getAllTournaments = async (req, res) => {
   try {
     const { type } = req.query;
-    const today = new Date();
-    let filter = {};
-    if (type === "upcoming") {
-      filter.startingDate = { $gt: today };
-    }
-    else if (type === "ongoing") {
-      filter.startingDate = { $lte: today };
-      filter.endDate = { $gte: today };
-    }
-    else if (type === "completed") {
-      filter.endDate = { $lt: today };
-    }
-
-    const tournaments = await Tournament.find(filter).sort({
-      startingDate: 1
-    });
+    const { filter, sort } = getTournamentScheduleQuery(type);
+    const tournaments = await Tournament.find(filter)
+      .select(PLAYER_TOURNAMENT_FIELDS)
+      .sort(sort)
+      .lean();
     res.status(200).json({ "success": true, data: tournaments });
 
   } catch (error) {

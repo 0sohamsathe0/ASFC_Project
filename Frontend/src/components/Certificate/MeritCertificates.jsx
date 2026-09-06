@@ -24,10 +24,10 @@ export default function MeritCertificates({
 
       {/* Header */}
 
-      <div className="sticky top-0 z-20 flex items-center justify-between border-b border-gray-200 bg-slate-900 px-6 py-4 text-white">
+      <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-gray-200 bg-slate-900 px-4 py-3 text-white sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
 
         <div>
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-lg font-semibold sm:text-xl">
             Certificate Preview
           </h2>
 
@@ -36,11 +36,12 @@ export default function MeritCertificates({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
 
           <button
+            type="button"
             onClick={handleExport}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 font-medium text-white transition hover:bg-blue-700"
+            className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 sm:flex-none sm:px-5"
           >
             <Download size={18} />
 
@@ -48,8 +49,10 @@ export default function MeritCertificates({
           </button>
 
           <button
+            type="button"
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-500 transition hover:border-red-500 hover:bg-red-500"
+            aria-label="Close certificate preview"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-500 transition hover:border-red-500 hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           >
             <X size={20} />
           </button>
@@ -60,7 +63,7 @@ export default function MeritCertificates({
 
       {/* Viewer */}
 
-      <div className="flex-1 overflow-auto bg-slate-200 p-6">
+      <div className="flex-1 overflow-auto bg-slate-200 p-2 sm:p-6">
         <div className="flex justify-center">
           <div className="origin-top scale-90 xl:scale-95 2xl:scale-100 transition-transform">
             <ClassicCertificate

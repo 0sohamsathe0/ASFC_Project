@@ -97,10 +97,10 @@ export default function Navbar() {
       ) : (
         <>
           <PublicButton
-            to={user.role === "admin" ? "/admin/dashboard" : "/player/profile"}
+            to={user.role === "admin" ? "/admin/dashboard" : "/player/dashboard"}
             onClick={closeMenu}
           >
-            {user.role === "admin" ? "Dashboard" : "My Profile"}
+            Dashboard
           </PublicButton>
           <button className="public-nav-link" onClick={handleLogout}>
             Logout

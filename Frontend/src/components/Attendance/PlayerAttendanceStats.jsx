@@ -3,7 +3,7 @@ import { CalendarCheck2, Check, Percent, X } from "lucide-react";
 const PlayerAttendanceStats = ({ statistics }) => {
   const items = [
     {
-      label: "Sessions",
+      label: "Recorded",
       value: statistics.totalSessions,
       icon: CalendarCheck2,
       style: "bg-blue-50 text-blue-700",

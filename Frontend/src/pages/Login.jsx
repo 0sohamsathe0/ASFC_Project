@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../components/api.js";
 import logo from "../assets/ASFC_Logo.png";
@@ -11,7 +11,15 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, user } = useAuth();
+  const requestedRoute = location.state?.from;
+  const redirectTo =
+    typeof requestedRoute === "string" &&
+    requestedRoute.startsWith("/player/") &&
+    requestedRoute !== "/player/login"
+      ? requestedRoute
+      : "/player/dashboard";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +47,7 @@ const Login = () => {
       });
 
       login(response.data.user);
-      navigate("/player/profile");
+      navigate(redirectTo, { replace: true });
     } catch (error) {
       if (error.response) {
         setErrorMessage(
@@ -56,6 +64,10 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (user?.role === "player") {
+    return <Navigate to={redirectTo} replace />;
+  }
 
   return (
   <div className="relative flex min-h-[calc(105vh-110px)] items-center justify-center overflow-hidden bg-[#07111F] px-4 py-4 sm:px-6">

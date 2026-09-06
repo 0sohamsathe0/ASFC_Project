@@ -2,19 +2,20 @@ import { Router} from "express";
 import { upload } from "../middlewares/multer-middleware.js";
 import  verifyJWT  from "../middlewares/auth-middleware.js";
 import authorizeRoles from "../middlewares/authorizeRoles.js"
-import { addPlayer , getPlayers, loginPlayer,getPlayerProfile, logoutPlayer, updatePlayer} from "../controllers/player-controller.js";
+import { addPlayer , getPlayers, loginPlayer,getPlayerProfile, logoutPlayer, updateOwnPlayer, updatePlayer} from "../controllers/player-controller.js";
 import { getPlayerAttendance } from "../controllers/attendance-controller.js";
 
 const playerRouter = Router();
 
 playerRouter.get("/getAllPlayers",verifyJWT,authorizeRoles("admin"), getPlayers);
 playerRouter.post("/add",upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'aadharCardPhoto', maxCount: 1 }]) ,addPlayer);
-playerRouter.put("/:pid",verifyJWT,authorizeRoles("player","admin"),updatePlayer)
+playerRouter.put("/:pid",verifyJWT,authorizeRoles("admin"),updatePlayer)
 
 playerRouter.post("/login", loginPlayer);
 playerRouter.post("/logout",verifyJWT,authorizeRoles("player","admin"), logoutPlayer);
 
 playerRouter.get("/profile", verifyJWT,authorizeRoles('player'),getPlayerProfile);
+playerRouter.patch("/profile", verifyJWT, authorizeRoles("player"), updateOwnPlayer);
 playerRouter.get("/attendance", verifyJWT, authorizeRoles("player"), getPlayerAttendance);
 
 

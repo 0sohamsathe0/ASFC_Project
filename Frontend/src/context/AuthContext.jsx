@@ -9,6 +9,19 @@ import { api } from "../components/api";
 
 const AuthContext = createContext();
 
+const toPlayerSessionUser = (player) => ({
+    id: player?._id || player?.id,
+    role: "player",
+    fullName: player?.fullName || "",
+    event: player?.event || "",
+    photoURL: player?.photoURL || "",
+    faiId: player?.faiId || "",
+    mfaId: player?.mfaId || "",
+    requestStatus: player?.requestStatus || "",
+    rejectionReason: player?.rejectionReason || "",
+    identityLoaded: true,
+});
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -39,10 +52,7 @@ export const AuthProvider = ({ children }) => {
                 const playerResponse = await api.get("/player/profile");
 
                 if (playerResponse.data.success) {
-                    setUser({
-                        role: "player",
-                        ...playerResponse.data.player,
-                    });
+                    setUser(toPlayerSessionUser(playerResponse.data.player));
                 }
             } catch (error) {
                 if (error.response?.status !== 401) {
