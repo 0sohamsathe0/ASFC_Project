@@ -6,14 +6,24 @@ import {
   LayoutDashboard,
   ListChecks,
   Medal,
+  BadgeIndianRupee,
   PlusCircle,
   Trophy,
   UserCheck,
   Users,
+  WalletCards,
 } from "lucide-react";
 
 export const adminNavigation = [
   { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard, end: true },
+  {
+    label: "Fees",
+    icon: WalletCards,
+    children: [
+      { label: "Fees Overview", to: "/admin/dashboard/fees", icon: WalletCards, end: true },
+      { label: "Fee Rates", to: "/admin/dashboard/fees/rates", icon: BadgeIndianRupee },
+    ],
+  },
   {
     label: "Players",
     icon: Users,
@@ -54,6 +64,7 @@ export const adminNavigation = [
 const routeTitles = adminNavigation.flatMap((item) => item.children || [item]);
 
 export const getAdminPageTitle = (pathname) => {
+  if (pathname.startsWith("/admin/dashboard/fees/player/")) return "Player Fees";
   const exactMatch = routeTitles.find((item) => item.to === pathname);
   if (exactMatch) return exactMatch.label;
   if (pathname.startsWith("/admin/attendance")) return "Attendance";

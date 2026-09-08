@@ -38,6 +38,7 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
   const [formData, setFormData] = useState(() => getInitialPlayerData(player));
   const [originalData] = useState(() => getInitialPlayerData(player));
   const [loading, setLoading] = useState(false);
+  const [documentLoading, setDocumentLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, severity: "success", message: "" });
 
   useEffect(() => {
@@ -112,6 +113,19 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
     }
   };
 
+  const openAadhaarDocument = async () => {
+    if (documentLoading) return;
+    setDocumentLoading(true);
+    try {
+      const response = await api.get(`/admin/player/${player._id}/aadhaar-document`);
+      window.open(response.data.data.url, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      setSnackbar({ open: true, severity: "error", message: error.response?.data?.message || "Unable to open the Aadhaar document." });
+    } finally {
+      setDocumentLoading(false);
+    }
+  };
+
   if (!originalData) return null;
 
   return (
@@ -163,7 +177,7 @@ const EditPlayerModal = ({ player, onClose, refresh }) => {
                 </div>
                 <div className="min-w-0 rounded-xl border border-slate-600 bg-slate-700 p-4">
                   <p className="mb-3 text-sm font-medium text-slate-300">Aadhaar Card</p>
-                  {player.aadharCardURL ? <a href={player.aadharCardURL} target="_blank" rel="noopener noreferrer" aria-label={`Open Aadhaar document for ${player.fullName}`} className="block"><img src={player.aadharCardURL} alt={`${player.fullName} Aadhaar document`} className="h-32 w-full max-w-xs rounded-lg border border-slate-500 object-contain object-left" /></a> : <p className="text-sm text-slate-400">No document available</p>}
+                  {player.hasAadhaarDocument ? <button type="button" disabled={documentLoading} onClick={openAadhaarDocument} className="min-h-11 rounded-lg border border-slate-500 px-4 text-sm font-semibold text-blue-200 hover:bg-slate-600 disabled:opacity-60">{documentLoading ? "Opening…" : "Open protected document"}</button> : <p className="text-sm text-slate-400">No document available</p>}
                 </div>
               </div>
             </section>

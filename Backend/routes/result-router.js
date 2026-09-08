@@ -5,9 +5,9 @@ import authorizeRoles from "../middlewares/authorizeRoles.js";
 
 const resultRouter = Router()
 
-resultRouter.get("/individual/:tournamentId", getIndividualResult)
+resultRouter.get("/individual/:tournamentId",verifyJWT,authorizeRoles("admin"), getIndividualResult)
 resultRouter.post('/individual',verifyJWT,authorizeRoles("admin"), addIndividualResult)
-resultRouter.get('/team/:tournamentId', getTeamResult)
+resultRouter.get('/team/:tournamentId',verifyJWT,authorizeRoles("admin"), getTeamResult)
 resultRouter.post('/team',verifyJWT,authorizeRoles("admin"), addTeamResult)
 resultRouter.get("/player/individual",verifyJWT,authorizeRoles("player"),getOwnPlayerIndividualResults)
 resultRouter.get("/player/team",verifyJWT,authorizeRoles("player"),getOwnPlayerTeamResults)

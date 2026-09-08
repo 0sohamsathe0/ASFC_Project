@@ -10,16 +10,19 @@ import {
   markAttendance,
   updateAttendance,
 } from "../controllers/attendance-controller.js";
+import { getAdminAadhaarDocument } from "../controllers/player-controller.js";
+import { adminLoginLimiter } from "../middlewares/rate-limit-middleware.js";
 
 const adminRouter = Router();
 
-adminRouter.post("/login", loginAdmin);
+adminRouter.post("/login", adminLoginLimiter, loginAdmin);
 adminRouter.get("/verify",verifyJWT,authorizeRoles("admin"),verifyAdmin)
 
 adminRouter.get("/getPendingPlayers",verifyJWT,authorizeRoles('admin'),getPendingPlayers);
 adminRouter.patch("/acceptPlayer/:playerId",verifyJWT,authorizeRoles('admin'),acceptPlayer);
 adminRouter.patch("/rejectPlayer",verifyJWT,authorizeRoles('admin'),rejectPlayer);
 adminRouter.patch("/makePending",verifyJWT,authorizeRoles('admin'),makeEveryonePending)
+adminRouter.get("/player/:playerId/aadhaar-document", verifyJWT, authorizeRoles("admin"), getAdminAadhaarDocument);
 
 adminRouter.get("/attendance/marking-state", verifyJWT, authorizeRoles("admin"), getMarkingState);
 adminRouter.get("/attendance/monthly", verifyJWT, authorizeRoles("admin"), getMonthlyAttendance);

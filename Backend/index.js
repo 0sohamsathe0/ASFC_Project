@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
 
 import path from "path";
@@ -14,14 +15,30 @@ import playerRouter from "./routes/player-router.js";
 import adminRouter from "./routes/admin-router.js";
 import tournamentRouter from "./routes/tournament-router.js"
 import resultRouter from "./routes/result-router.js";
+import adminFeeRouter from "./routes/admin-fee-router.js";
+import playerFeeRouter from "./routes/player-fee-router.js";
+import contactRouter from "./routes/contact-router.js";
+import { ensureInitialFeeRate } from "./services/fee-rate-service.js";
+import FeeAccount from "./models/fee-account-model.js";
+import FeePause from "./models/fee-pause-model.js";
+import FeeRate from "./models/fee-rate-model.js";
 
 import dns from "dns";
-import { createContact,getAllContacts } from "./controllers/contacts-controller.js";
-
 dns.setDefaultResultOrder("ipv4first");
 
-dotenv.config();
+dotenv.config({ quiet: true });
 const app = express();
+const isProduction = process.env.NODE_ENV === "production";
+
+// Render terminates TLS at one trusted proxy hop. This keeps req.ip accurate for
+// endpoint rate limiting without trusting arbitrary forwarded proxy chains.
+app.set("trust proxy", 1);
+
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  strictTransportSecurity: isProduction ? undefined : false,
+}));
 
 const allowedOrigins = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(",").map((origin) => origin.trim())
@@ -67,11 +84,11 @@ app.use((req, res, next) => {
 
 app.use("/player", playerRouter);
 app.use("/admin", adminRouter);
+app.use("/admin/fees", adminFeeRouter);
+app.use("/player/fees", playerFeeRouter);
 app.use("/tournament", tournamentRouter)
 app.use("/result", resultRouter)
-
-app.post("/contact",createContact);
-app.get("/contacts",getAllContacts);
+app.use(contactRouter);
 
 app.get("/", (req, res) => {
   res.send("ASFC Backend is running !!");
@@ -92,16 +109,17 @@ const startServer = async () => {
   try {
     await mongoose.connect(process.env.mongodb_connection_string);
 
+    await Promise.all([FeeAccount.init(), FeePause.init(), FeeRate.init()]);
+    await ensureInitialFeeRate();
+
     console.log("MongoDB Connected");
 
     app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${process.env.PORT}`);
-  console.log("Allowed Origins:", allowedOrigins);
 });
 
   } catch (err) {
     console.log("DB Connection Failed");
-    console.log(err.message);
 
     console.log("🔁 Retrying in 3 seconds...");
     setTimeout(startServer, 3000);

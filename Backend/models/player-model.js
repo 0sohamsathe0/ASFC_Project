@@ -74,7 +74,24 @@ const playerSchema = new mongoose.Schema(
 
     aadharCardURL: {
       type: String,
-      required: true,
+      default: "",
+      select: false,
+    },
+    aadharCardPublicId: {
+      type: String,
+      default: "",
+      select: false,
+    },
+    aadharCardResourceType: {
+      type: String,
+      enum: ["image", "raw"],
+      default: "image",
+      select: false,
+    },
+    aadharCardFormat: {
+      type: String,
+      default: "",
+      select: false,
     },
     // models/Player.js
 

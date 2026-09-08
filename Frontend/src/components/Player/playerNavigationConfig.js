@@ -5,6 +5,7 @@ import {
   Medal,
   Trophy,
   UserRound,
+  WalletCards,
 } from "lucide-react";
 
 export const playerNavigation = [
@@ -21,6 +22,16 @@ export const playerNavigation = [
         label: "Attendance",
         to: "/player/attendance",
         icon: CalendarCheck2,
+      },
+    ],
+  },
+  {
+    label: "Fees",
+    items: [
+      {
+        label: "My Fees",
+        to: "/player/fees",
+        icon: WalletCards,
       },
     ],
   },
@@ -67,6 +78,7 @@ const routeTitles = [
   { path: "/player/attendance", title: "Attendance" },
   { path: "/player/tournaments", title: "Tournaments" },
   { path: "/player/achievements", title: "Achievements" },
+  { path: "/player/fees", title: "My Fees" },
   { path: "/player/profile", title: "My Profile" },
 ];
 

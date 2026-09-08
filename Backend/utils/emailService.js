@@ -2,16 +2,18 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-console.log("📧 RESEND EMAIL SERVICE LOADED");
-console.log(
-  "RESEND_API_KEY exists:",
-  !!process.env.RESEND_API_KEY
-);
+const escapeHtml = (value) => String(value ?? "")
+  .replaceAll("&", "&amp;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;")
+  .replaceAll("'", "&#039;");
 
 export const sendAcceptedMail = async (
   recipientName,
   recipientEmail
 ) => {
+  const safeRecipientName = escapeHtml(recipientName);
   try {
     const { data, error } = await resend.emails.send({
       from: "All Star Fencing Club <onboarding@resend.dev>",
@@ -28,7 +30,7 @@ export const sendAcceptedMail = async (
 
             <div style="padding: 20px; text-align: center; color: #333;">
 
-              <p>Dear <b>${recipientName}</b>,</p>
+              <p>Dear <b>${safeRecipientName}</b>,</p>
 
               <p>
                 Congratulations! You have been
@@ -79,17 +81,13 @@ export const sendAcceptedMail = async (
     });
 
     if (error) {
-      console.error("❌ ACCEPTANCE EMAIL FAILED:", error);
+      console.error("Acceptance email delivery failed.");
 
       return {
         success: false,
-        error: error.message || "Email could not be sent",
+        error: "Email could not be sent",
       };
     }
-
-    console.log("✅ ACCEPTANCE EMAIL SENT");
-    console.log("Message ID:", data?.id);
-    console.log("Recipient:", recipientEmail);
 
     return {
       success: true,
@@ -97,11 +95,11 @@ export const sendAcceptedMail = async (
     };
 
   } catch (error) {
-    console.error("❌ ACCEPTANCE EMAIL ERROR:", error);
+    console.error("Acceptance email delivery failed.");
 
     return {
       success: false,
-      error: error.message,
+      error: "Email could not be sent",
     };
   }
 };
@@ -112,6 +110,8 @@ export const sendRejectionMail = async (
   recipientEmail,
   rejectionReason
 ) => {
+  const safeRecipientName = escapeHtml(recipientName);
+  const safeRejectionReason = escapeHtml(rejectionReason);
   try {
     const { data, error } = await resend.emails.send({
       from: "All Star Fencing Club <onboarding@resend.dev>",
@@ -128,7 +128,7 @@ export const sendRejectionMail = async (
 
             <div style="padding:20px; text-align:center; color:#333;">
 
-              <p>Dear <b>${recipientName}</b>,</p>
+              <p>Dear <b>${safeRecipientName}</b>,</p>
 
               <p>
                 We sincerely appreciate your interest in joining
@@ -155,7 +155,7 @@ export const sendRejectionMail = async (
                 border-radius:6px;
                 border-left:5px solid #d9534f;
               ">
-                ${rejectionReason}
+                ${safeRejectionReason}
               </p>
 
               <p>
@@ -178,17 +178,13 @@ export const sendRejectionMail = async (
     });
 
     if (error) {
-      console.error("❌ REJECTION EMAIL FAILED:", error);
+      console.error("Rejection email delivery failed.");
 
       return {
         success: false,
-        error: error.message || "Email could not be sent",
+        error: "Email could not be sent",
       };
     }
-
-    console.log("✅ REJECTION EMAIL SENT");
-    console.log("Message ID:", data?.id);
-    console.log("Recipient:", recipientEmail);
 
     return {
       success: true,
@@ -196,11 +192,11 @@ export const sendRejectionMail = async (
     };
 
   } catch (error) {
-    console.error("❌ REJECTION EMAIL ERROR:", error);
+    console.error("Rejection email delivery failed.");
 
     return {
       success: false,
-      error: error.message,
+      error: "Email could not be sent",
     };
   }
 };

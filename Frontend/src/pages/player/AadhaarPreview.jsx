@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { X, ShieldCheck } from "lucide-react";
 
-const AadhaarPreview = ({ open, image, onClose }) => {
+const AadhaarPreview = ({ open, image, format, onClose }) => {
   const closeButtonRef = useRef(null);
 
   useEffect(() => {
@@ -74,11 +74,7 @@ const AadhaarPreview = ({ open, image, onClose }) => {
 
             <div className="bg-gray-100 p-4 sm:p-6">
               <div className="overflow-hidden rounded-2xl bg-white shadow">
-                <img
-                  src={image}
-                  alt="Aadhaar Card"
-                  className="max-h-[75vh] w-full object-contain"
-                />
+                {format === "pdf" ? <iframe src={image} title="Aadhaar document" className="h-[70vh] w-full bg-white" /> : <img src={image} alt="Aadhaar Card" className="max-h-[75vh] w-full object-contain" />}
               </div>
             </div>
           </Motion.div>

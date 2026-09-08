@@ -16,6 +16,16 @@ const formatDate = (date) => {
   });
 };
 
+const getCurrentIndiaMonth = () => {
+  const parts = new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}`;
+};
+
 const RequestActions = ({ player, loadingPlayerId, loadingAction, onApprove, onReject }) => {
   const isProcessing = loadingPlayerId === player._id;
 
@@ -53,13 +63,19 @@ function PlayerRequestQueue() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [approvalPlayer, setApprovalPlayer] = useState(null);
+  const [billingStartMonth, setBillingStartMonth] = useState(getCurrentIndiaMonth);
 
-  const handleApprove = (playerId) => async () => {
+  const handleApprove = async () => {
+    if (!approvalPlayer) return;
+
     try {
-      setLoadingPlayerId(playerId);
+      setLoadingPlayerId(approvalPlayer._id);
       setLoadingAction("approve");
-      const res = await api.patch(`/admin/acceptPlayer/${playerId}`);
-      setPlayers((prev) => prev.filter((player) => player._id !== playerId));
+      const res = await api.patch(`/admin/acceptPlayer/${approvalPlayer._id}`, {
+        billingStartMonth,
+      });
+      setPlayers((prev) => prev.filter((player) => player._id !== approvalPlayer._id));
       setSnackbar({
         open: true,
         severity: res.data.emailSent ? "success" : "warning",
@@ -67,6 +83,7 @@ function PlayerRequestQueue() {
           ? "Player accepted and confirmation email sent."
           : "Player accepted, but confirmation email could not be sent."),
       });
+      setApprovalPlayer(null);
     } catch (err) {
       setSnackbar({ open: true, severity: "error", message: err.response?.data?.message || "Unable to approve player." });
     } finally {
@@ -115,6 +132,24 @@ function PlayerRequestQueue() {
     setShowModal(true);
   };
 
+  const openAadhaarDocument = async (player) => {
+    try {
+      const response = await api.get(`/admin/player/${player._id}/aadhaar-document`);
+      window.open(response.data.data.url, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: error.response?.data?.message || "Unable to open the Aadhaar document.",
+      });
+    }
+  };
+
+  const openApprovalModal = (player) => {
+    setBillingStartMonth(getCurrentIndiaMonth());
+    setApprovalPlayer(player);
+  };
+
   return (
     <div className="min-h-full bg-slate-100 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -157,13 +192,13 @@ function PlayerRequestQueue() {
                       <td className="max-w-64 break-words px-4 py-4 font-medium text-slate-900">{player.fullName}</td>
                       <td className="px-4 py-4 text-slate-600">{player.aadharCard}</td>
                       <td className="px-4 py-4">
-                        <a href={player.aadharCardURL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded-lg px-2 font-semibold text-blue-600 hover:bg-blue-50 hover:text-blue-700" aria-label={`View Aadhaar document for ${player.fullName}`}>
+                        {player.hasAadhaarDocument ? <button type="button" onClick={() => openAadhaarDocument(player)} className="inline-flex min-h-10 items-center gap-2 rounded-lg px-2 font-semibold text-blue-600 hover:bg-blue-50 hover:text-blue-700" aria-label={`View Aadhaar document for ${player.fullName}`}>
                           <FileText size={17} /> View Document
-                        </a>
+                        </button> : <span className="text-sm text-slate-400">No document</span>}
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex justify-end">
-                          <RequestActions player={player} loadingPlayerId={loadingPlayerId} loadingAction={loadingAction} onApprove={handleApprove(player._id)} onReject={() => openRejectModal(player)} />
+                          <RequestActions player={player} loadingPlayerId={loadingPlayerId} loadingAction={loadingAction} onApprove={() => openApprovalModal(player)} onReject={() => openRejectModal(player)} />
                         </div>
                       </td>
                     </tr>
@@ -196,12 +231,12 @@ function PlayerRequestQueue() {
                     </div>
                   </dl>
 
-                  <a href={player.aadharCardURL} target="_blank" rel="noopener noreferrer" className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 font-semibold text-blue-700 transition hover:bg-blue-100" aria-label={`View Aadhaar document for ${player.fullName}`}>
+                  {player.hasAadhaarDocument && <button type="button" onClick={() => openAadhaarDocument(player)} className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 font-semibold text-blue-700 transition hover:bg-blue-100" aria-label={`View Aadhaar document for ${player.fullName}`}>
                     <FileText size={17} /> View Document <ExternalLink size={14} />
-                  </a>
+                  </button>}
 
                   <div className="mt-3">
-                    <RequestActions player={player} loadingPlayerId={loadingPlayerId} loadingAction={loadingAction} onApprove={handleApprove(player._id)} onReject={() => openRejectModal(player)} />
+                    <RequestActions player={player} loadingPlayerId={loadingPlayerId} loadingAction={loadingAction} onApprove={() => openApprovalModal(player)} onReject={() => openRejectModal(player)} />
                   </div>
                 </article>
               ))}
@@ -213,6 +248,58 @@ function PlayerRequestQueue() {
       <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}>
         <Alert severity={snackbar.severity} variant="filled">{snackbar.message}</Alert>
       </Snackbar>
+      {approvalPlayer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="approve-player-title"
+            className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">Fee account</p>
+            <h2 id="approve-player-title" className="mt-1 text-xl font-bold text-slate-900">
+              Approve {approvalPlayer.fullName}
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Select the player&apos;s first payable month. Approval and fee-account creation happen together.
+            </p>
+            <label className="mt-5 block text-sm font-semibold text-slate-800" htmlFor="billing-start-month">
+              Billing start month
+            </label>
+            <input
+              id="billing-start-month"
+              type="month"
+              required
+              min="2026-06"
+              max={getCurrentIndiaMonth()}
+              value={billingStartMonth}
+              onChange={(event) => setBillingStartMonth(event.target.value)}
+              className="mt-2 min-h-11 w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            />
+            <p className="mt-2 text-xs text-slate-500">Earliest allowed month: June 2026.</p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                disabled={loadingPlayerId === approvalPlayer._id}
+                onClick={() => setApprovalPlayer(null)}
+                className="min-h-11 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!billingStartMonth || loadingPlayerId === approvalPlayer._id}
+                onClick={handleApprove}
+                className="flex min-h-11 items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+              >
+                {loadingPlayerId === approvalPlayer._id ? (
+                  <><CircularProgress size={16} sx={{ color: "white", mr: 1 }} />Approving...</>
+                ) : "Approve & create account"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <RejectPlayer showModal={showModal} setShowModal={setShowModal} rejectReason={rejectReason} setRejectReason={setRejectReason} handleReject={handleReject} isLoading={loadingPlayerId === selectedPlayer?._id && loadingAction === "reject"} playerName={selectedPlayer?.fullName} />
     </div>
   );

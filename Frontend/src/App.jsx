@@ -31,6 +31,7 @@ const PlayerDashboard = lazy(() =>import("./pages/player/PlayerDashboard.jsx"));
 const PlayerAttendancePage = lazy(() =>import("./pages/player/PlayerAttendancePage.jsx"));
 const PlayerTournamentsPage = lazy(() =>import("./pages/player/PlayerTournamentsPage.jsx"));
 const PlayerAchievementsPage = lazy(() =>import("./pages/player/PlayerAchievementsPage.jsx"));
+const PlayerFeesPage = lazy(() =>import("./pages/player/PlayerFeesPage.jsx"));
 
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
@@ -60,6 +61,9 @@ const MarkAttendance = lazy(() =>import("./components/Attendance/MarkAttendance.
 const AttendanceRecords = lazy(() =>import("./components/Attendance/AttendanceRecords.jsx"));
 const AttendanceLayout = lazy(() =>import("./components/Attendance/AttendanceLayout.jsx"));
 const MonthlyAttendance = lazy(() =>import("./components/Attendance/monthly/MonthlyAttendance.jsx"));
+const AdminFeesOverview = lazy(() =>import("./components/Fees/AdminFeesOverview.jsx"));
+const AdminFeeDetail = lazy(() =>import("./components/Fees/AdminFeeDetail.jsx"));
+const FeeRates = lazy(() =>import("./components/Fees/FeeRates.jsx"));
 
 // Certificate Components
 const MeritCertificates = lazy(() =>import("./components/Certificate/MeritCertificates.jsx"));
@@ -106,6 +110,7 @@ function App() {
               <Route path="attendance" element={<PlayerAttendancePage />} />
               <Route path="tournaments" element={<PlayerTournamentsPage />} />
               <Route path="achievements" element={<PlayerAchievementsPage />} />
+              <Route path="fees" element={<PlayerFeesPage />} />
               <Route path="profile" element={<PlayerProfile />} />
               <Route path="profile/edit" element={<EditPlayerProfile />} />
               <Route path="edit/:playerId" element={<EditPlayerProfile />} />
@@ -148,6 +153,11 @@ function App() {
                 <Route path="club-results" element={<AnalyticsDashboard />} />
                 <Route path="individual-results" element={<IndividualResult />} />
                 <Route path="team-results" element={<TeamResult />} />
+
+            {/* Fees */}
+                <Route path="fees" element={<AdminFeesOverview />} />
+                <Route path="fees/player/:playerId" element={<AdminFeeDetail />} />
+                <Route path="fees/rates" element={<FeeRates />} />
 
             {/* Certificates */}
                 <Route path="merit-certificates" element={<MeritCertificates />} />

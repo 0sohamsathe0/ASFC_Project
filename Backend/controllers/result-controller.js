@@ -3,6 +3,27 @@ import TeamResult from "../models/team-result-model.js";
 import TournamentEntry from "../models/tournamentEntry-model.js";
 import Player from "../models/player-model.js"
 
+const toSafeResultPlayer = (player) => player ? ({
+    _id: player._id,
+    fullName: player.fullName,
+    gender: player.gender,
+    event: player.event,
+    photoURL: player.photoURL,
+}) : null;
+
+const toSafeIndividualResult = (result) => ({
+    _id: result._id,
+    tournamentId: result.tournamentId,
+    category: result.category,
+    place: result.place,
+    tournamentEntryId: result.tournamentEntryId ? {
+        _id: result.tournamentEntryId._id,
+        tournamentId: result.tournamentEntryId.tournamentId,
+        status: result.tournamentEntryId.status,
+        playerId: toSafeResultPlayer(result.tournamentEntryId.playerId),
+    } : null,
+});
+
 
 //getting tournament wise result 
 const getIndividualResult = async (req, res) => {
@@ -12,14 +33,17 @@ const getIndividualResult = async (req, res) => {
         const results = await IndividualResult.find({ tournamentId })
             .populate({
                 path: "tournamentEntryId",
+                select: "_id playerId tournamentId status",
                 populate: {
                     path: "playerId", // if exists in TournamentEntry
+                    select: "_id fullName gender event photoURL",
                 },
-            });
+            })
+            .lean();
 
         return res.status(200).json({
             success: true,
-            data: results,
+            data: results.map(toSafeIndividualResult),
         });
     } catch (err) {
         console.error("Get Result Error:", err);
@@ -362,13 +386,14 @@ const getClubResults = async (req, res) => {
                 path: "tournamentEntryId",
                 populate: {
                     path: "playerId",
+                    select: "_id fullName",
                 },
             })
             .lean();
 
         const teamResults = await TeamResult.find()
             .populate("tournamentId")
-            .populate("players.playerId")
+            .populate("players.playerId", "_id fullName")
             .lean();
 
         // ================= ANALYTICS =================

@@ -1,9 +1,11 @@
 import Player from "../models/player-model.js";
 import jwt from "jsonwebtoken";
 import { sendAcceptedMail, sendRejectionMail } from "../utils/emailService.js";
+import { acceptPlayerWithFeeAccount } from "../services/fee-account-service.js";
+import { FeeServiceError } from "../services/fee-errors.js";
 
 const loginAdmin = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password } = req.body || {};
 
   if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
     const token = jwt.sign({ id: "admin", role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1d" });
@@ -45,13 +47,16 @@ const verifyAdmin = async (req, res) => {
 const getPendingPlayers = async (req, res) => {
   try {
     const players = await Player.find({ requestStatus: "Pending" })
-      .select("fullName aadharCard aadharCardURL photoURL dob")
+      .select("fullName aadharCard photoURL dob +aadharCardURL +aadharCardPublicId")
       .lean();
 
     res.status(200).json({
       success: true,
       message: "Pending players retrieved successfully",
-      data: players,
+      data: players.map(({ aadharCardURL, aadharCardPublicId, ...player }) => ({
+        ...player,
+        hasAadhaarDocument: Boolean(aadharCardPublicId || aadharCardURL),
+      })),
     });
   } catch (error) {
     console.error(error);
@@ -65,15 +70,8 @@ const getPendingPlayers = async (req, res) => {
 const acceptPlayer = async (req, res) => {
   try {
     const { playerId } = req.params;
-    const player = await Player.findById(playerId)
-    if (!player) {
-      return res.status(404).json({
-        success: false,
-        message: "Player not found",
-      });
-    }
-
-    await Player.findByIdAndUpdate(playerId, { $set: { requestStatus: "Accepted", isEditable: true, rejectionReason: "" } });
+    const { billingStartMonth } = req.body || {};
+    const player = await acceptPlayerWithFeeAccount({ playerId, billingStartMonth });
     let emailStatus = false;
 
     try {
@@ -87,7 +85,7 @@ const acceptPlayer = async (req, res) => {
       }
 
     } catch (mailError) {
-      console.error("Email sending failed:", mailError);
+      console.error("Acceptance email sending failed.");
       emailStatus = false;
     }
 
@@ -100,6 +98,13 @@ const acceptPlayer = async (req, res) => {
     });
 
   } catch (error) {
+    if (error instanceof FeeServiceError) {
+      return res.status(error.status).json({
+        success: false,
+        message: error.message,
+        code: error.code,
+      });
+    }
     console.error(error);
 
     return res.status(500).json({
@@ -144,7 +149,7 @@ const rejectPlayer = async (req, res) => {
         emailStatus = true;
       }
     } catch (mailError) {
-      console.error("Rejection email sending failed:", mailError);
+      console.error("Rejection email sending failed.");
       emailStatus = false;
     }
 
@@ -177,7 +182,7 @@ const makeEveryonePending = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: `Server Error: ${error}`,
+      message: "Server Error",
     });
   }
 }

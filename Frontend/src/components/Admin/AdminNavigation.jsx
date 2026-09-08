@@ -105,6 +105,7 @@ const AdminNavigation = ({ onNavigate }) => {
                     <NavLink
                       key={child.to}
                       to={child.to}
+                      end={child.end}
                       onClick={onNavigate}
                       className={linkClass}
                     >

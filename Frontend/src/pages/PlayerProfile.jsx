@@ -49,6 +49,10 @@ const PlayerProfile = () => {
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [showAadhaar, setShowAadhaar] = useState(false);
+  const [aadhaarAccessUrl, setAadhaarAccessUrl] = useState("");
+  const [aadhaarFormat, setAadhaarFormat] = useState("");
+  const [aadhaarLoading, setAadhaarLoading] = useState(false);
+  const [aadhaarError, setAadhaarError] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -75,6 +79,22 @@ const PlayerProfile = () => {
     setLoading(true);
     setAttempt((value) => value + 1);
   }, []);
+
+  const openAadhaarDocument = async () => {
+    if (aadhaarLoading) return;
+    setAadhaarLoading(true);
+    setAadhaarError("");
+    try {
+      const response = await api.get("/player/profile/aadhaar-document");
+      setAadhaarAccessUrl(response.data.data.url);
+      setAadhaarFormat(response.data.data.format || "");
+      setShowAadhaar(true);
+    } catch (apiError) {
+      setAadhaarError(apiError.response?.data?.message || "Unable to open your identity document.");
+    } finally {
+      setAadhaarLoading(false);
+    }
+  };
 
   if (loading) {
     return <div className="px-3 py-4 min-[360px]:px-4 sm:px-6 sm:py-6 lg:px-8">
@@ -168,15 +188,16 @@ const PlayerProfile = () => {
         <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-start gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600"><FileBadge2 size={19} aria-hidden="true" /></span>
-            <div><p className="font-semibold text-slate-900">Identity document</p><p className="mt-0.5 text-sm text-slate-500">{player.aadharCardURL ? "Document on file for registration verification." : "No document is available."}</p></div>
+            <div><p className="font-semibold text-slate-900">Identity document</p><p className="mt-0.5 text-sm text-slate-500">{player.hasAadhaarDocument ? "Document on file for registration verification." : "No document is available."}</p></div>
           </div>
-          {player.aadharCardURL && <button type="button" onClick={() => setShowAadhaar(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"><Eye size={17} aria-hidden="true" /> View document</button>}
+          {player.hasAadhaarDocument && <button type="button" disabled={aadhaarLoading} onClick={openAadhaarDocument} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60"><Eye size={17} aria-hidden="true" /> {aadhaarLoading ? "Opening…" : "View document"}</button>}
         </div>
+        {aadhaarError && <p role="alert" className="pb-4 text-sm font-medium text-rose-700">{aadhaarError}</p>}
       </ProfileSection>
 
     </div>
 
-    <AadhaarPreview open={showAadhaar} image={player.aadharCardURL} onClose={() => setShowAadhaar(false)} />
+    <AadhaarPreview open={showAadhaar} image={aadhaarAccessUrl} format={aadhaarFormat} onClose={() => { setShowAadhaar(false); setAadhaarAccessUrl(""); setAadhaarFormat(""); }} />
   </div>;
 };
 

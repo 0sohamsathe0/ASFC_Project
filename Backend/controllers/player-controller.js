@@ -1,19 +1,91 @@
 import jwt from "jsonwebtoken";
 import Player from "../models/player-model.js";
-import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
+import {
+  createPrivateAadhaarAccessUrl,
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+  uploadPrivateAadhaar,
+} from "../utils/cloudinary.js";
 import { normalizeAssociationRegistration } from "../utils/association-registration.js";
+import { cleanupUploadedFiles } from "../middlewares/multer-middleware.js";
+
+const AADHAAR_STORAGE_SELECT = "+aadharCardURL +aadharCardPublicId +aadharCardResourceType +aadharCardFormat";
+
+const registrationServices = {
+  uploadPhoto: uploadOnCloudinary,
+  uploadAadhaar: uploadPrivateAadhaar,
+  deleteAsset: deleteFromCloudinary,
+};
+
+const toPlayerDto = (player) => {
+  const object = player?.toObject ? player.toObject() : { ...player };
+  const {
+    aadharCardURL,
+    aadharCardPublicId,
+    aadharCardResourceType,
+    aadharCardFormat,
+    ...safePlayer
+  } = object;
+  return {
+    ...safePlayer,
+    hasAadhaarDocument: Boolean(aadharCardPublicId || aadharCardURL),
+  };
+};
+
+const isValidLoginDob = (value) => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day;
+};
+
+const sendAadhaarDocumentAccess = async (playerId, res) => {
+  const player = await Player.findById(playerId)
+    .select(AADHAAR_STORAGE_SELECT)
+    .lean();
+  if (!player) {
+    return res.status(404).json({ success: false, message: "Player not found." });
+  }
+  if (!player.aadharCardPublicId) {
+    if (player.aadharCardURL) {
+      return res.status(409).json({
+        success: false,
+        message: "This legacy document must be migrated before secure viewing is available.",
+        code: "AADHAAR_DOCUMENT_MIGRATION_REQUIRED",
+      });
+    }
+    return res.status(404).json({ success: false, message: "Aadhaar document not found." });
+  }
+
+  const access = createPrivateAadhaarAccessUrl({
+    publicId: player.aadharCardPublicId,
+    resourceType: player.aadharCardResourceType,
+    format: player.aadharCardFormat,
+  });
+  res.set("Cache-Control", "no-store, private");
+  return res.status(200).json({
+    success: true,
+    data: {
+      url: access.url,
+      expiresAt: new Date(access.expiresAt * 1000).toISOString(),
+      format: player.aadharCardFormat,
+    },
+  });
+};
 
 const addPlayer = async (req, res) => {
   let photoUpload = null;
   let aadhaarUpload = null;
-  const startTime = Date.now();
-console.log("[REGISTER] Start");
 
   try {
-    const fullName = req.body.fullName?.trim();
-    const gender = req.body.gender?.trim();
-    const dob = req.body.dob?.trim();
-    const associationRegistration = normalizeAssociationRegistration(req.body);
+    const body = req.body || {};
+    const stringField = (value) => typeof value === "string" ? value.trim() : "";
+    const fullName = stringField(body.fullName);
+    const gender = stringField(body.gender);
+    const dob = stringField(body.dob);
+    const associationRegistration = normalizeAssociationRegistration(body);
 
     if (associationRegistration.error) {
       return res.status(400).json({
@@ -29,24 +101,22 @@ console.log("[REGISTER] Start");
       hasMfaRegistration,
     } = associationRegistration.value;
 
-    const aadharCard = req.body.aadharCard
-      ?.replace(/\s+/g, "")
-      .trim();
+    const aadharCard = typeof body.aadharCard === "string"
+      ? body.aadharCard.replace(/\s+/g, "").trim()
+      : "";
 
-    const event = req.body.event?.trim();
+    const event = stringField(body.event);
 
-    const email = req.body.email
-      ?.trim()
-      .toLowerCase();
+    const email = stringField(body.email).toLowerCase();
 
-    const phone = req.body.phone
-      ?.replace(/\s+/g, "")
-      .trim();
+    const phone = typeof body.phone === "string"
+      ? body.phone.replace(/\s+/g, "").trim()
+      : "";
 
-    const addressLine1 = req.body.addressLine1?.trim();
-    const addressLine2 = req.body.addressLine2?.trim();
-    const pincode = req.body.pincode?.trim();
-    const institute = req.body.institute?.trim();
+    const addressLine1 = stringField(body.addressLine1);
+    const addressLine2 = stringField(body.addressLine2);
+    const pincode = stringField(body.pincode);
+    const institute = stringField(body.institute);
 
     const address = {
       addressLine1,
@@ -82,6 +152,18 @@ console.log("[REGISTER] Start");
       });
     }
 
+    if (
+      !/^\d{12}$/.test(aadharCard) ||
+      !isValidLoginDob(dob) ||
+      !/^\d{10}$/.test(phone) ||
+      !/^\d{6}$/.test(pincode)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Aadhaar, date of birth, phone number, or pincode is invalid.",
+      });
+    }
+
     const existingPlayer = await Player.findOne({ aadharCard });
 
     if (existingPlayer) {
@@ -91,12 +173,11 @@ console.log("[REGISTER] Start");
       });
     }
 
-    const cloudinaryStart = Date.now();
     // Upload player photo
     // Upload both documents to Cloudinary in parallel
     const [photoResult, aadhaarResult] = await Promise.allSettled([
-      uploadOnCloudinary(photo),
-      uploadOnCloudinary(aadharCardPhoto),
+      registrationServices.uploadPhoto(photo),
+      registrationServices.uploadAadhaar(aadharCardPhoto),
     ]);
 
     // Store successful uploads for cleanup / database use
@@ -114,8 +195,11 @@ console.log("[REGISTER] Start");
       aadhaarResult.status === "rejected"
     ) {
       await Promise.all([
-        deleteFromCloudinary(photoUpload?.public_id),
-        deleteFromCloudinary(aadhaarUpload?.public_id),
+        registrationServices.deleteAsset(photoUpload?.public_id),
+        registrationServices.deleteAsset(aadhaarUpload?.public_id, {
+          resourceType: aadhaarUpload?.resource_type,
+          type: "authenticated",
+        }),
       ]);
 
       return res.status(503).json({
@@ -125,17 +209,7 @@ console.log("[REGISTER] Start");
       });
     }
 
-    console.log(
-  `[REGISTER] Cloudinary uploads: ${Date.now() - cloudinaryStart}ms`
-);
-
-const dbStart = Date.now();
-
-
-    let newPlayer;
-
-    try {
-      newPlayer = await Player.create({
+    const newPlayer = await Player.create({
         fullName,
         gender,
         dob,
@@ -146,23 +220,14 @@ const dbStart = Date.now();
         address,
         institute,
         photoURL: photoUpload.secure_url,
-        aadharCardURL: aadhaarUpload.secure_url,
+        aadharCardPublicId: aadhaarUpload.public_id,
+        aadharCardResourceType: aadhaarUpload.resource_type,
+        aadharCardFormat: aadhaarUpload.format,
         faiId,
         mfaId,
         hasFaiRegistration,
         hasMfaRegistration,
       });
-    } catch (dbError) {
-      await Promise.all([
-        deleteFromCloudinary(photoUpload.public_id),
-        deleteFromCloudinary(aadhaarUpload.public_id),
-      ]);
-
-      throw dbError;
-    }
-console.log(
-  `[REGISTER] MongoDB create: ${Date.now() - dbStart}ms`
-);
     const token = jwt.sign(
       {
         id: newPlayer._id,
@@ -181,10 +246,6 @@ console.log(
       sameSite: isProduction ? "None" : "Lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
-     console.log(
-  `[REGISTER] Total: ${Date.now() - startTime}ms`
-);
-
     return res.status(201).json({
       success: true,
       message: "Player added successfully.",
@@ -202,16 +263,19 @@ console.log(
 
    
   } catch (error) {
-    console.error("Player Registration Error:", error);
+    console.error("Player registration failed.");
 
     // Cleanup uploaded files (if any)
     await Promise.all([
-      deleteFromCloudinary(photoUpload?.public_id),
-      deleteFromCloudinary(aadhaarUpload?.public_id),
+      registrationServices.deleteAsset(photoUpload?.public_id),
+      registrationServices.deleteAsset(aadhaarUpload?.public_id, {
+        resourceType: aadhaarUpload?.resource_type,
+        type: "authenticated",
+      }),
     ]);
 
-    // Cloudinary / External service error
-    if (error.http_code || error.name === "Error") {
+    // Cloudinary / external service error
+    if (error.http_code) {
       return res.status(503).json({
         success: false,
         message:
@@ -224,6 +288,8 @@ console.log(
       success: false,
       message: "Server Error. Please try again later.",
     });
+  } finally {
+    await cleanupUploadedFiles(req.files);
   }
 };
 
@@ -238,7 +304,7 @@ const getPlayers = async (req, res) => {
     if (status) {
       filter.requestStatus = status;
     } else {
-      const players = await Player.find().lean();
+      const players = await Player.find().select(AADHAAR_STORAGE_SELECT).lean();
 
       const grouped = {
         Accepted: [],
@@ -248,7 +314,7 @@ const getPlayers = async (req, res) => {
 
       players.forEach(player => {
         if (grouped[player.requestStatus]) {
-          grouped[player.requestStatus].push(player);
+          grouped[player.requestStatus].push(toPlayerDto(player));
         }
       });
       let count = (grouped["Accepted"].length) + (grouped["Rejected"].length) + (grouped["Pending"].length)
@@ -261,12 +327,14 @@ const getPlayers = async (req, res) => {
 
 
     // fetch players
-    const players = await Player.find(filter).sort({ createdAt: -1 });
+    const players = await Player.find(filter)
+      .select(AADHAAR_STORAGE_SELECT)
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
       count: players.length,
-      data: players,
+      data: players.map(toPlayerDto),
     });
   } catch (error) {
     console.error(error);
@@ -280,19 +348,27 @@ const getPlayers = async (req, res) => {
 
 const loginPlayer = async (req, res) => {
   try {
-    const { aadharCard, dob } = req.body;
+    const { aadharCard, dob } = req.body || {};
+
+    if (typeof aadharCard !== "string" || !/^\d{12}$/.test(aadharCard) || !isValidLoginDob(dob)) {
+      return res.status(400).json({
+        success: false,
+        message: "A valid 12-digit Aadhaar number and date of birth are required.",
+      });
+    }
+
     const player = await Player.findOne({ aadharCard });
 
     if (!player) {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
-        message: "Player not found",
+        message: "Invalid credentials",
       });
     }
 
     //doning this to ignore time part of date and compare only date
     //also form send dob as string so converting it to date object and then to string again to compare with db value
-    const inputDob = new Date(dob).toISOString().split("T")[0];
+    const inputDob = dob;
     const dbDob = player.dob.toISOString().split("T")[0];
 
     if (inputDob !== dbDob) {
@@ -339,7 +415,7 @@ const getPlayerProfile = async (req, res) => {
   try {
     const player = await Player.findById(req.user.id)
       .select(
-        "fullName gender dob event email phone address institute photoURL aadharCardURL faiId mfaId hasFaiRegistration hasMfaRegistration requestStatus rejectionReason isEditable createdAt updatedAt"
+        `fullName gender dob event email phone address institute photoURL faiId mfaId hasFaiRegistration hasMfaRegistration requestStatus rejectionReason isEditable createdAt updatedAt ${AADHAAR_STORAGE_SELECT}`
       )
       .lean();
 
@@ -352,7 +428,7 @@ const getPlayerProfile = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      player,
+      player: toPlayerDto(player),
     });
   }
   catch (err) {
@@ -378,29 +454,46 @@ const logoutPlayer = async (req, res) => {
   });
 };
 
+const getOwnAadhaarDocument = async (req, res) => {
+  try {
+    return await sendAadhaarDocumentAccess(req.user.id, res);
+  } catch (error) {
+    console.error("Unable to create protected Aadhaar access.");
+    return res.status(500).json({ success: false, message: "Unable to access the document." });
+  }
+};
+
+const getAdminAadhaarDocument = async (req, res) => {
+  try {
+    return await sendAadhaarDocumentAccess(req.params.playerId, res);
+  } catch (error) {
+    if (error?.name === "CastError") {
+      return res.status(400).json({ success: false, message: "A valid player ID is required." });
+    }
+    console.error("Unable to create protected Aadhaar access.");
+    return res.status(500).json({ success: false, message: "Unable to access the document." });
+  }
+};
+
 
 const updatePlayer = async (req, res) => {
   try {
     const playerId = req.params.pid;
     const data = req.body;
     const updates = {};
-    const restrictedFields = ["_id", "password", "role", "isAdmin", "createdAt", "updatedAt",];
+    const editableFields = [
+      "fullName", "gender", "dob", "aadharCard", "event", "email", "phone",
+      "institute", "faiId", "mfaId", "hasFaiRegistration", "hasMfaRegistration",
+    ];
+    const editableAddressFields = ["addressLine1", "addressLine2", "pincode"];
 
-
-    for (let key in data) {
-      if (restrictedFields.includes(key)) continue;
-
-      if (
-        typeof data[key] === "object" &&
-        data[key] !== null &&
-        !Array.isArray(data[key])
-      ) {
-        for (let subKey in data[key]) {
-          updates[`${key}.${subKey}`] = data[key][subKey];
-        }
-      } else {
-        updates[key] = data[key];
-      }
+    editableFields.forEach((field) => {
+      if (Object.hasOwn(data || {}, field)) updates[field] = data[field];
+    });
+    if (data?.address && typeof data.address === "object" && !Array.isArray(data.address)) {
+      editableAddressFields.forEach((field) => {
+        if (Object.hasOwn(data.address, field)) updates[`address.${field}`] = data.address[field];
+      });
     }
 
     // Prevent empty update
@@ -418,7 +511,7 @@ const updatePlayer = async (req, res) => {
         returnDocument: "after",
         runValidators: true,
       }
-    );
+    ).select(AADHAAR_STORAGE_SELECT);
 
     if (!updatedPlayer) {
       return res.status(404).json({
@@ -430,14 +523,14 @@ const updatePlayer = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Player updated successfully",
-      data: updatedPlayer,
+      data: toPlayerDto(updatedPlayer),
     });
   } catch (error) {
-    console.error("Update error:", error);
+    console.error("Player update failed.");
 
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Unable to update player.",
     });
   }
 
@@ -513,19 +606,19 @@ const updateOwnPlayer = async (req, res) => {
       { $set: updates },
       { returnDocument: "after", runValidators: true }
     ).select(
-      "fullName gender dob event email phone address institute photoURL aadharCardURL faiId mfaId hasFaiRegistration hasMfaRegistration requestStatus rejectionReason isEditable"
+      `fullName gender dob event email phone address institute photoURL faiId mfaId hasFaiRegistration hasMfaRegistration requestStatus rejectionReason isEditable ${AADHAAR_STORAGE_SELECT}`
     );
 
     return res.status(200).json({
       success: true,
       message: "Profile updated and sent for review.",
-      data: updatedPlayer,
+      data: toPlayerDto(updatedPlayer),
     });
   } catch (error) {
     if (error?.name === "ValidationError") {
       return res.status(400).json({
         success: false,
-        message: error.message,
+        message: "Submitted profile data is invalid.",
       });
     }
 
@@ -539,10 +632,13 @@ const updateOwnPlayer = async (req, res) => {
 
 export {
   addPlayer,
+  getAdminAadhaarDocument,
+  getOwnAadhaarDocument,
   getPlayers,
   loginPlayer,
   getPlayerProfile,
   logoutPlayer,
   updateOwnPlayer,
   updatePlayer,
+  registrationServices,
 };

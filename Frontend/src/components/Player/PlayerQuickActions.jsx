@@ -5,10 +5,16 @@ import {
   Medal,
   Trophy,
   UserRound,
+  WalletCards,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const quickActions = [
+  {
+    label: "My Fees",
+    to: "/player/fees",
+    icon: WalletCards,
+  },
   {
     label: "Attendance",
     to: "/player/attendance",
@@ -49,7 +55,7 @@ const PlayerQuickActions = () => (
 
     <nav
       aria-label="Player quick actions"
-      className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3"
+      className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 xl:grid-cols-5"
     >
       {quickActions.map(({ label, to, icon: Icon }) => (
         <Link

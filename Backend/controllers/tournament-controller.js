@@ -18,8 +18,8 @@ const getAllTournaments = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({
+      success: false,
       message: "Error fetching tournaments",
-      error
     });
   }
 }
@@ -73,7 +73,6 @@ const addTournament = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server Error while creating tournament",
-      error: error.message
     });
   }
 }
@@ -209,7 +208,18 @@ const updateTournament = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const updateData = { ...req.body };
+    const updateData = {};
+    const editableFields = [
+      "title", "startingDate", "endDate", "locationState", "locationCity",
+      "level", "ageCategory",
+    ];
+    editableFields.forEach((field) => {
+      if (Object.hasOwn(req.body || {}, field)) updateData[field] = req.body[field];
+    });
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ success: false, message: "No valid fields to update" });
+    }
 
     // 🔹 Optional date validation
     if (updateData.startingDate && updateData.endDate) {
